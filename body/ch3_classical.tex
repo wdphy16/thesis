@@ -1,0 +1,295 @@
+\chapter{Computational techniques for classical systems}
+
+\summary{As seen from the previous chapter, the exponentially large configuration spaces of many-body systems motivate us to use numerical approximation methods to study their properties. In this chapter, we first review the traditional methods of Markov chain Monte Carlo (MCMC) and variational Monte Carlo (VMC) for classical systems, and discuss their limitations. Then we introduce the autoregressive models with the advantage of exact sampling, and combine the strengths of the exact sampling and the Markov chain sampling to remove the bias in VMC.}
+
+\section{Markov chain Monte Carlo (MCMC)}
+
+When studying an observable of a classical many-body system in \cref{eq:cl-obs}, we need to perform a summation over all configurations $\vs$ of the system, which costs an exponentially large amount of computation if performed naively. To achieve this in a practical computation budget, a general method is to generate some random samples of configuration $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ following the target distribution $p(\vs)$, where $M$ is the sample size, then estimate the $p$-weighted sum over all configurations by the uniform average over the samples:
+\begin{equation}
+\bbE_\text{MC}[O] = \frac{1}{M} \sum_{i = 1}^M O\left( \vs^{(i)} \right).
+\label{eq:monte-carlo}
+\end{equation}
+This method is named Monte Carlo, after the casino that would later become famous to every computational physicist~\cite{metropolis1949monte, landau2021guide1}. It is proved that~\cite{feller1968extention}
+\begin{equation}
+\Var\big[ \bbE_\text{MC}[O] \big] = \frac{1}{M} \Var[\bar{O}],
+\label{eq:monte-carlo-var}
+\end{equation}
+where the sample variance $\Var\big[ \bbE_\text{MC}[O] \big] = \bbE_\text{MC}\left[ \left( O - \bbE_\text{MC}[O] \right)^2 \right]$ and the true variance $\Var[\bar{O}] = \overline{(O - \bar{O})^2}$. Therefore, the sample variance vanishes and the estimator converges to the true value as $M$ increases, given that the true variance is finite, and the samples are independently drawn from the true distribution.
+
+However, generating random samples from a given distribution is not always straightforward. The pseudorandom number generators (PRNG)~\cite{press2007numerical} in computers are originally designed to generate statistically random values from the uniform distribution $\calU$ over an interval, such as $[0, 1)$. In some simple cases, univariate distributions can be sampled by transforming the probability density function (PDF) with a change of variable $p(x) = q(y) \frac{\partial y}{\partial x}$. Multivariate distributions can be sampled by first generating multiple independent values from $\calU[0, 1)$ and then changing the variables. For example, the 2D unit normal distribution
+$p(x, y) = \frac{1}{2 \pi} \rme^{-\frac{1}{2} (x^2 + y^2)}$ can be sampled by the Box--Muller transform~\cite{box1958note}:
+\begin{gather}
+p(x, y) = q(u) q(v) \begin{Vmatrix}
+\frac{\partial u}{\partial x} & \frac{\partial u}{\partial y} \\
+\frac{\partial v}{\partial x} & \frac{\partial v}{\partial y}
+\end{Vmatrix}, \\
+x = r \cos \theta, \quad y = r \sin \theta, \\
+r = \sqrt{-2 \ln u}, \quad \theta = 2 \pi v,
+\end{gather}
+where $u$ and $v$ are independently sampled from $\calU[0, 1)$, and $\lVert \cdot \rVert$ is the absolute value of the determinant of the matrix. Discrete distributions can be obtained by discretizing continuous distributions. For example, the Bernoulli distribution $p(x) = (1 - p_0) \delta_{x, 0} + p_0 \delta_{x, 1}$ with the parameter $p_0$ can be obtained by \cref{alg:bernoulli}.
+
+\begin{algorithm}[H]
+\caption{Discrete Bernoulli distribution from continuous uniform distribution.}
+\label{alg:bernoulli}
+\begin{algorithmic}[1]
+\STATE Sample $u$ from $\calU[0, 1)$
+\IF{$u < p_0$}
+    \STATE Output $x = 0$, $p(x) = 1 - p_0$
+\ELSE
+    \STATE Output $x = 1$, $p(x) = p_0$
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+In the case of Boltzmann distributions of many-body systems with complicated landscapes in \cref{eq:boltzmann}, such analytical transformation is impossible, and we have to resort to indirect methods of sampling these distributions. A common method is to construct a Markov chain of samples, whose equilibrium distribution converges to the target one, therefore the name Markov chain Monte Carlo (MCMC)~\cite{robert2020markov}. For spin systems, the usual way to define such a Markov chain is the Metropolis--Hastings algorithm~\cite{hastings1970monte}. In each sampling step, we modify the configuration $\vs$ to a new one $\vs'$ by randomly selecting a spin and flipping it, then compute the acceptance probability
+\begin{equation}
+A(\vs \to \vs') = \min\left( 1, \frac{p_\text{B}(\vs')}{p_\text{B}(\vs)} \right)
+= \min\left( 1, \rme^{\,\beta \left( H(\vs) - H(\vs') \right)} \right).
+\label{eq:metropolis}
+\end{equation}
+We accept the new configuration $\vs'$ by this probability, and otherwise reject it and rollback to $\vs$. It can be checked that $p_\text{B}(\vs)$ is exactly the equilibrium distribution of the Markov transition matrix defined by \cref{eq:metropolis}. A particular advantage of \cref{eq:metropolis} is that it avoids computing the partition function $Z$ in \cref{eq:boltzmann}, which consists of a summation over exponentially many configurations.
+
+In the case of locally interacting systems, as in \cref{eq:cl-ising-nnn}, the energy difference of flipping a spin $s_i$ simplifies to
+\begin{equation}
+H(\vs) - H(\vs') = 2 s_i \left( \sum_{\text{$j$ that interacts with $i$}} J_{i, j} s_j \right),
+\end{equation}
+so the time to evaluate \cref{eq:metropolis}, and therefore the total time to generate and accept a sample, only depends on the number of interacting neighbors and does not scale with the system size. This advantage makes MCMC feasible to study large systems.
+
+After collecting many samples from the Markov chain, we estimate the observables using \cref{eq:monte-carlo}. However, care should be taken when generating these samples, as we will discuss below.
+
+\subsection{Autocorrelation time}
+
+Although MCMC allows us to estimate the observables with complicated distributions, it breaks the assumption of \cref{eq:monte-carlo} that the samples should be independent. In each sampling step, we only do local modifications when updating $\vs \to \vs'$, such as flipping only one spin, and we may reject $\vs'$ and keep using the previous $\vs$. Therefore, the samples in the Markov chain $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ produce autocorrelation in the observable values~\cite{muller1973dynamic}:
+\begin{equation}
+C_{O, M}(t) = \left( \frac{1}{M - t} \sum_{i = 1}^{M - t} O\left( \vs^{(i)} \right) O\left( \vs^{(i + t)} \right) \right) - \bbE_\text{MCMC}^2[O],
+\end{equation}
+where $\bbE_\text{MCMC}[O]$ has the same form as \cref{eq:monte-carlo}, and we consider the large sample limit
+\begin{equation}
+C_O(t) = \lim_{M \to \infty} C_{O, M}(t).
+\end{equation}
+The correlated samples cause $C_O(t) \neq 0$ when $t > 0$. The integrated autocorrelation time (IAT)~\cite{ambegaokar2010estimating, goodman2010ensemble}, defined by
+\begin{equation}
+\tau = \frac{1}{C_O(0)} \sum_{t = 1}^{\infty} C_O(t),
+\end{equation}
+is a metric to characterize the loss in sample diversity due to autocorrelation. In the presence of autocorrelation, the Monte Carlo variance in \cref{eq:monte-carlo-var} increases to
+\begin{equation}
+\Var\big[ \bbE_\text{MCMC}[O] \big] = \frac{1}{M_\text{eff}} \Var[\bar{O}],
+\end{equation}
+where the effective sample size
+\begin{equation}
+M_\text{eff} = \frac{1}{2 \tau + 1} M,
+\end{equation}
+which takes into account the loss in sample diversity.
+
+\todo{Some plots to illustrate the autocorrelation?}
+
+\subsection{Gelman--Rubin statistic}
+
+In the procedure of MCMC sampling, the Markov chain takes many steps to converge from the initial distribution to the equilibrium one, which are called the burn-in or the warm-up phase. The Gelman--Rubin statistic~\cite{gelman1992inference, vats2021revisiting} can be used to identify whether the Markov chain reaches the equilibrium, in which case we stop the burn-in phase and start collecting actual samples.
+
+To compute it, we generate multiple independent Markov chains starting from different random initial values, which is a common practice to utilize the parallelization capability of modern computers. The samples are denoted by $\vs^{(j, m)}$, where $j \in [1, J]$ identifies the chain and $m \in [1, M]$ identifies the sampling step, and the corresponding observable values are denoted by $O_{j, m} = O\left( \vs^{(j, m)} \right)$. Then we have
+\begin{align}
+\bar{O}_j &= \frac{1}{M} \sum_{m = 1}^M O_{j, m}, \\
+\bar{O}_* &= \frac{1}{J} \sum_{j = 1}^J \bar{O}_j, \\
+s^2_j &= \frac{1}{M - 1} \sum_{m = 1}^M (O_{j, m} - \bar{O}_j)^2, \\
+s^2_* &= \frac{1}{J} \sum_{j = 1}^J W_j,
+\end{align}
+where $\bar{O}_j$ is the sample mean of the observable over a chain, $\bar{O}_*$ is the sample mean of all chains, $s^2_j$ is the sample variance of a chain, and $s^2_*$ is the mean of these sample variances. Due to the presence of autocorrelation, each $s^2_j$ underestimates the true variance of the target distribution $\sigma^2$. A correction to this bias is estimated by comparing the means of different chains:
+\begin{equation}
+\frac{B}{M} = \frac{1}{J - 1} \sum_{j = 1}^J (\bar{O}_j - \bar{O}_*)^2.
+\end{equation}
+Now the estimated variance is
+\begin{equation}
+\sigma^2_* = \frac{M - 1}{M} s^2_* + \frac{B}{M}.
+\end{equation}
+The Gelman--Rubin statistic is defined to normalize the correction to the estimated variance:
+\begin{equation}
+R = \sqrt{\frac{\sigma^2_*}{s^2_*}},
+\end{equation}
+and it is also related to the effective sample size by
+\begin{equation}
+R \approx \sqrt{1 + \frac{M}{M_\text{eff}}}.
+\end{equation}
+It is originally proposed in Ref.~\cite{gelman1992inference} that a threshold $R < \delta$ declares that the Markov chains reach equilibrium, and a common choice is $\delta = 1.1$. According to Ref.~\cite{vats2021revisiting}, practical choices of $\delta$ ranges from $1.003$ to $1.3$, and more stable estimation of the true variance can be obtained from batch-wise variances in the chains.
+
+\section{Variational Monte Carlo (VMC) for classical systems}
+
+Although MCMC is widely used to compute various observables, a limitation is that it is agnostic of the partition function $Z$ in \cref{eq:boltzmann}, therefore it cannot compute quantities that require $Z$ or the probabilities $p_\text{B}(\vs)$, including the free energy and the entropy. There are variants of MCMC designed to compute $Z$, such as the Wang--Landau algorithm~\cite{wang2001efficient, landau2021guide5}, but they involve other issues such as the discretization of the energy histogram~\cite{belardinelli2007wang}.
+
+A different approach is to track the probability distribution in the framework of variational inference~\cite{jordan1999introduction, mackay2003information}, which also has deep roots in statistical physics starting from mean-field theories~\cite{chaikin1995principles4, zdeborova2016statistical}. We define a trial distribution $q(\vs)$, also called a variational ansatz in the context of statistical physics, to approximate the target distribution $p(\vs)$. The form of the ansatz is chosen such that the probability $q(\vs)$ can be computed given a configuration $\vs$, and it can be easier to sample from than $p(\vs)$, or even be analytically summed over in \cref{eq:cl-obs}. Later we will discuss some specific choices of the ansatz, starting from \cref{sec:cw}.
+
+To make a good approximation, we want $q(\vs)$ to be as close to $p(\vs)$ as possible. A natural metric of the distance between two distributions is the Kullback--Leibler (KL) divergence~\cite{kullback1951information}:
+\begin{equation}
+D_\text{KL}(q \mid\mid p) = \sum_\vs q(\vs) \ln \frac{q(\vs)}{p(\vs)}.
+\end{equation}
+When $p(\vs)$ is the Boltzmann distribution, we have
+\begin{equation}
+D_\text{KL}(q \mid\mid p_\text{B}) = \sum_\vs q(\vs) \left( \ln q(\vs) - \ln \frac{\rme^{-\beta H(\vs)}}{Z} \right) = \beta (F_q - F),
+\label{eq:kl-fq}
+\end{equation}
+where $F = -\frac{1}{\beta} \ln Z$ is the true free energy, and we define the variational free energy
+\begin{equation}
+F_q = \sum_\vs q(\vs) F_{q\,\text{loc}}(\vs),
+\label{eq:fq}
+\end{equation}
+and the local free energy
+\begin{equation}
+F_{q\,\text{loc}}(\vs) = \frac{1}{\beta} \ln q(\vs) + H(\vs).
+\label{eq:fq-loc}
+\end{equation}
+
+Like how we have approximated \cref{eq:cl-obs} by \cref{eq:monte-carlo}, the variational free energy in \cref{eq:fq} is also a weighted sum over the distribution $q(\vs)$ with exponentially many terms, and we can estimate it by Monte Carlo sampling:
+\begin{equation}
+\bbE_\text{MC}[F_q] = \frac{1}{M} \sum_{i = 1}^M F_{q\,\text{loc}}\left( \vs^{(i)} \right), \quad
+\vs^{(i)} \sim q.
+\label{eq:fq-monte-carlo}
+\end{equation}
+We refer to this method as variational Monte Carlo (VMC). Although the term VMC is mostly discussed in the context of quantum problems, as we will see through this thesis, the setting of VMC for classical problems is analogous to the quantum one. There is a difference from MCMC, though, that the variational inference of \cref{eq:fq-loc} requires to evaluate the probability $q(\vs)$, including the normalization, even if the normalization constant cancels out in the derivation of the Markov Chain in \cref{eq:metropolis}. Therefore, it is important to choose an ansatz $q(\vs)$ such that the probability can be computed efficiently.
+
+The ansatz $q(\vs)$ can be a set of distributions defined by some tunable parameters $\theta$, and we vary $\theta$ to minimize the KL divergence. In \cref{eq:kl-fq}, $F$ is independent of $\theta$, so we only need to minimize $F_q$. As the KL divergence is non-negative, the lower bond of $F_q$ is exactly the true free energy $F$, which is desired to compute in many cases. In practice, the target of minimization is $\beta F_q$ rather than $F_q$ itself, to avoid the singularity of $\frac{1}{\beta}$ in \cref{eq:fq} when $\beta \to 0$.
+
+As $F_q$ is generally a multivariate nonlinear function of $\theta$, its optimization is usually performed by gradient descent (GD)-based algorithms~\cite{curry1944method}. In the most naive setting of GD, in each optimization step $t$ we update $\theta$ by
+\begin{equation}
+\theta_{t + 1} \gets \theta_t - \gamma \left.\frac{\partial F_q}{\partial \theta}\right|_{\theta = \theta_t},
+\label{eq:gd}
+\end{equation}
+where $\gamma$ is a small positive number called the learning rate. A common challenge in GD is to choose an appropriate magnitude of $\gamma$, such that the optimization is stable while converges in reasonably few steps~\cite{boyd2004convex}. Another challenge is to converge to the global minimum without being trapped by local minima and saddle points, which is of most interest in physics. In the recent trend of machine learning, many advanced variants of GD are proposed.
+\todo{Discuss the optimizers somewhere}
+
+In modern software, the gradient $\frac{\partial F_q}{\partial \theta}$ in \cref{eq:gd} is derived by automatic differentiation~\cite{baydin2018automatic}, which can be more stable and efficient than traditional methods of finite difference, and more error-prone than manually deriving and implementing the gradient. Care should be taken that \cref{eq:fq} involves the distribution $q(\vs)$, which is a function of $\theta$, but this term no longer exists after replacing \cref{eq:fq} by \cref{eq:fq-monte-carlo}, and we cannot take the gradient of probabilities of the configurations in the usual way after sampling the configurations when evaluating \cref{eq:fq-monte-carlo}. Therefore, we rewrite the gradient of \cref{eq:fq} by
+\begin{align}
+\frac{\partial F_q}{\partial \theta}
+&= \sum_\vs \left( \frac{\partial q(\vs)}{\partial \theta} F_{q\,\text{loc}}(\vs) + q(\vs) \frac{\partial F_{q\,\text{loc}}(\vs)}{\partial \theta} \right) \\
+&= \sum_\vs \left( q(\vs) \frac{\partial \ln q(\vs)}{\partial \theta} F_{q\,\text{loc}}(\vs) + q(\vs) \frac{1}{\beta} \frac{\partial \ln q(\vs)}{\partial \theta} \right).
+\label{eq:fq-grad-2-terms}
+\end{align}
+The second term of \cref{eq:fq-grad-2-terms} becomes
+\begin{align}
+\frac{1}{\beta} \sum_\vs q(\vs) \frac{\partial \ln q(\vs)}{\partial \theta}
+&= \frac{1}{\beta} \sum_\vs \frac{\partial q(\vs)}{\partial \theta} \\
+&= \frac{1}{\beta} \frac{\partial}{\partial \theta} \sum_\vs q(\vs) \\
+&= \frac{1}{\beta} \frac{\partial}{\partial \theta} 1 \\
+&= 0,
+\end{align}
+as $q(\vs)$ is normalized. The remaining first term of \cref{eq:fq-grad-2-terms} can be again estimated by Monte Carlo sampling:
+\begin{equation}
+\bbE_\text{MC}\left[ \frac{\partial F_q}{\partial \theta} \right]
+= \frac{1}{M} \sum_{i = 1}^M F_{q\,\text{loc}}\left( \vs^{(i)} \right) \frac{\partial \ln q\left( \vs^{(i)} \right)}{\partial \theta}, \quad
+\vs^{(i)} \sim q.
+\label{eq:fq-grad}
+\end{equation}
+This method is called the REINFORCE gradient~\cite{williams1992simple} or the policy gradient~\cite{sutton1999policy} in the context of machine learning, and the gradient of the log-probability $\frac{\partial \ln q(\vs)}{\partial \theta}$ is called the score function~\cite{fisher1935detection, hyvarinen2005estimation}. This kind of differentiation through discrete variables and stochastic sampling of distributions is a recent interest in automatic differentiation frameworks~\cite{krieken2021storchastic, arya2022automatic, catumba2023stochastic}.
+\todo{Discuss variance reduction?}
+
+In the following, we discuss some choices of the variational ansatz $q(\vs)$.
+
+\subsection{Naive mean-field ansatz}
+\label{sec:cw}
+
+An early practice of mean-field theory, known as the Curie--Weiss model~\cite{weiss1907hypothese, nishimori2001statistical}, was proposed to study the phase transition of the classical Ising model. Here we recapitulate its derivation and reformulate it in the framework of variational ansatzes.
+
+The Hamiltonian in \cref{eq:cl-ising} can be written as the sum of each spin $s_i$ in its local magnetic field $h_{\text{loc}\,i}$ produced by neighboring spins:
+\begin{align}
+H(\vs) &= J \sum_{\langle i, j \rangle} s_i s_j
+= \frac{1}{2} J \sum_i h_{\text{loc}\,i} s_i, \\
+h_{\text{loc}\,i} &= \sum_{j \in \partial i} s_j,
+\end{align}
+where $\partial i$ denotes the set of nearest neighbors of the site $i$. To find an ansatz whose free energy can be analytically studied, we start from replacing $h_{\text{loc}\,i}$ by an approximate mean field produced by all spins:
+\begin{equation}
+h_{\text{loc}\,i} \approx h_\text{MF} = \frac{2 d}{N} \sum_i s_i,
+\end{equation}
+where $d$ is the dimension of the lattice, and each site has $2 d$ nearest neighbors. Then the locally interacting model becomes a globally interacting mean-field model
+\begin{equation}
+H(\vs) \approx H_\text{MF}(\vs) = \frac{d J}{N} \sum_{i, j} s_i s_j.
+\label{eq:ham-mf}
+\end{equation}
+
+Next, we split each spin variable into $s_i = m + \delta s_i$, where $m$ is the mean magnetization, $\delta s_i$ is the fluctuation around the mean, and we assume $|\delta s_i| \ll |m|$. Then \cref{eq:ham-mf} becomes
+\begin{align}
+H_\text{MF}(\vs) &= \frac{d J}{N} \sum_{i, j} (m + \delta s_i) (m + \delta s_j) \\
+&= d J m \sum_i (m + 2 \delta s_i) + \calO(\delta s^2) \\
+&= d J m \sum_i (2 s_i - m) + \calO(\delta s^2).
+\end{align}
+Ignoring the higher-order terms $\calO(\delta s^2)$, the mean-field model can be written in a non-interacting form:
+\begin{align}
+H_\text{MF}(\vs) &= \sum_i H_\text{MF}(s_i), \\
+H_\text{MF}(s_i) &= d J m (2 s_i - m).
+\label{eq:ham-mf-noninter}
+\end{align}
+Thus we can perform the summation of the partition function:
+\begin{equation}
+Z_\text{MF}
+% = \sum_\vs \rme^{-\beta H_\text{MF}(\vs)}
+= \left( \sum_{s \in \pm 1}\!\rme^{-\beta H_\text{MF}(s)} \right)^N
+= \left( \rme^{d \beta J m^2} \cdot 2 \cosh (2 d \beta J m) \right)^N.
+\end{equation}
+The free energy is
+\begin{equation}
+F_\text{MF} = -\frac{1}{\beta} \ln Z_\text{MF} = - \frac{N}{\beta} \left(d \beta J m^2 + \ln \left( 2 \cosh (2 d \beta J m) \right) \right).
+\label{eq:fe-mf}
+\end{equation}
+
+At this point, the mean-field free energy $F_\text{MF}$ is derived from the approximated Hamiltonian in \cref{eq:ham-mf}, and we have no guarantee that it is an upper bound of the true free energy derived from the original Hamiltonian in \cref{eq:cl-ising}. However, \cref{eq:kl-fq} still motivates us to minimize $F_\text{MF}$, and the tunable parameter $\theta$ is $m$ here. When $F_\text{MF}$ reaches its minimum, we have
+\begin{equation}
+\frac{\partial F_\text{MF}}{\partial m} = 0 \implies
+m + \tanh(2 d \beta J m) = 0.
+\label{eq:cw}
+\end{equation}
+\Cref{eq:cw} has non-zero solutions only when $2 d \beta J < 1$, where $J < 0$ and the critical temperature $T_\text{c} = \frac{1}{\beta_\text{c}} = 2 d (-J)$. Therefore, at low temperatures $T < T_c$, the system is ferromagnetic with spontaneous magnetization as the non-zero solutions of \cref{eq:cw}; otherwise, at high temperatures $T > T_c$, the system is paramagnetic without spontaneous magnetization.
+\todo{A plot of \cref{eq:cw}}
+
+The non-interacting Hamiltonian \cref{eq:ham-mf-noninter} also implies that the joint probability $p(\vs)$ can be factorized into univariate probabilities:
+\begin{align}
+p_\text{MF}(\vs) &= \prod_i p_\text{MF}(s_i), \\
+p_\text{MF}(s_i) &= \frac{\rme^{-\beta H_\text{MF}(s_i)}}{\sum_{s \in \pm 1} \rme^{-\beta H_\text{MF}(s)}}.
+\end{align}
+Simplifying $p_\text{MF}(s_i)$ with \cref{eq:cw}, we have
+\begin{equation}
+p_\spinup = p_\text{MF}(s_i = +1) = \frac{1 + m}{2}, \quad
+p_\spindown = p_\text{MF}(s_i = -1) = \frac{1 - m}{2}.
+\label{eq:p-mf}
+\end{equation}
+The probability distribution $p_\text{MF}(\vs)$ can serve as a variational ansatz with a single tunable parameter $m$, which we refer to as the naive mean-field (NMF) ansatz.
+
+Next, we use the NMF ansatz and the original Hamiltonian in \cref{eq:cl-ising} to evaluate the variational energy. The energy can be directly evaluated by
+\begin{align}
+E_\text{MF} &= \sum_\vs p_\text{MF}(\vs) H(\vs) \\
+&= N d J (p_\spinup p_\spinup - p_\spinup p_\spindown - p_\spindown p_\spinup + p_\spindown p_\spindown) \\
+&= N d J m^2,
+\shortintertext{and the entropy is}
+S_\text{MF} &= -\sum_\vs p_\text{MF}(\vs) \ln p_\text{MF}(\vs) \\
+&= -N (p_\spinup \ln p_\spinup + p_\spindown \ln p_\spindown).
+\end{align}
+Under this ansatz, the free energy $F_\text{MF} = E_\text{MF} - \frac{1}{\beta} S_\text{MF}$ is the same as \cref{eq:fe-mf} derived from the approximated Hamiltonian. It is an upper bound of the true free energy, as it is now derived from the original Hamiltonian.
+
+\subsection{Bethe ansatz}
+
+Starting from an analytical solution to the 1D Heisenberg model~\cite{bethe1931theorie}, the Bethe ansatz has become a gross term for methods to exactly solve or approximate partition functions on lattices and other graphs~\cite{baxter1995solvable, caravelli2022some, gujrati1995bethe, mezard2001bethe}. It is also deeply related to the belief propagation, a message passing algorithm used in graph theory and the recent trend of graph machine learning~\cite{yedidia2003understanding, ikeda2004stochastic, mori2013new}. Unlike the NMF ansatz which approximates the original model using only uniform global interactions, the Bethe ansatz utilizes the local geometry to more accurately evaluate interactions between nearest neighbors.
+
+
+
+
+
+
+
+
+
+\subsection{Neural network ansatzes}
+
+\section{Limitations of traditional methods}
+
+\subsection{Critical slowdown}
+
+\subsection{Mode collapse}
+
+\section{Autoregressive models}
+
+\cite{wu2019solving}
+
+\section{Sparse two-body autoregressive neural networks}
+
+\cite{biazzo2024sparse}
+
+\section{Debiasing of VMC}
+
+\cite{wu2021unbiased}
