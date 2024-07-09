@@ -145,6 +145,7 @@ Like how we have approximated \cref{eq:cl-obs} by \cref{eq:monte-carlo}, the var
 \label{eq:fq-monte-carlo}
 \end{equation}
 We refer to this method as variational Monte Carlo (VMC). Although the term VMC is mostly discussed in the context of quantum problems, as we will see through this thesis, the setting of VMC for classical problems is analogous to the quantum one. There is a difference from MCMC, though, that the variational inference of \cref{eq:fq-loc} requires to evaluate the probability $q(\vs)$, including the normalization, even if the normalization constant cancels out in the derivation of the Markov Chain in \cref{eq:metropolis}. Therefore, it is important to choose an ansatz $q(\vs)$ such that the probability can be computed efficiently.
+\todo{Before neural networks, what ansatzes were used in classical problems that require Monte Carlo sampling rather than analytical study?}
 
 The ansatz $q(\vs)$ can be a set of distributions defined by some tunable parameters $\theta$, and we vary $\theta$ to minimize the KL divergence. In \cref{eq:kl-fq}, $F$ is independent of $\theta$, so we only need to minimize $F_q$. As the KL divergence is non-negative, the lower bond of $F_q$ is exactly the true free energy $F$, which is desired to compute in many cases. In practice, the target of minimization is $\beta F_q$ rather than $F_q$ itself, to avoid the singularity of $\frac{1}{\beta}$ in \cref{eq:fq} when $\beta \to 0$.
 
@@ -198,7 +199,7 @@ where $\partial i$ denotes the set of nearest neighbors of the site $i$. To find
 \begin{equation}
 h_{\text{loc}\,i} \approx h_\text{MF} = \frac{2 d}{N} \sum_i s_i,
 \end{equation}
-where $d$ is the dimension of the lattice, and each site has $2 d$ nearest neighbors. Then the locally interacting model becomes a globally interacting mean-field model
+where $d$ is the average number of nearest neighbors per site, and each site has $2 d$ nearest neighbors. Then the locally interacting model becomes a globally interacting mean-field model
 \begin{equation}
 H(\vs) \approx H_\text{MF}(\vs) = \frac{d J}{N} \sum_{i, j} s_i s_j.
 \label{eq:ham-mf}
@@ -212,15 +213,15 @@ H_\text{MF}(\vs) &= \frac{d J}{N} \sum_{i, j} (m + \delta s_i) (m + \delta s_j) 
 \end{align}
 Ignoring the higher-order terms $\calO(\delta s^2)$, the mean-field model can be written in a non-interacting form:
 \begin{align}
-H_\text{MF}(\vs) &= \sum_i H_\text{MF}(s_i), \\
-H_\text{MF}(s_i) &= d J m (2 s_i - m).
+H_\text{MF}(\vs) &= \sum_i H_{\text{MF}\,i}(s_i), \\
+H_{\text{MF}\,i}(s_i) &= d J m (2 s_i - m).
 \label{eq:ham-mf-noninter}
 \end{align}
 Thus we can perform the summation of the partition function:
 \begin{equation}
 Z_\text{MF}
 % = \sum_\vs \rme^{-\beta H_\text{MF}(\vs)}
-= \left( \sum_{s \in \pm 1}\!\rme^{-\beta H_\text{MF}(s)} \right)^N
+= \left( \sum_s \rme^{-\beta H_{\text{MF}\,i}(s)} \right)^N
 = \left( \rme^{d \beta J m^2} \cdot 2 \cosh (2 d \beta J m) \right)^N.
 \end{equation}
 The free energy is
@@ -240,13 +241,13 @@ m + \tanh(2 d \beta J m) = 0.
 
 The non-interacting Hamiltonian \cref{eq:ham-mf-noninter} also implies that the joint probability $p(\vs)$ can be factorized into univariate probabilities:
 \begin{align}
-p_\text{MF}(\vs) &= \prod_i p_\text{MF}(s_i), \\
-p_\text{MF}(s_i) &= \frac{\rme^{-\beta H_\text{MF}(s_i)}}{\sum_{s \in \pm 1} \rme^{-\beta H_\text{MF}(s)}}.
+p_\text{MF}(\vs) &= \prod_i p_{\text{MF}\,i}(s_i), \\
+p_{\text{MF}\,i}(s_i) &= \frac{\rme^{-\beta H_{\text{MF}\,i}(s_i)}}{\sum_s \rme^{-\beta H_{\text{MF}\,i}(s)}}.
 \end{align}
 Simplifying $p_\text{MF}(s_i)$ with \cref{eq:cw}, we have
 \begin{equation}
-p_\spinup = p_\text{MF}(s_i = +1) = \frac{1 + m}{2}, \quad
-p_\spindown = p_\text{MF}(s_i = -1) = \frac{1 - m}{2}.
+p_\spinup = p_{\text{MF}\,i}(s_i = +1) = \frac{1 + m}{2}, \quad
+p_\spindown = p_{\text{MF}\,i}(s_i = -1) = \frac{1 - m}{2}.
 \label{eq:p-mf}
 \end{equation}
 The probability distribution $p_\text{MF}(\vs)$ can serve as a variational ansatz with a single tunable parameter $m$, which we refer to as the naive mean-field (NMF) ansatz.
@@ -255,7 +256,7 @@ Next, we use the NMF ansatz and the original Hamiltonian in \cref{eq:cl-ising} t
 \begin{align}
 E_\text{MF} &= \sum_\vs p_\text{MF}(\vs) H(\vs) \\
 &= N d J (p_\spinup p_\spinup - p_\spinup p_\spindown - p_\spindown p_\spinup + p_\spindown p_\spindown) \\
-&= N d J m^2,
+&= N d J m^2, \\
 \shortintertext{and the entropy is}
 S_\text{MF} &= -\sum_\vs p_\text{MF}(\vs) \ln p_\text{MF}(\vs) \\
 &= -N (p_\spinup \ln p_\spinup + p_\spindown \ln p_\spindown).
@@ -264,17 +265,55 @@ Under this ansatz, the free energy $F_\text{MF} = E_\text{MF} - \frac{1}{\beta} 
 
 \subsection{Bethe ansatz}
 
-Starting from an analytical solution to the 1D Heisenberg model~\cite{bethe1931theorie}, the Bethe ansatz has become a gross term for methods to exactly solve or approximate partition functions on lattices and other graphs~\cite{baxter1995solvable, caravelli2022some, gujrati1995bethe, mezard2001bethe}. It is also deeply related to the belief propagation, a message passing algorithm used in graph theory and the recent trend of graph machine learning~\cite{yedidia2003understanding, ikeda2004stochastic, mori2013new}. Unlike the NMF ansatz which approximates the original model using only uniform global interactions, the Bethe ansatz utilizes the local geometry to more accurately evaluate interactions between nearest neighbors.
+Starting from an analytical solution to the 1D quantum Heisenberg model~\cite{bethe1931theorie}, the Bethe ansatz has become a gross term for methods to exactly solve or approximate partition functions on lattices and other graphs~\cite{baxter1995solvable, caravelli2022some, gujrati1995bethe, mezard2001bethe}. It is also deeply related to the belief propagation, a message passing algorithm used in graph theory and the recent trend of graph machine learning~\cite{yedidia2003understanding, ikeda2004stochastic}. Unlike the NMF ansatz which approximates the original model using only uniform global interactions, the Bethe ansatz utilizes the local geometry to more accurately evaluate interactions between nearest neighbors.
 
+In general, the Bethe ansatz is applicable to a probability distribution defined on a graph $\calG = (\calV, \calE)$, where $\calV$ is the set of sites and $\calE$ is the set of edges, and the probability of each configuration can be factorized into two-site interactions:
+\begin{equation}
+p(\vs) = \frac{1}{Z} \prod_{(i, j) \in \calE} f_{i j}(s_i, s_j).
+\end{equation}
+For the Ising model in \cref{eq:cl-ising}, we have
+\begin{equation}
+f_{i j}(s_i, s_j) = \rme^{-\beta J s_i s_j}.
+\end{equation}
+To study the properties of an edge or a site while marginalizing the rest of the graph, we define the auxiliary probability with an edge $(i j)$ removed from the graph:
+\begin{align}
+\mu^{(i j)}(\vs) &= \frac{1}{Z^{(i j)}} \prod_{(k, l) \in \calE \setminus (i j)} f_{k l}(s_k, s_l), \\
+\shortintertext{and with all edges on the site $i$ removed from the graph:}
+\mu^{(i)}(\vs) &= \frac{1}{Z^{(i)}} \prod_{(k, l) \in \calE, i \notin \{k, l\}} f_{k l}(s_k, s_l),
+\end{align}
+where $Z^{(i j)}$ and $Z^{(i)}$ are corresponding normalization constants. We also take the marginal probabilities
+\begin{align}
+\mu^{(i j)}_i(s_i) &= \sum_{\vs_{\calV \setminus i}} \mu^{(i j)}(s_i, \vs_{\calV \setminus i}), \\
+\mu^{(i j)}_{i j}(s_i, s_j) &= \sum_{\vs_{\calV \setminus \{i, j\}}} \mu^{(i j)}(s_i, s_j, \vs_{\calV \setminus \{i, j\}}), \\
+\mu^{(i)}_{\partial i}(\vs_{\partial i}) &= \sum_{\vs_{\calV \setminus \partial i}} \mu^{(i)}(\vs_{\partial i}, \vs_{\calV \setminus \partial i}),
+\end{align}
+where $\partial i = \left\{ j \mid (i, j) \in \calE \right\}$ denotes the neighbors of the site $i$. The univariate marginal probability with an edge removed is denoted by the ``message'':
+\begin{equation}
+\mu_{i \to j}(s_i) = \mu^{(i j)}_i(s_i).
+\end{equation}
+After removing the edge $(i, j)$, there is no interaction between $i$ and $j$ after marginalizing other sites, so we have
+\begin{equation}
+\mu^{(i j)}_{i j}(s_i, s_j) = \mu_{i \to j}(s_i) \mu_{j \to i}(s_j).
+\end{equation}
 
+Then we write down the relation between $\mu^{(i j)}(\vs)$ and $\mu^{(i)}(\vs)$. Temporarily ignoring the normalization constants, we can marginalize $\mu^{(i j)}(\vs)$ by first marginalizing $\mu^{(i)}(\vs)$ and then evaluating the remaining interactions between $i$ and $\partial i \setminus j$:
+\begin{equation}
+\mu^{(i j)}_{i j}(s_i, s_j) \propto \sum_{\vs_{\partial i \setminus j}} \mu^{(i)}_{\partial i}(s_j, \vs_{\partial i \setminus j}) \prod_{k \in \partial i \setminus j} f_{i k}(s_i, s_k).
+\end{equation}
+It is proposed to approximate $\mu^{(i)}_{\partial i}(\vs_{\partial i})$ by the messages:
+\begin{equation}
+\mu^{(i)}_{\partial i}(\vs_{\partial i}) \approx \prod_{j \in \partial i} \mu_{j \to i}(s_j).
+\label{eq:bethe-prob}
+\end{equation}
+Now we have the self-consistent equations
+\begin{align}
+\mu_{i \to j}(s_i) &\propto \sum_{\vs_{\partial i \setminus j}} \prod_{k \in \partial i \setminus j} \mu_{k \to i}(s_k) \prod_{k \in \partial i \setminus j} f_{i k}(s_i, s_k) \\
+&= \prod_{k \in \partial i \setminus j} \sum_{s_k} f_{i k}(s_i, s_k) \mu_{k \to i}(s_k),
+\label{eq:bethe-message}
+\end{align}
+from which we can solve the $4 N d$ variables $\mu_{i \to j}(s_i)$. \Cref{eq:bethe-message} can be solved by iterative algorithms if stability conditions are satisfied~\cite{mooij2007sufficient}, or by gradient descent-based algorithms.
 
-
-
-
-
-
-
-\subsection{Neural network ansatzes}
+After obtaining the messages, the probability distribution \cref{eq:bethe-prob} can serve as a variational ansatz with the messages as the tunable parameters. Another common practice with the Bethe ansatz is to define an approximated free energy and minimize it, but it is not guaranteed to be an upper bound of the true free energy~\cite{yedidia2003understanding}.
 
 \section{Limitations of traditional methods}
 
