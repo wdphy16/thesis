@@ -37,7 +37,9 @@ Ground state energy $E_0 = \min_\vs H(\vs) = \lim_{T \to 0} E$
 
 The analytical method to calculate the observable is known only in some cases of simple systems. Many 1D classical systems are solvable using the transfer matrix method~\cite{chaikin1995principles5}, with a few 2D classical and 1D quantum results such as the celebrated Onsager's solution for the 2D Ising model~\cite{onsager1944crystal, baxter1995solvable,march2016exactly, caravelli2022some}. In the remaining cases that constitute rich and unknown physical phenomena, numerical methods are required to compute them.
 
-The summation in \cref{eq:cl-obs} runs over $2^N$ possible configurations of the system in total, which is exponentially large and quickly becomes intractable as $N$ increases. As of this writing, the largest supercomputers in the world have peak computational power in the order of $10^{18}$ floating point operations per second ($1$ exaFLOPS)~\cite{kogge2022frontier}, which can sum over only $81$ spins in the ``reasonable'' time budget of a month, even if optimizing the summation to take only one floating point operation for each configuration and ignoring other costs such as the storage. Therefore, we resort to approximation methods to compute the expectation in practice, which we will discuss in the following chapters.
+The summation in \cref{eq:cl-obs} runs over $2^N$ possible configurations of the system in total, which is exponentially large and quickly becomes intractable as $N$ increases. As of this writing, the largest supercomputers in the world have peak computational power in the order of $10^{18}$ floating point operations per second ($1$ exaFLOPS)~\cite{kogge2022frontier}, which can sum over only $81$ spins in the ``reasonable'' time budget of a month, even if the summation is unrealistically optimized to take one floating point operation for each configuration, and other costs such as the storage are ignored. Therefore, we can only resort to approximation methods to compute the expectation in practice, which we will discuss in the following chapters.
+
+Computational complexity of computing $Z$, so smart exact methods are not much better than brute force
 
 \subsection{Classical Ising model}
 
@@ -55,7 +57,7 @@ H(\vs) = J_1 \sum_{\langle i, j \rangle} s_i s_j + J_2\!\sum_{\llangle i, j \rra
 
 Square lattice and triangular lattice, geometrical frustration
 
-Open boundary conditions (OBC) and periodic boundary conditions (PBC) 
+Open boundary conditions (OBC) and periodic boundary conditions (PBC)
 
 Disorder in $J$
 
@@ -79,7 +81,7 @@ Knowing the quantum state of the system, we can obtain the expectation value of 
 \bar{O} = \mel{\psi}{\hat{O}}{\psi} = \sum_{\vs, \vs'} \psi^*(\vs) O(\vs, \vs') \psi(\vs),
 \label{eq:qu-obs}
 \end{equation}
-where $O(\vs, \vs') = \mel{\vs}{\hat{O}}{\vs'}$. Like the classical case, the summation in \cref{eq:qu-obs} also contains exponentially many terms and is intractable. Worse still, to exactly compute the ground state vector in \cref{eq:gs} in general, one needs to diagonalize the $2^N \times 2^N$ Hamiltonian matrix and take even higher-exponentially growing time~\cite{weisse2008exact}. Therefore, we again need approximation methods to study the system in practice.
+where $O(\vs, \vs') = \mel{\vs}{\hat{O}}{\vs'}$. Like the classical case, the summation in \cref{eq:qu-obs} also contains exponentially many terms and is intractable. Worse still, to exactly compute the ground state vector in \cref{eq:gs} in general, one needs the exact diagonalization (ED) of the $2^N \times 2^N$ Hamiltonian matrix, which takes even higher exponential time~\cite{weisse2008exact}. Therefore, we again need approximation methods to study the system in practice.
 
 Beyond the ground state, the quantum system can be a mixed state characterized by a density matrix, and represented in the eigenbasis by
 \begin{equation}
