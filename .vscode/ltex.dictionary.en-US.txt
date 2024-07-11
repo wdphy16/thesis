@@ -1,4 +1,5 @@
 ansatzes
+approximators
 ARNN
 Autocorrelation
 autocorrelation
@@ -6,15 +7,21 @@ Debiasing
 debiasing
 diagonalize
 eigenstate
+equivariance
+equivariant
+ergodic
 exaFLOPS
 Gelman
+GELU
 Ising
 Kullback
+Langevin
 Leibler
 loc
 NetKet
 observables
 pseudorandom
+ReLU
 SciPost
 Stoquasticity
 tensorial

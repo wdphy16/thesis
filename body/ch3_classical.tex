@@ -16,7 +16,7 @@ This method is named Monte Carlo, after the casino that would later become famou
 \end{equation}
 where the sample variance $\Var\big[ \bbE_\text{MC}[O] \big] = \bbE_\text{MC}\left[ \left( O - \bbE_\text{MC}[O] \right)^2 \right]$ and the true variance $\Var[\bar{O}] = \overline{(O - \bar{O})^2}$. Therefore, the sample variance vanishes and the estimator converges to the true value as $M$ increases, given that the true variance is finite, and the samples are independently drawn from the true distribution.
 
-However, generating random samples from a given distribution is not always straightforward. The pseudorandom number generators (PRNG)~\cite{press2007numerical} in computers are originally designed to generate statistically random values from the uniform distribution $\calU$ over an interval, such as $[0, 1)$. In some simple cases, univariate distributions can be sampled by transforming the probability density function (PDF) with a change of variable $p(x) = q(y) \frac{\partial y}{\partial x}$. Multivariate distributions can be sampled by first generating multiple independent values from $\calU[0, 1)$ and then changing the variables. For example, the 2D unit normal distribution
+However, generating random samples from a given distribution is not always straightforward. In computational physics, ``random numbers'' are produced by pseudorandom number generators (PRNG)~\cite{press2007numerical}, which are originally designed to generate statistically random values from the uniform distribution $\calU$ over an interval, such as $[0, 1)$. In some simple cases, univariate distributions can be sampled by transforming the probability density function (PDF) with a change of variable $p(x) = q(y) \frac{\partial y}{\partial x}$. Multivariate distributions can be sampled by first generating multiple independent values from $\calU[0, 1)$ and then changing the variables. For example, the 2D unit Gaussian distribution
 $p(x, y) = \frac{1}{2 \pi} \rme^{-\frac{1}{2} (x^2 + y^2)}$ can be sampled by the Box--Muller transform~\cite{box1958note}:
 \begin{gather}
 p(x, y) = q(u) q(v) \begin{Vmatrix}
@@ -41,12 +41,12 @@ where $u$ and $v$ are independently sampled from $\calU[0, 1)$, and $\lVert \cdo
 \end{algorithmic}
 \end{algorithm}
 
-In the case of Boltzmann distributions of many-body systems with complicated landscapes, such analytical transformation is impossible, and we can only resort to indirect methods to sample these distributions. A common method is to construct a Markov chain of samples, whose equilibrium distribution converges to the target one, therefore the name Markov chain Monte Carlo (MCMC)~\cite{gelfand1990sampling, robert2020markov}. For spin systems, the usual way to define such a Markov chain is the Metropolis--Hastings algorithm~\cite{hastings1970monte}. In each sampling step, we propose to update the configuration $\vs$ to a new one $\vs'$ with the proposal distribution $g(\vs' \mid \vs)$, where $\sum_{\vs'} g(\vs' \mid \vs) = 1$, then compute the acceptance probability
+In the case of Boltzmann distributions of many-body systems with complicated landscapes, such analytical transformation is impossible, and we can only resort to indirect methods to sample these distributions. A common method is to construct a Markov chain of samples, whose equilibrium distribution converges to the target one, therefore the name Markov chain Monte Carlo (MCMC)~\cite{gelfand1990sampling, robert2020markov}. For spin systems, such a Markov chain is usually constructed by the Metropolis--Hastings algorithm~\cite{hastings1970monte}. In each sampling step, we propose to update the configuration $\vs$ to a new one $\vs'$ with the proposal distribution $g(\vs' \mid \vs)$, where $\sum_{\vs'} g(\vs' \mid \vs) = 1$, then compute the acceptance probability
 \begin{equation}
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs') g(\vs \mid \vs')}{p(\vs) g(\vs' \mid \vs)} \right).
 \label{eq:metropolis}
 \end{equation}
-We accept the new configuration $\vs'$ by this probability, and otherwise reject it and rollback to $\vs$. It can be checked that the target distribution $p(\vs)$ is exactly the equilibrium distribution of the Markov transition matrix defined by \cref{eq:metropolis}. The simplest method to propose the update is to randomly select a spin and flip it, therefore $g(\vs' \mid \vs) = g(\vs' \mid \vs)$ for all $\vs$ and $\vs'$, and \cref{eq:metropolis} simplifies to
+We accept the new configuration $\vs'$ by this probability, and otherwise reject it and rollback to $\vs$. It can be checked that the target distribution $p(\vs)$ is exactly the equilibrium distribution of the Markov transition matrix defined by \cref{eq:metropolis}. If we want to sample the target distribution using a single Markov chain, the proposal distribution must be ergodic, which allows the initial configuration to transition to all configurations in a finite number of samples. The simplest method to propose the update is to randomly select a spin and flip it, therefore $g(\vs' \mid \vs) = g(\vs' \mid \vs)$ for all $\vs$ and $\vs'$, and \cref{eq:metropolis} simplifies to
 \begin{equation}
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs')}{p(\vs)} \right).
 \end{equation}
@@ -58,7 +58,7 @@ A(\vs \to \vs') = \min\left( 1, \rme^{\,\beta \left( H(\vs) - H(\vs') \right)} \
 \end{equation}
 It avoids computing the partition function $Z$, which consists of a summation over exponentially many configurations. In the case of locally interacting systems, such as \cref{eq:cl-ising-nnn}, the energy difference of flipping a spin $s_i$ simplifies to
 \begin{equation}
-H(\vs) - H(\vs') = 2 s_i \left( \sum_{\text{$j$ that interacts with $i$}} J_{i, j} s_j \right),
+H(\vs) - H(\vs') = 2 s_i \left( \sum_{\text{$j$ that interacts with $i$}} J_{i j} s_j \right),
 \end{equation}
 so the time to compute the acceptance probability, and therefore the total time to propose and accept a sample, only depends on the number of interacting neighbors and does not scale with the system size. This advantage makes MCMC feasible to study large systems.
 
@@ -130,7 +130,7 @@ R \approx \sqrt{1 + \frac{M}{M_\text{eff}}}.
 \end{equation}
 It was originally proposed in Ref.~\cite{gelman1992inference} that a threshold $R < \delta$ declares that the Markov chains reach equilibrium, and a common choice is $\delta = 1.1$. According to Ref.~\cite{vats2021revisiting}, practical choices of $\delta$ ranges from $1.003$ to $1.3$, and more stable estimation of the true variance can be obtained from batch-wise variances in the chains.
 
-\subsection{Importance sampling and cluster updates}
+\subsection{Importance sampling}
 \label{sec:importance-sampling}
 
 Apart from directly sampling the target distribution $p(\vs)$, and the MCMC sampling, there are other sampling methods to estimate the observable in \cref{eq:cl-obs}. In general, we can generate samples $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ from any distribution $q(\vs)$, and estimate the observable by
@@ -151,13 +151,13 @@ The variance reaches its minimum when $q(\vs) = p(\vs)$, so we need to choose a 
 However, \cref{eq:importance-sampling} generally requires to evaluate the probability $p(\vs)$, including the normalization, which is intractable for many-body systems. A more practical method is to use importance sampling with the Metropolis--Hastings algorithm in \cref{eq:metropolis}~\cite{liesenfeld2008improving, schuster2020markov}. The proposed configuration is generated from $q(\vs')$ and independent of the current configuration $\vs$, i.e., the proposal distribution $g(\vs' \mid \vs) = q(\vs')$. Then the acceptance probability becomes
 \begin{equation}
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs') q(\vs)}{p(\vs) q(\vs')} \right),
+\label{eq:mcmc-importance}
 \end{equation}
 With a $q(\vs)$ that is close to $p(\vs)$, it increases the acceptance probability, while also reducing the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to the overall reduction of the IAT.
 
-There are more advanced choices of the proposal distribution that depends on the current configuration $\vs$. A variety of cluster update algorithms can be discussed in the framework of MCMC importance sampling, which usually arise from studies on the percolation transition in statistical physics and graph theory~\cite{fortuin1972random, leung1991percolation}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for the Ising model with two-body interactions. In each sampling step, it constructs a cluster of spins and flips it, such that $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, thus the acceptance probability is always $1$.
-\dwcomment{I don't think we need to copy-paste the entire Wolff algorithm here}
+There are more advanced methods to construct the proposal distribution that depends on the current configuration $\vs$, such as the Metropolis-adjusted Langevin algorithm~\cite{rossky1978brownian} and the Hamiltonian Monte Carlo~\cite{duane1987hybrid}. A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling, which usually arise from studies on the percolation transition in statistical physics and graph theory~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for the Ising model with two-body interactions. In each sampling step, it constructs a cluster of spins and flips it, such that $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, thus the acceptance probability is always $1$.
 
-\todo{Discuss parallel tempering if there is spare time and space, but it's not used anywhere else in this thesis}
+\dwcomment{Maybe discuss parallel tempering if there is spare time and space, but it's not used anywhere else in this thesis}
 
 \section{Variational Monte Carlo (VMC) for classical systems}
 
@@ -285,7 +285,7 @@ At this point, the mean-field free energy $F_\text{MF}$ is derived from the appr
 m + \tanh(2 d \beta J m) = 0.
 \label{eq:cw}
 \end{equation}
-\Cref{eq:cw} has non-zero solutions only when $2 d \beta J < 1$, where $J < 0$ and the critical temperature $T_\text{c} = \frac{1}{\beta_\text{c}} = 2 d (-J)$. Therefore, at low temperatures $T < T_c$, the system is ferromagnetic with spontaneous magnetization as the non-zero solutions of \cref{eq:cw}; otherwise, at high temperatures $T > T_c$, the system is paramagnetic without spontaneous magnetization.
+\Cref{eq:cw} has non-zero solutions only when $2 d \beta J < -1$, where $J < 0$ and the critical temperature $T_\text{c} = \frac{1}{\beta_\text{c}} = 2 d (-J)$. Therefore, at low temperatures $T < T_c$, the system is ferromagnetic with spontaneous magnetization as the non-zero solutions of \cref{eq:cw}; otherwise, at high temperatures $T > T_c$, the system is paramagnetic without spontaneous magnetization.
 \todo{A plot of \cref{eq:cw}}
 
 The non-interacting Hamiltonian \cref{eq:ham-mf-noninter} also implies that the joint probability $p(\vs)$ can be factorized into univariate probabilities:
@@ -314,7 +314,7 @@ Under this ansatz, the free energy $F_\text{MF} = E_\text{MF} - \frac{1}{\beta} 
 
 \subsection{Bethe ansatz}
 
-Starting from an analytical solution to the 1D quantum Heisenberg model~\cite{bethe1931theorie}, the Bethe ansatz has become a gross term for methods to exactly solve or approximate partition functions on lattices and other graphs~\cite{baxter1995solvable, caravelli2022some, gujrati1995bethe, mezard2001bethe}. It is also deeply related to the belief propagation, a message passing algorithm used in graph theory and the recent trend of graph machine learning~\cite{yedidia2003understanding, ikeda2004stochastic}. Unlike the NMF ansatz which approximates the original model using only uniform global interactions, the Bethe ansatz utilizes the local geometry to more accurately evaluate interactions between nearest neighbors.
+Starting from an analytical solution to the 1D quantum Heisenberg model~\cite{bethe1931theorie}, the Bethe ansatz has become a gross term for methods to exactly solve~\cite{baxter1995solvable, caravelli2022some} or approximate partition functions on lattices and other graphs~\cite{gujrati1995bethe, mezard2001bethe}. It is also deeply related to the belief propagation, a message passing algorithm used in Bayesian inference and the recent trend of graph machine learning~\cite{yedidia2003understanding, ikeda2004stochastic}. Unlike the NMF ansatz which approximates the original model using only uniform global interactions, the Bethe ansatz utilizes the local geometry to more accurately evaluate interactions between nearest neighbors.
 
 In general, the Bethe ansatz is applicable to a probability distribution defined on a graph $\calG = (\calV, \calE)$, where $\calV$ is the set of sites and $\calE$ is the set of edges, and the probability of each configuration can be factorized into two-body interactions:
 \begin{equation}
@@ -362,9 +362,84 @@ Now we have the self-consistent equations
 \end{align}
 from which we can solve the $4 N d$ variables $\mu_{i \to j}(s_i)$. After recovering the normalization constants in \cref{eq:bethe-message}, they can be solved by iterative algorithms if stability conditions are satisfied~\cite{mooij2007sufficient}, or by gradient descent-based algorithms.
 
-The probability distribution \todo{} can serve as a variational ansatz, with the messages as the tunable parameters. Another common practice with the Bethe ansatz is to define an approximated free energy and minimize it, but it is not guaranteed to be an upper bound of the true free energy~\cite{yedidia2003understanding}.
+Knowing the messages, we can obtain the two-body marginals of the original distribution
+\begin{equation}
+\mu_{i j}(s_i, s_j) = \frac{f_{i j}(s_i, s_j) \mu_{i \to j}(s_i) \mu_{j \to i}(s_j)}{\sum_{s'_i, s'_j} f_{i j}(s'_i, s'_j) \mu_{i \to j}(s'_i) \mu_{j \to i}(s'_j)},
+\end{equation}
+and estimate the energy and other observables with at most two-body interactions. For the Ising model in \cref{eq:cl-ising}, we have
+\begin{equation}
+E_\text{Bethe} = J \sum_{\langle i, j \rangle} \mu_{i j}(s_i, s_j) s_i s_j.
+\end{equation}
+We can also construct a Bethe entropy from the edge terms and the site terms:
+\begin{align}
+S_\text{Bethe} &= S_\calE + S_\calV, \\
+S_\calE &= -\sum_{(i, j) \in \calE} \ln \sum_{s_i, s_j} f_{i j}(s_i, s_j) \mu_{i \to j}(s_i) \mu_{j \to i}(s_j), \\
+S_\calV &= \sum_i \ln \sum_{s_i} \prod_{j \in \partial i} \sum_{s_j} f_{i j}(s_i, s_j) \mu_{j \to i}(s_j),
+\end{align}
+and the Bethe free energy $F_\text{Bethe} = E_\text{Bethe} - \frac{1}{\beta} S_\text{Bethe}$. The Bethe entropy is exactly the true energy when the graph is a tree, but not for general graphs. Therefore, the Bethe free energy is not guaranteed to be an upper bound of the true free energy.
 
 \subsection{Neural network ansatzes}
+
+\todo{Move some general introduction to the first chapter}
+
+Neural networks, in the context of modern machine learning, are a diverse class of mathematical functions that are historically inspired by the functionality of biological neural networks~\cite{mackay2003information, goodfellow2016deep}. They typically have numerous parameters, where the modern large models have reached hundreds of billions of parameters~\cite{brown2020language}. In theory, they are universal approximators of any well-behaved functions if optimized w.r.t.\ the parameters~\cite{hornik1989multilayer}. Although the ideal optimization of so many parameters is intractable in practice, they can still be far more expressive than traditional function approximators~\cite{sontag1998vc}. On the other hand, the large number of parameters also makes them more computationally expensive than traditional approaches, and they are usually executed on graphics processing units (GPU) or other specialized hardware~\cite{chen2020survey}. The optimization of these parameters is known as ``training'' or ``learning'', highlighting the paradigmatic difference from the traditional optimization problems with few variables.
+
+Since their breakthrough on image classification problems~\cite{krizhevsky2012imagenet}, neural networks have opened a new era of machine learning, known as ``deep learning''~\cite{goodfellow2016deep}. They have achieved state-of-the-art results on all machine learning domains, and led to a growth of the data-driven paradigm in vast scientific fields~\cite{montans2019data}. The prominent examples including the modeling of languages~\cite{brown2020language}, images~\cite{rombach2022high}, and strategic games~\cite{silver2016mastering}. Such success is conjectured to stem from the high efficiency of neural networks to represent complicated probability distributions in exponentially high-dimensional spaces --- probabilities of valid speeches in the space of many words, probabilities of recognizable images in the space of many pixels, and probabilities of winning moves in the space of many game board states. Therefore, they have also been introduced as ansatzes in many-body physics, where the distributions are a central problem.
+
+\todo{A figure of layers}
+Neural networks are composed of a common set of functions, known as ``layers'', and the composition can be arbitrarily sophisticated. The basic architecture is the feedforward network, which is defined by a sequential composition of alternating linear layers and nonlinear activation functions:
+\begin{equation}
+\vy = (\text{Lin}_1 \circ \text{Act}_1 \circ \text{Lin}_2 \circ \text{Act}_2 \circ \cdots \circ \text{Lin}_{n_\text{l}} \circ \text{Act}_{n_\text{l}})(\vx),
+\end{equation}
+where $\vx$ is the inputs to the network, $\vy$ is the outputs, $n_\text{l}$ is the number of layers, and $\circ$ denotes function composition. The linear layer is defined by
+\begin{equation}
+\text{Lin}_i(\vx_i) = \mW_i \vx_i + \mb_i,
+\end{equation}
+where $\mW_i$ is the weight and $\mb_i$ is the bias, which are the parameters of this layer, and every layer has different parameters. Assuming $\vx_i$ is a vector of size $n_{\text{in}\,i}$, we can choose an output size $n_{\text{out}\,i}$, then $\mW_i$ is inferred to be a matrix of size $n_{\text{out}\,i} \times n_{\text{in}\,i}$, $\mb_i$ is a vector of size $n_{\text{out}\,i}$, and the input size of the next linear layer $n_{\text{in}\,i + 1}$ is $n_{\text{out}\,i}$.
+In practice, the inputs $\vx_i$ have an additional batch dimension, which denotes evaluating the same network on different input samples, but it is omitted in our discussion for simplicity. The sizes of the intermediate outputs are known as the ``hidden sizes'', and the hyperparameters of the network include the number of layers and the hidden sizes. These hyperparameters, in contrast to the parameters $\mW_i$ and $\mb_i$, define the architecture of the network and mostly determine its expressiveness.
+
+The activation function is an element-wise function of the input vector. A great variety of activation functions has been proposed, each with its own claimed advantages, but most are proved in practice to be minuscule improvements~\cite{kunc2024three}. The simplest choice is the rectified linear unit (ReLU):
+\begin{equation}
+\text{ReLU}(x) = \begin{cases}
+x, & x > 0 \\
+0, & x \leq 0
+\end{cases}.
+\end{equation}
+It has been used since the early research on neural networks, and is still efficient today despite its simplicity. A modern choice is the Gaussian error linear unit (GELU)~\cite{hendrycks2016gaussian}:
+\begin{equation}
+\text{GELU}(x) = x\,\Phi(x),
+\end{equation}
+where $\Phi(x)$ is the cumulative distribution function (CDF) of the unit Gaussian distribution. It is derived from the stochastic regularization of the network, and helps stabilize evaluation and training of the network. It is the default choice in NetKet~\cite{carleo2019netket}, and is used in most results reported in this thesis. The activation functions in the last layer can be the identity function if the outputs are unconstrained in $\bbR$, or specifically constructed to constrain the outputs in an interval. In the latter case, a common choice is the sigmoid function:
+\begin{equation}
+\text{Sigmoid}(x) = \frac{1}{1 + \rme^{-x}},
+\end{equation}
+which maps from $\bbR$ to $(0, 1)$, or to another interval with an additional linear transform.
+
+Many-body systems usually have symmetries and locality, which also arise in machine learning of natural images. To take these advantages, the linear layers can be specialized into convolutional layers. Ignoring the layer index, a convolutional layer is denoted by $\vy = \text{Conv}(\vx)$, and in the 1D case it is defined by
+\begin{equation}
+y_{i, c} = \sum_{k = 1}^{n_\text{k}} \sum_{c' = 1}^{n_\text{c in}} W_{j, c, c'} x_{i + j - 1, c'} + b_{i, c},
+\label{eq:conv-layer}
+\end{equation}
+where $\vx$ is an array of size $n_\text{s} \times n_\text{c in}$, $\vy$ is an array of size $n_\text{s} \times n_\text{c out}$, and we assume that the spatial dimension $n_\text{s}$ is the same in the inputs and the outputs for simplicity. Both the inputs and the outputs have another dimension of ``channels'', also known as ``features'', which determines the size of the network. The convolutional layer acts as if a linear layer on the channel dimension, mapping from $n_\text{c in}$ channels to $n_\text{c out}$ channels. Only on the spatial dimension, it performs a convolution. The weights $\mW$ is an array of size $n_\text{k} \times n_\text{c out} \times n_\text{c in}$, where $n_\text{s}$ is the convolution kernel size, and the biases $\mb$ is an array of size $n_\text{k} \times n_\text{c out}$. Higher-dimensional convolutional layers can be defined similarly. In \cref{eq:conv-layer}, care should be taken when accessing the out-of-boundary values $x_{i, c}$ where $i > n_\text{s}$. For physical systems with OBC, the common practice is padding with zeros: $x_{i, c} = 0$; while for PBC, the boundary can be correspondingly periodic: $x_{i, c} = x_{i - L, c}$.
+
+In the PBC case, the convolutional layer is translational equivariant in the spatial dimension, which means a translation of the inputs leads to the same translation of the outputs:
+\begin{equation}
+T_d \text{Conv}(\vx) = \text{Conv}(T_d \vx),
+\end{equation}
+where $T_d$ denotes the translation by $d$ steps: $T (x_1, x_2, \ldots, x_{n_\text{s}})$ = $(x_{1 + d}, x_{2 + d}, \ldots, x_{n_\text{s}}, x_1, x_2, \ldots, x_d)$. Beyond the translational symmetry, this equivariance can be generalized to more symmetry groups such as rotation and reflection~\cite{roth2021group}.
+
+To introduce a neural network as the ansatz for a many-body system of $N$ spins, one may naively define
+\begin{align}
+q_\theta(\vs) &= \frac{1}{Z} \text{NN}(\vs), \\
+Z &= \sum_\vs \text{NN}(\vs),
+\end{align}
+where NN is a neural network with input size $N$ and a scalar output, and $\theta$ denotes all parameters in it. However, the normalization constant $Z$ is an intractable sum of exponentially many configurations, and this distribution is not easier to sample from than the Boltzmann distribution, therefore it cannot be used in MCMC importance sampling in \cref{eq:mcmc-importance} or VMC in \cref{eq:fq}.
+
+Some early attempts have been proposed~\cite{huang2017accelerated, liu2017self} to choose a simple ansatz which allows efficient cluster updates, such as a two-body interacting Hamiltonian or a restricted Boltzmann machine (RBM), and use it in \cref{eq:mcmc-importance}. As the normalization constant of the ansatz is still intractable, and the variational inference is unavailable, the parameters of the ansatz are trained in a supervised learning approach. One first generate some samples from the target distribution using traditional MCMC, then optimize the energies of these samples evaluated by the ansatz towards those evaluated by the original Hamiltonian. After training, more samples can be generated from the ansatz using efficient cluster updates. However, the quality of the samples used in training limits the accuracy of the ansatz. Another approach is to construct a special kind of neural networks with tractable probabilities, which we will discuss in the following.
+
+\dwcomment{Maybe mention normalizing flows somewhere. They're used in a lot of literature on neural importance sampling~\cite{song2017nice, muller2019neural}, but for continuous variables, and not used in any new result in this thesis}
+
+\dwcomment{Tensor networks are also used to generate classical distributions but let's leave them to the quantum part}
 
 \section{Limitations of MCMC}
 
