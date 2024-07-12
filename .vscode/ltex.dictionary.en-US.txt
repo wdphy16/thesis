@@ -19,6 +19,7 @@ Langevin
 Leibler
 loc
 NetKet
+NN
 observables
 pseudorandom
 ReLU
