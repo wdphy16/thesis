@@ -61,6 +61,28 @@ Open boundary conditions (OBC) and periodic boundary conditions (PBC)
 
 Disorder in $J$
 
+\subsection{Frustrated plaquette model}
+
+The 2D frustrated plaquette model (FPM)
+\begin{align}
+H(\vs) = &\phantom{{}+{}} J_1 \sum_{i, j = 1}^L s_{i, j} (s_{i + 1, j} + s_{i, j + 1}) \nonumber \\
+&+ J_3 \sum_{i, j = 1}^L s_{i, j} (s_{i + 2, j} + s_{i, j + 2}) \nonumber \\
+&+ K \sum_{i, j = 1}^L s_{i, j} \, s_{i + 1, j} \, s_{i, j + 1} \, s_{i + 1, j + 1},
+\label{eq:fpm}
+\end{align}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.7\linewidth]{ch2/fpm_phase.pdf}
+\caption{
+Sketch of the phase diagram of the frustrated plaquette model (FPM) with $J_1 = J_3 = -1$.
+Examples of the ground state in the ferromagnetic (FM) and the ferrimagnetic (fM) phases are shown respectively.
+The first-order phase transition at $K = 2$ is studied in Ref.~\cite{wu2021unbiased}, as indicated by the dashed vertical line.
+This figure is reproduced from Fig.~3~(a) in Ref.~\cite{wu2021unbiased}.
+}
+\label{fig:fpm-phase}
+\end{figure}
+
 \section{Quantum systems}
 
 In the quantum case, we start from studying the ground state, or zero temperature properties of a system. The quantum state $\ket{\psi}$ of the system can be represented in the computational basis by

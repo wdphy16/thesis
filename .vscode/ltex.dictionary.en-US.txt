@@ -5,12 +5,15 @@ Autocorrelation
 autocorrelation
 Debiasing
 debiasing
+decorrelate
 diagonalize
 eigenstate
 equivariance
 equivariant
 ergodic
 exaFLOPS
+ferrimagnetic
+fM
 Gelman
 GELU
 Ising
@@ -21,6 +24,7 @@ loc
 NetKet
 NN
 observables
+plaquette
 pseudorandom
 ReLU
 SciPost
