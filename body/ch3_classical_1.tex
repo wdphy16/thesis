@@ -1,12 +1,7 @@
-\chapter{Computational techniques for classical systems}
+\chapter{Markov chain Monte Carlo (MCMC)}
 
-\summary{As seen from the previous chapter, the exponentially large configuration spaces of many-body systems motivate us to use numerical approximation methods to study their properties. In this chapter, we first review the traditional methods of Markov chain Monte Carlo (MCMC) and variational Monte Carlo (VMC) for classical systems, list the previously used ansatzes to approximate the Boltzmann distribution, and discuss their limitations. Then we introduce the autoregressive models with the advantage of exact sampling, and combine the strengths of the exact sampling and the Markov chain sampling to remove the bias in VMC.}
-
-\todo{Change chapters to parts}
-
+As seen from the previous chapter, the exponentially large configuration spaces of many-body systems motivate us to use numerical approximation methods to study their properties. In this chapter, we first review the traditional methods of Markov chain Monte Carlo (MCMC) and variational Monte Carlo (VMC) for classical systems, list the previously used ansatzes to approximate the Boltzmann distribution, and discuss their limitations. Then we introduce the autoregressive models with the advantage of exact sampling, and combine the strengths of the exact sampling and the Markov chain sampling to remove the bias in VMC.
 \todo{More motivation}
-
-\section{Markov chain Monte Carlo (MCMC)}
 
 When studying an observable of a classical many-body system in \cref{eq:cl-obs}, we need to perform a summation over all configurations $\vs$ of the system, which costs an exponentially large amount of computation if performed naively. To obtain the result within a practical computation budget, a general method is to generate some random samples of configuration $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ following the target distribution $p(\vs)$, where $M$ is the sample size, then estimate the $p$-weighted sum over all configurations by the uniform average over the samples:
 \begin{equation}
@@ -75,7 +70,7 @@ so the time to compute the acceptance probability, and therefore the total time 
 
 After collecting many samples from the Markov chain, we estimate the observables using \cref{eq:monte-carlo}. Care should be taken when generating these samples, as we will discuss below.
 
-\subsection{Autocorrelation time and critical slowing down}
+\section{Autocorrelation time and critical slowing down}
 
 Although MCMC allows us to estimate the observables with complicated distributions, it breaks the assumption of \cref{eq:monte-carlo} that the samples should be independent. In each sampling step, we propose a new configuration $\vs'$ that depends on the current configuration $\vs$, such as flipping a single spin, and we may reject $\vs'$ and keep using $\vs$ to evaluate the observable for this step. Therefore, the samples in the Markov chain $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ produce autocorrelation in the observable values~\cite{muller1973dynamic}:
 \begin{equation}
@@ -94,7 +89,7 @@ is a metric for MCMC to assess the loss in sample diversity due to autocorrelati
 \todo{A plot showing the decay of autocorrelation in a sequence}
 \todo{Discuss the cut-off and the Fourier transform of $\tau$ in an appendix}
 
-Intuitively, the autocorrelation time takes two factors into account that affect the sample diversity: the correlation between the proposed configuration and the current one, and the acceptance probability. For single-spin updates, the successive samples are almost fully correlated, which leads to high autocorrelation in the observable values. On the other extreme, if we do global updates, i.e., randomly generate a proposed configuration $\vs'$ from the uniform distribution of all configurations in each sampling step, then it is fully uncorrelated with the current one. However, the energy $H(\vs')$ from the uniform distribution is almost always much higher than the current one from the target distribution, which makes the acceptance probability exponentially low, and the collected samples are still fully correlated. Between the two extremes of single-spin updates and global updates, a variety of cluster updates have been proposed to balance these two factors, which we will discuss in \cref{sec:importance-sampling}.
+Intuitively, the autocorrelation time takes two factors into account that affect the sample diversity: the correlation between the proposed configuration and the current one, and the acceptance probability. For single-spin updates, the successive samples are almost fully correlated, which leads to high autocorrelation in the observable values. On the other extreme, if we do global updates, i.e., randomly generate a proposed configuration $\vs'$ from the uniform distribution of all configurations in each sampling step, then it is fully uncorrelated with the current one. However, the energy $H(\vs')$ from the uniform distribution is almost always much higher than the current one from the target distribution, which makes the acceptance probability exponentially low, and the collected samples are still fully correlated. Between the two extremes of single-spin updates and global updates, a variety of cluster updates have been proposed to balance these two factors, which we will discuss in \cref{sec:cluster}.
 \todo{A plot of energy histogram to show that random configurations has high energies}
 
 The loss in sample diversity is reflected quantitatively in the variance of the Monte Carlo estimator in \cref{eq:monte-carlo-var}. When the Markov chain is in equilibrium, in the presence of autocorrelation, the variance increases to
@@ -110,7 +105,7 @@ is less than the original sample size $M$.
 In many-body systems, the autocorrelation time particularly depends on the physical parameters, such as the inverse temperature $\beta$. It is a long-standing issue to MCMC that the autocorrelation time significantly increases when the system is around its critical point, know as critical slowing down~\cite{goodman1989multigrid, wolff1990critical}. Intuitively, the collective dynamics of the spins in the system can form clusters, which separate from each other by domain walls, and their average diameter is roughly the correlation length $\xi$ of the system. In the case of single-spin update, the Markov chain can be interpreted as a random walk in the configuration space, where it moves from one configuration to an adjacent one with a spin flipped. The time $\tau$ to walk the distance $\xi$ scales by $\tau \sim \xi^2$, regardless of the spatial dimension. Detailed analysis from lattice field theory has shown that $\tau \sim \xi^z$, where $z$ is the dynamical critical exponent, and $d \approx 2$ in many cases~\cite{hohenberg1977theory}. At the critical point, $\xi$ diverges until it is bounded by the system size~\cite{lubetzky2012critical}. From the perspective of statistical complexity~\cite{lopez1995statistical}, the Boltzmann distribution at the critical temperature is hard to sample from because it has both low entropy and uniformity, which lead to high complexity. It is between the high-temperature distribution with low uniformity but high entropy, and the low-temperature distribution with low entropy but high uniformity. This phenomenon proposes challenge to studies on phase transitions using MCMC, and can be alleviated by cluster updates.
 \todo{A plot showing the clusters and the correlation length}
 
-\subsection{Burn-in and Gelman--Rubin statistic}
+\section{Burn-in and Gelman--Rubin statistic}
 
 The autocorrelation time $\tau$ is an important metric for the effectiveness of an MCMC algorithm when the Markov chain is already in equilibrium. However, at the beginning of MCMC, the configuration is usually initialized ``randomly'', which is from the uniform distribution of all configurations. The Markov chain can take many steps to transition from the initial configuration to a typical one in the target distribution, and these steps are called the burn-in or warm-up stage. The untypical samples in this stage introduce bias in the estimation of observables, so we need to discard them and start collecting actual samples after this stage. In theory, the length of the burn-in stage is at most on the order of magnitude of $\tau$, which lets the new configuration decorrelate with the initial one, but in practice we can estimate $\tau$ only if we already know that the burn-in stage has ended. Therefore, we need another metric to estimate the length of the burn-in stage before collecting samples from the equilibrium distribution, which can only be derived from dynamical properties of the Markov chain.
 \todo{A plot showing the convergence of multiple Markov chains}
@@ -140,7 +135,7 @@ R \approx \sqrt{1 + \frac{M}{M_\text{eff}}}.
 \end{equation}
 If we have enough random initial configurations that generate Markov chains to cover all regions of interest in the configuration space, known as the ``modes'', and they converge to similar distributions with mean observable values close to each other, we can assume that the Markov chains have reached equilibrium. It was originally proposed in Ref.~\cite{gelman1992inference} to use a threshold $R < \delta$, and a common choice is $\delta = 1.1$. According to Ref.~\cite{vats2021revisiting}, practical choices of $\delta$ ranges from $1.003$ to $1.3$, and a more stable estimation of the true variance can be obtained from batch-wise variances in the chains.
 
-\subsection{Importance sampling}
+\section{Importance sampling}
 \label{sec:importance-sampling}
 
 Apart from exactly sampling the target distribution $p(\vs)$, and the MCMC sampling, there are other sampling methods to estimate the observable in \cref{eq:cl-obs}. In general, we can generate samples $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ from any distribution $q(\vs)$, and estimate the observable by
@@ -164,13 +159,17 @@ However, \cref{eq:importance-sampling} generally requires to evaluate the probab
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs') q(\vs)}{p(\vs) q(\vs')} \right),
 \label{eq:mcmc-importance}
 \end{equation}
-With a $q(\vs)$ that is close to $p(\vs)$, it increases the acceptance probability, while also reducing the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to the overall reduction of the autocorrelation time.
+With a $q(\vs)$ that is close to $p(\vs)$, it increases the acceptance probability, while also reducing the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to the overall reduction of the autocorrelation time. There are more advanced methods to construct the proposal distribution that depends on the current configuration $\vs$, such as the Langevin Monte Carlo~\cite{rossky1978brownian} and the Hamiltonian Monte Carlo~\cite{duane1987hybrid}.
 
-There are more advanced methods to construct the proposal distribution that depends on the current configuration $\vs$, such as the Langevin Monte Carlo~\cite{rossky1978brownian} and the Hamiltonian Monte Carlo~\cite{duane1987hybrid}. A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling, which usually arise from studies on the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for the Ising model with two-body interactions. In each sampling step, it constructs a cluster of spins and flips it, such that $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, and the acceptance probability is always $1$.
+\section{Cluster updates}
+\label{sec:cluster}
+
+A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling, which usually arise from studies on the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for the Ising model with two-body interactions. In each sampling step, it constructs a cluster of spins and flips it, such that $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, and the acceptance probability is always $1$.
+\todo{Elaborate}
 
 \dwcomment{Maybe discuss parallel tempering if there is spare time and space, but it's not used anywhere else in this thesis}
 
-\subsection{Mode collapse}
+\section{Mode collapse}
 
 Even if we collect effectively independent samples according to the autocorrelation time and the Gelman--Rubin statistic, it can still be questionable whether those samples actually represent the entire target distribution. The target distribution can have multiple modes, where a ``mode'' is defined to be a cluster of configurations $\{\vs_1, \vs_2, \vs_3, \ldots\}$ with high target probabilities $p(\vs_i)$ and high Markov transition probabilities $M_{\vs_j \vs_i}$ in \cref{eq:markov-matrix} between each other. The paths of configurations to transition from one mode to another always encounter energy barriers whose heights are proportional to the system size, so the probability of visiting different modes is exponentially low. A possible failure of MCMC is the mode collapse, where the Markov chain is seemingly in equilibrium, but actually it is only in ``equilibrium'' within a mode, and it takes an impractically long time to visit another mode, which leads to bias in the estimation of observables.
 
@@ -197,7 +196,7 @@ The panel (a) is reproduced from Fig.~5 in Ref.~\cite{wu2021unbiased}.
 
 A particular consequence of mode collapse is the difficulty of MCMC sampling around first-order phase transitions of many-body systems. The first-order phase transition is characterized by a discontinuity in the energy. As an example, we investigate the transition between the ferrimagnetic (fM) and the paramagnetic (PM) phases in the 2D frustrated plaquette model (FPM) with $N = L \times L$ spins in \cref{eq:fpm}. When we plot its distribution of energies in \cref{fig:fpm-hist-p}, we can see two peaks appearing around the transition temperature. As shown in the panel (a), the depth of the valley between the two peaks grows as the system size $L$ increases, which indicates an increasing energy barrier that blocks local updates. Compared to the peak on the left, the one on the right contains more excited states, but each has lower probability, so the volumes of the two peaks are comparable. When the temperature increases, the low-energy peak shrinks while the high-energy one grows, as shown in the panel (b). The first-order phase transition appears when the two peaks happen to have the same volume. In the thermodynamic limit, the probability distribution is exponentially concentrated at the largest peak, so a change of the largest peak causes a discontinuity in the mean energy. This two-peak distribution proposes challenge to MCMC with local updates, and cluster updates are a viable approach to this problem, as we will discuss in \cref{sec:ncus}.
 
-\section{Variational Monte Carlo (VMC) for classical systems}
+\chapter{Variational method}
 
 Although MCMC is widely used to compute various observables, a limitation is that it is agnostic of the partition function $Z$ in \cref{eq:boltzmann}, therefore it cannot compute quantities that require $Z$ or the probabilities $p_\text{B}(\vs)$, including the free energy and the entropy. There are variants of MCMC designed to compute $Z$, such as the Wang--Landau algorithm~\cite{wang2001efficient, landau2021guide5}, but they involve other issues such as the discretization of the energy histogram~\cite{belardinelli2007wang}.
 
@@ -208,10 +207,11 @@ To make a good approximation, we want $q(\vs)$ to be as close to $p(\vs)$ as pos
 D_\text{KL}(q \mid\mid p) = \sum_\vs q(\vs) \ln \frac{q(\vs)}{p(\vs)}.
 \end{equation}
 When $p(\vs)$ is the Boltzmann distribution, we have
-\begin{equation}
-D_\text{KL}(q \mid\mid p_\text{B}) = \sum_\vs q(\vs) \left( \ln q(\vs) - \ln \frac{\rme^{-\beta H(\vs)}}{Z} \right) = \beta (F_q - F),
+\begin{align}
+D_\text{KL}(q \mid\mid p_\text{B}) &= \sum_\vs q(\vs) \left( \ln q(\vs) - \ln \frac{\rme^{-\beta H(\vs)}}{Z} \right) \\
+&= \beta (F_q - F),
 \label{eq:kl-fq}
-\end{equation}
+\end{align}
 where $F = -\frac{1}{\beta} \ln Z$ is the true free energy, and we define the variational free energy
 \begin{equation}
 F_q = \sum_\vs q(\vs) F_{q\,\text{loc}}(\vs),
@@ -267,12 +267,12 @@ as $q(\vs)$ is normalized. The remaining first term of \cref{eq:fq-grad-2-terms}
 This method is called the REINFORCE gradient~\cite{williams1992simple} or the policy gradient~\cite{sutton1999policy} in the context of machine learning, and the gradient of the log-probability $\frac{\partial \ln q(\vs)}{\partial \theta}$ is called the score function~\cite{fisher1935detection, hyvarinen2005estimation}. This kind of differentiation through discrete variables and stochastic sampling of distributions is a recent interest in automatic differentiation frameworks~\cite{krieken2021storchastic, arya2022automatic, catumba2023stochastic}.
 \todo{Discuss variance reduction?}
 
-\section{Ansatzes for the Boltzmann distribution}
+\chapter{Ansatzes for the Boltzmann distribution}
 \label{sec:ansatz}
 
 In the following, we discuss some choices of the ansatz to approximate the Boltzmann distribution.
 
-\subsection{Naive mean-field ansatz}
+\section{Naive mean-field ansatz}
 
 An early practice of mean-field theory, known as the Curie--Weiss model~\cite{weiss1907hypothese, nishimori2001statistical}, was proposed to study the phase transition of the classical Ising model. Here we recapitulate its derivation and reformulate it in the framework of variational ansatzes.
 
@@ -350,7 +350,7 @@ S_\text{MF} &= -\sum_\vs p_\text{MF}(\vs) \ln p_\text{MF}(\vs) \\
 \end{align}
 Under this ansatz, the free energy $F_\text{MF} = E_\text{MF} - \frac{1}{\beta} S_\text{MF}$ is the same as \cref{eq:fe-mf} derived from the approximated Hamiltonian. It is an upper bound of the true free energy, as it is now derived from the original Hamiltonian. For more complicated models on non-regular graphs and with more than two-body interactions, were \cref{eq:cw} is not directly applicable, we can still apply the NMF ansatz to obtain a preliminary variational approximation.
 
-\subsection{Bethe ansatz}
+\section{Bethe ansatz}
 
 Starting from an analytical solution to the 1D quantum Heisenberg model~\cite{bethe1931theorie}, the Bethe ansatz has become a gross term for methods to exactly solve~\cite{baxter1995solvable, caravelli2022some} or approximate partition functions on lattices and other graphs~\cite{gujrati1995bethe, mezard2001bethe}. It is also deeply related to the belief propagation, a message passing algorithm used in Bayesian inference and the recent trend of graph machine learning~\cite{yedidia2003understanding, ikeda2004stochastic}. Unlike the NMF ansatz which approximates the original model using only uniform global interactions, the Bethe ansatz utilizes the local geometry to more accurately evaluate interactions between nearest neighbors.
 
@@ -416,11 +416,11 @@ S_\calV &= \sum_i \ln \sum_{s_i} \prod_{j \in \partial i} \sum_{s_j} f_{i j}(s_i
 \end{align}
 and the Bethe free energy $F_\text{Bethe} = E_\text{Bethe} - \frac{1}{\beta} S_\text{Bethe}$. The Bethe entropy is exactly the true energy when the graph is a tree, but not for general graphs. Therefore, the Bethe free energy is not guaranteed to be an upper bound of the true free energy.
 
-\subsection{Neural network ansatzes}
+\section{Neural network ansatzes}
 
 \todo{Move some general introduction to the first chapter}
 
-Neural networks, in the context of modern machine learning, are a diverse class of mathematical functions that are historically inspired by the functionality of biological neural networks~\cite{mackay2003information, goodfellow2016deep}. They typically have numerous parameters, where the modern large models have reached hundreds of billions of parameters~\cite{brown2020language}. In theory, they are universal approximators of any well-behaved functions if optimized w.r.t.\ the parameters~\cite{hornik1989multilayer}. Although the ideal optimization of so many parameters is intractable in practice, they can still be far more expressive than traditional function approximators~\cite{sontag1998vc}. On the other hand, the large number of parameters also makes them more computationally expensive than traditional approaches, and they are usually executed on graphics processing units (GPU) or other specialized hardware~\cite{chen2020survey}. The optimization of these parameters is known as ``training'' or ``learning'', highlighting the paradigmatic difference from the traditional optimization problems with few variables.
+Neural networks, in the context of modern machine learning, are a diverse class of mathematical functions that are historically inspired by the functionality of biological neural networks~\cite{mackay2003information, goodfellow2016deep}. They typically have numerous parameters, where the modern large models have reached hundreds of billions of parameters~\cite{brown2020language}. In theory, they are universal approximators of any well-behaved functions if optimized w.r.t.\ the parameters~\cite{hornik1989multilayer}. Although the ideal optimization of so many parameters is intractable in practice, they can still be far more expressive than traditional function approximators~\cite{sontag1998vc}. On the other hand, the large number of parameters makes them more computationally expensive than traditional approaches, and they are usually executed on graphics processing units (GPU) or other specialized hardware~\cite{chen2020survey}. The optimization of these parameters is known as ``training'' or ``learning'', highlighting the paradigmatic difference from the traditional optimization problems with few variables.
 
 Since their breakthrough on image classification problems~\cite{krizhevsky2012imagenet}, neural networks have opened a new era of machine learning, known as ``deep learning''~\cite{goodfellow2016deep}. They have achieved state-of-the-art results on all machine learning domains, and led to a growth of the data-driven paradigm in vast scientific fields~\cite{montans2019data}. The prominent examples including the modeling of languages~\cite{brown2020language}, images~\cite{rombach2022high}, and strategic games~\cite{silver2016mastering}. Such success is conjectured to stem from the high efficiency of neural networks to represent complicated probability distributions in exponentially high-dimensional spaces --- probabilities of valid speeches in the space of many words, probabilities of recognizable images in the space of many pixels, and probabilities of winning moves in the space of many game board states. Therefore, they have also been introduced as ansatzes in many-body physics, where the distributions are a central problem.
 
@@ -479,87 +479,3 @@ Some early attempts have been proposed~\cite{huang2017accelerated, liu2017self} 
 Another approach is to specifically construct a neural network with tractable probabilities. A prominent family of such approach is the autoregressive models which we will discuss in \cref{sec:arnn}. Another notable family of neural networks with this property is the normalizing flows~\cite{song2017nice, muller2019neural}, which reparameterize the target distribution into a simple one using the same principle as \cref{eq:reparam}. They are mostly used for continuous variables, thus are out of the scope of this thesis.
 
 \dwcomment{Tensor networks are also used to generate classical distributions but let's leave them to the quantum part}
-
-\section{Autoregressive models}
-\label{sec:arnn}
-
-\cite{wu2019solving}
-
-\cite{nicoli2020asymptotically}
-
-\cite{ciarella2023machine}
-
-\begin{figure}[htb]
-\centering
-\includegraphics[width=0.9\linewidth]{ch3/arnn.pdf}
-\caption[Architectures of autoregressive neural networks for variational inference]{
-Architectures of autoregressive neural networks (ARNN) for variational inference.
-The spin configuration $\vs$ is the input to the network, $\hat{\vs}$ is the output of the network, and $h$ denotes hidden layer. The loss function $F_q$ is given by \cref{eq:fq}. The colored sites denote the receptive field of a site in $\hat{\vs}$.
-(a) The network has only one layer, which is densely connected, while the autoregressive property hold.
-(b) The network has a hidden layer.
-(c) The network has masked convolution layers on 2D lattice. Only connections in a convolution kernel are shown for clarity.
-}
-\label{fig:arnn}
-\end{figure}
-
-\subsection{Numerical results}
-
-\begin{figure}[htb]
-\centering
-\includegraphics[width=0.48\linewidth]{ch3/arnn_fm_sqr_f.pdf}
-\includegraphics[width=0.48\linewidth]{ch3/arnn_fm_sqr_f.pdf}
-\caption[ARNN results of Ising model on square lattice]{
-(a) Free energy per site and (b) entropy per site of the ferromagnetic Ising model on the $16 \times 16$ square lattice with periodic boundary condition.
-}
-\label{fig:arnn-sqr}
-\end{figure}
-
-\begin{figure}[htb]
-\centering
-\includegraphics[width=0.48\linewidth]{ch3/arnn_afm_tri_s.pdf}
-\includegraphics[width=0.48\linewidth]{ch3/arnn_afm_tri_s.pdf}
-\caption[ARNN results of Ising model on triangular lattice]{
-(a) Free energy per site and (b) entropy per site of the antiferromagnetic Ising model on triangular lattices of various sizes $L$ with periodic boundary condition.
-The exact result (dashed line) at $T = 0$ and $L \to \infty$ is $S / N = 0.323066$~\cite{TODO}. The curves for $L = 8, 14, 16$ are almost overlapped.
-}
-\label{fig:arnn-tri}
-\end{figure}
-
-\begin{figure}[htb]
-\centering
-\includegraphics[width=0.48\linewidth]{ch3/arnn_sk_n20_f.pdf}
-\includegraphics[width=0.48\linewidth]{ch3/arnn_invsk_n20.pdf}
-\caption[ARNN results of Sherrington--Kirkpatrick model]{
-(a) Free energy per site and (b) entropy per site of the Sherrington--Kirkpatrick (SK) model with $N = 20$ spins.
-}
-\label{fig:arnn-sk}
-\end{figure}
-
-\begin{figure}[htb]
-\centering
-\includegraphics[width=0.32\linewidth]{ch3/arnn_hop3.pdf}
-\includegraphics[width=0.32\linewidth]{ch3/arnn_hop2.pdf}
-\includegraphics[width=0.32\linewidth]{ch3/arnn_hop1.pdf}
-\includegraphics[width=0.32\linewidth]{ch3/arnn_hop3_2d.pdf}
-\includegraphics[width=0.32\linewidth]{ch3/arnn_hop2_2d.pdf}
-\includegraphics[width=0.32\linewidth]{ch3/arnn_hop1_2d.pdf}
-\caption[ARNN results of Hopfield model]{
-Log probability of sampled configurations of ARNN learned for a Hopfield model with $N = 100$ spins, and $P = 2$ orthogonal patterns, on the two-dimensional spaces spanned by two patterns. In the figures, the $x$- and the $y$-axes represent inner product (overlap) between each sampled configuration and the first and the second stored patterns respectively. Our network uses single layer and only $N (N - 1) / 2$ parameters. The top figures are 3D view of the meshed log probability surface, while the bottom figures are the 2D view from top. From left to right, $\beta$ values are $0.3$, $1.0$, and $1.5$ respectively.
-}
-\label{fig:arnn-hop}
-\end{figure}
-
-
-
-
-
-
-
-\section{Sparse two-body autoregressive neural networks}
-
-\cite{biazzo2024sparse}
-
-\section{Debiasing of VMC}
-\label{sec:ncus}
-
-\cite{wu2021unbiased}
