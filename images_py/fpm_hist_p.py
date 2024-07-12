@@ -14,6 +14,11 @@ config = [
     (24, 0.214, 0.215, 0.21408, "C2"),
     (32, 0.215, 0.216, 0.21522, "C0"),
 ]
+config_beta = [
+    (32, 0.215, 0.216, 0.2150, "C1"),
+    (32, 0.215, 0.216, 0.21522, "C2"),
+    (32, 0.215, 0.216, 0.2154, "C0"),
+]
 min_energy = -4.5
 max_energy = -0.5
 in_template = "../data/mcmc_fpm/L{L}_beta{beta:g}_rep{rep}.hdf5"
@@ -55,28 +60,51 @@ def adjust_beta(hist, L, beta, beta_target, energy_ticks):
     return hist
 
 
+def get_hist_interp(L, beta_1, beta_2, beta_target):
+    energy_ticks, hist_1, _ = get_hist(L, beta_1)
+    energy_ticks, hist_2, _ = get_hist(L, beta_2)
+
+    hist_1 = adjust_beta(hist_1, L, beta_1, beta_target, energy_ticks)
+    hist_2 = adjust_beta(hist_2, L, beta_2, beta_target, energy_ticks)
+
+    lam = (beta_2 - beta_target) / (beta_2 - beta_1)
+    hist = lam * hist_1 + (1 - lam) * hist_2
+    return energy_ticks, hist
+
+
 def main():
-    fig, ax = plt.subplots(figsize=(5, 3))
+    fig, axes = plt.subplots(ncols=2, sharex=True, sharey=True, figsize=(7, 2.5))
 
+    ax = axes[0]
     for L, beta_1, beta_2, beta_target, color in config:
-        energy_ticks, hist_1, _ = get_hist(L, beta_1)
-        energy_ticks, hist_2, _ = get_hist(L, beta_2)
-
-        hist_1 = adjust_beta(hist_1, L, beta_1, beta_target, energy_ticks)
-        hist_2 = adjust_beta(hist_2, L, beta_2, beta_target, energy_ticks)
-
-        lam = (beta_2 - beta_target) / (beta_2 - beta_1)
-        hist = lam * hist_1 + (1 - lam) * hist_2
-
+        energy_ticks, hist = get_hist_interp(L, beta_1, beta_2, beta_target)
         ax.plot(energy_ticks, hist, color=color, label=f"$L = {L}$", linewidth=1)
-
-    ax.set_xlabel("$\\epsilon$")
-    ax.set_ylabel("PDF")
-    ax.set_xticks([-3.5, -3, -2.5, -2])
-    ax.set_yticks([0.5, 0.6, 0.7, 0.8])
-    ax.set_xlim(-3.575, -1.925)
-    ax.set_ylim(0.45, 0.85)
     ax.legend(loc="upper right")
+
+    ax = axes[1]
+    for L, beta_1, beta_2, beta_target, color in config_beta:
+        energy_ticks, hist = get_hist_interp(L, beta_1, beta_2, beta_target)
+        ax.plot(
+            energy_ticks,
+            hist,
+            color=color,
+            label=f"$\\beta = {beta_target:.4f}$",
+            linewidth=1,
+        )
+    ax.legend(loc="lower right")
+
+    # Panel labels
+    for i, ax in enumerate(axes.flatten()):
+        c = chr(ord("a") + i)
+        ax.text(0.05, 0.9, f"({c})", transform=ax.transAxes)
+
+    axes[0].set_ylabel("PDF")
+    for ax in axes:
+        ax.set_xlabel("$\\epsilon$")
+        ax.set_xticks([-3.5, -3, -2.5, -2])
+        ax.set_yticks([0.5, 0.6, 0.7, 0.8])
+        ax.set_xlim(-3.575, -1.925)
+        ax.set_ylim(0.45, 0.85)
 
     fig.tight_layout()
     fig.savefig(out_filename, bbox_inches="tight", pad_inches=0)

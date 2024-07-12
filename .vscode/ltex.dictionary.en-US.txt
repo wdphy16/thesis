@@ -25,6 +25,7 @@ NetKet
 NN
 observables
 plaquette
+polynomially
 pseudorandom
 ReLU
 SciPost
