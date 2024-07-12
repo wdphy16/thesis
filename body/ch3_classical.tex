@@ -16,20 +16,22 @@ This method is named Monte Carlo, after the casino that would later become famou
 \end{equation}
 where the sample variance $\Var\big[ \bbE_\text{MC}[O] \big] = \bbE_\text{MC}\left[ \left( O - \bbE_\text{MC}[O] \right)^2 \right]$ and the true variance $\Var[\bar{O}] = \overline{(O - \bar{O})^2}$. Therefore, the sample variance vanishes and the estimator converges to the true value as $M$ increases, given that the true variance is finite, and the samples are independently drawn from the true distribution.
 
-However, generating random samples from a given distribution is not always straightforward. In computational physics, ``random numbers'' are produced by pseudorandom number generators (PRNG)~\cite{press2007numerical}, which are originally designed to generate statistically random values from the uniform distribution $\calU$ over an interval, such as $[0, 1)$. In some cases, we can transform every sample from the PRNG to a sample following the target distribution in a deterministic way. Univariate distributions can be sampled by transforming the probability density function (PDF) with a change of variable $p(x) = q(y) \frac{\partial y}{\partial x}$. Multivariate distributions can be sampled by first generating multiple independent values from $\calU[0, 1)$ and then changing the variables. For example, the 2D unit Gaussian distribution
+However, generating random samples from a given distribution is not always straightforward. In computational physics, ``random numbers'' are produced by pseudorandom number generators (PRNG)~\cite{press2007numerical}, which are originally designed to generate statistically random values from the uniform distribution $\calU$ over an interval, such as $[0, 1)$. In some cases, we can transform every sample from the PRNG to a sample following the target distribution in a deterministic way. Univariate distributions can be sampled by transforming the probability density function (PDF) with a change of variable $p(x) = q(y) \frac{\partial y}{\partial x}$, also known as reparameterization. Multivariate distributions can be sampled by first generating multiple independent values from $\calU[0, 1)$ and then changing the variables. For example, the 2D unit Gaussian distribution
 $p(x, y) = \frac{1}{2 \pi} \rme^{-\frac{1}{2} (x^2 + y^2)}$ can be sampled by the Box--Muller transform~\cite{box1958note}:
 \begin{gather}
 p(x, y) = q(u) q(v) \begin{Vmatrix}
 \frac{\partial u}{\partial x} & \frac{\partial u}{\partial y} \\
 \frac{\partial v}{\partial x} & \frac{\partial v}{\partial y}
-\end{Vmatrix}, \\
+\end{Vmatrix}, \label{eq:reparam} \\
 x = r \cos \theta, \quad y = r \sin \theta, \\
 r = \sqrt{-2 \ln u}, \quad \theta = 2 \pi v,
 \end{gather}
 where $u$ and $v$ are independently sampled from $\calU[0, 1)$, and $\lVert \cdot \rVert$ is the absolute value of the determinant of the matrix. Discrete distributions can be obtained by discretizing continuous distributions. For example, the Bernoulli distribution $p(x) = (1 - p_1) \delta_{x, 0} + p_1 \delta_{x, 1}$ with the parameter $p_1$ can be obtained by \cref{alg:bernoulli}. In this thesis, we refer to this kind of sampling methods as exact sampling.
 
 \begin{algorithm}[H]
-\caption{Discrete Bernoulli distribution from continuous uniform distribution.}
+\caption[Discrete Bernoulli distribution from continuous uniform distribution]{
+Discrete Bernoulli distribution from continuous uniform distribution.
+}
 \label{alg:bernoulli}
 \begin{algorithmic}[1]
 \STATE Sample $u$ from $\calU[0, 1)$
@@ -179,7 +181,7 @@ The effect of mode collapse is also demonstrated in the context of importance sa
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch3/fpm_hist_p.pdf}
-\caption[Distribution of the energy per site for the frustrated plaquette model]{
+\caption[Distribution of energy per site for frustrated plaquette model]{
 Distribution of the energy per site $\epsilon$ for the frustrated plaquette model (FPM) in \cref{eq:fpm}.
 (a) The results with different system sizes at their respective phase transition temperatures.
 (b) The results at different temperatures with the system size $L = 32$.
@@ -270,7 +272,7 @@ In the following, we discuss some choices of the ansatz to approximate the Boltz
 
 An early practice of mean-field theory, known as the Curie--Weiss model~\cite{weiss1907hypothese, nishimori2001statistical}, was proposed to study the phase transition of the classical Ising model. Here we recapitulate its derivation and reformulate it in the framework of variational ansatzes.
 
-The Hamiltonian in \cref{eq:cl-ising} can be written as the sum of each spin $s_i$ in its local magnetic field $h_{\text{loc}\,i}$ produced by neighboring spins:
+The Hamiltonian in \cref{eq:cl-ising} can be written as the sum of each spin $s_i$ in its local magnetic field $h_{\text{loc}\,i}$ produced by adjacent spins:
 \begin{align}
 H(\vs) &= J \sum_{\langle i, j \rangle} s_i s_j
 = \frac{1}{2} J \sum_i h_{\text{loc}\,i} s_i, \\
@@ -468,19 +470,86 @@ Z &= \sum_\vs \text{NN}(\vs),
 \end{align}
 where NN is a neural network with input size $N$ and a scalar output, and $\theta$ denotes all parameters in it. However, the normalization constant $Z$ is an intractable sum of exponentially many configurations, and this distribution is not easier to sample from than the Boltzmann distribution, therefore it cannot be used in MCMC importance sampling in \cref{eq:mcmc-importance} or VMC in \cref{eq:fq}.
 
-Some early attempts have been proposed~\cite{huang2017accelerated, liu2017self} to choose a simple ansatz which allows efficient cluster updates, such as a two-body interacting Hamiltonian or a restricted Boltzmann machine (RBM), and use it in \cref{eq:mcmc-importance}. As the normalization constant of the ansatz is still intractable, and the variational inference is unavailable, the parameters of the ansatz are trained in a supervised learning approach. One first generate some samples from the target distribution using traditional MCMC, then optimize the energies of these samples evaluated by the ansatz towards those evaluated by the original Hamiltonian. After training, more samples can be generated from the ansatz using efficient cluster updates. However, the quality of the samples used in training limits the accuracy of the ansatz. Another approach is to construct a special kind of neural networks with tractable probabilities, which we will discuss in the following.
+Some early attempts have been proposed~\cite{huang2017accelerated, liu2017self} to choose a simple ansatz which allows efficient cluster updates, such as a two-body interacting Hamiltonian or a restricted Boltzmann machine (RBM), and use it in \cref{eq:mcmc-importance}. As the normalization constant of the ansatz is still intractable, and the variational inference is unavailable, the parameters of the ansatz are trained in a supervised learning approach. One first generate some samples from the target distribution using traditional MCMC, then optimize the energies of these samples evaluated by the ansatz towards those evaluated by the original Hamiltonian. After training, more samples can be generated from the ansatz using efficient cluster updates. However, the quality of the samples used in training limits the accuracy of the ansatz.
 
-\dwcomment{Maybe mention normalizing flows somewhere. They're used in a lot of literature on neural importance sampling~\cite{song2017nice, muller2019neural}, but for continuous variables, and not used in any new result in this thesis}
+Another approach is to specifically construct a neural network with tractable probabilities. A prominent family of such approach is the autoregressive models which we will discuss in \cref{sec:arnn}. Another notable family of neural networks with this property is the normalizing flows~\cite{song2017nice, muller2019neural}, which reparameterize the target distribution into a simple one using the same principle as \cref{eq:reparam}. They are mostly used for continuous variables, thus are out of the scope of this thesis.
 
 \dwcomment{Tensor networks are also used to generate classical distributions but let's leave them to the quantum part}
 
 \section{Autoregressive models}
+\label{sec:arnn}
 
 \cite{wu2019solving}
 
 \cite{nicoli2020asymptotically}
 
 \cite{ciarella2023machine}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.9\linewidth]{ch3/arnn.pdf}
+\caption[Architectures of autoregressive neural networks for variational inference]{
+Architectures of autoregressive neural networks (ARNN) for variational inference.
+The spin configuration $\vs$ is the input to the network, $\hat{\vs}$ is the output of the network, and $h$ denotes hidden layer. The loss function $F_q$ is given by \cref{eq:fq}. The colored sites denote the receptive field of a site in $\hat{\vs}$.
+(a) The network has only one layer, which is densely connected, while the autoregressive property hold.
+(b) The network has a hidden layer.
+(c) The network has masked convolution layers on 2D lattice. Only connections in a convolution kernel are shown for clarity.
+}
+\label{fig:arnn}
+\end{figure}
+
+\subsection{Numerical results}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.48\linewidth]{ch3/arnn_fm_sqr_f.pdf}
+\includegraphics[width=0.48\linewidth]{ch3/arnn_fm_sqr_f.pdf}
+\caption[ARNN results of Ising model on square lattice]{
+(a) Free energy per site and (b) entropy per site of the ferromagnetic Ising model on the $16 \times 16$ square lattice with periodic boundary condition.
+}
+\label{fig:arnn-sqr}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.48\linewidth]{ch3/arnn_afm_tri_s.pdf}
+\includegraphics[width=0.48\linewidth]{ch3/arnn_afm_tri_s.pdf}
+\caption[ARNN results of Ising model on triangular lattice]{
+(a) Free energy per site and (b) entropy per site of the antiferromagnetic Ising model on triangular lattices of various sizes $L$ with periodic boundary condition.
+The exact result (dashed line) at $T = 0$ and $L \to \infty$ is $S / N = 0.323066$~\cite{TODO}. The curves for $L = 8, 14, 16$ are almost overlapped.
+}
+\label{fig:arnn-tri}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.48\linewidth]{ch3/arnn_sk_n20_f.pdf}
+\includegraphics[width=0.48\linewidth]{ch3/arnn_invsk_n20.pdf}
+\caption[ARNN results of Sherrington--Kirkpatrick model]{
+(a) Free energy per site and (b) entropy per site of the Sherrington--Kirkpatrick (SK) model with $N = 20$ spins.
+}
+\label{fig:arnn-sk}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.32\linewidth]{ch3/arnn_hop3.pdf}
+\includegraphics[width=0.32\linewidth]{ch3/arnn_hop2.pdf}
+\includegraphics[width=0.32\linewidth]{ch3/arnn_hop1.pdf}
+\includegraphics[width=0.32\linewidth]{ch3/arnn_hop3_2d.pdf}
+\includegraphics[width=0.32\linewidth]{ch3/arnn_hop2_2d.pdf}
+\includegraphics[width=0.32\linewidth]{ch3/arnn_hop1_2d.pdf}
+\caption[ARNN results of Hopfield model]{
+Log probability of sampled configurations of ARNN learned for a Hopfield model with $N = 100$ spins, and $P = 2$ orthogonal patterns, on the two-dimensional spaces spanned by two patterns. In the figures, the $x$- and the $y$-axes represent inner product (overlap) between each sampled configuration and the first and the second stored patterns respectively. Our network uses single layer and only $N (N - 1) / 2$ parameters. The top figures are 3D view of the meshed log probability surface, while the bottom figures are the 2D view from top. From left to right, $\beta$ values are $0.3$, $1.0$, and $1.5$ respectively.
+}
+\label{fig:arnn-hop}
+\end{figure}
+
+
+
+
+
+
 
 \section{Sparse two-body autoregressive neural networks}
 
