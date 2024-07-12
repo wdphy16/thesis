@@ -2,6 +2,10 @@
 
 \summary{As seen from the previous chapter, the exponentially large configuration spaces of many-body systems motivate us to use numerical approximation methods to study their properties. In this chapter, we first review the traditional methods of Markov chain Monte Carlo (MCMC) and variational Monte Carlo (VMC) for classical systems, list the previously used ansatzes to approximate the Boltzmann distribution, and discuss their limitations. Then we introduce the autoregressive models with the advantage of exact sampling, and combine the strengths of the exact sampling and the Markov chain sampling to remove the bias in VMC.}
 
+\todo{Change chapters to parts}
+
+\todo{More motivation}
+
 \section{Markov chain Monte Carlo (MCMC)}
 
 When studying an observable of a classical many-body system in \cref{eq:cl-obs}, we need to perform a summation over all configurations $\vs$ of the system, which costs an exponentially large amount of computation if performed naively. To obtain the result within a practical computation budget, a general method is to generate some random samples of configuration $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ following the target distribution $p(\vs)$, where $M$ is the sample size, then estimate the $p$-weighted sum over all configurations by the uniform average over the samples:
