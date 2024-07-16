@@ -79,7 +79,7 @@ def main():
     for L, beta_1, beta_2, beta_target, color in config:
         energy_ticks, hist = get_hist_interp(L, beta_1, beta_2, beta_target)
         ax.plot(energy_ticks, hist, color=color, label=f"$L = {L}$", linewidth=1)
-    ax.legend(loc="upper right", fontsize="x-small")
+    ax.legend(loc="upper right", fontsize="small")
 
     ax = axes[1]
     for L, beta_1, beta_2, beta_target, color in config_beta:
@@ -91,7 +91,7 @@ def main():
             label=f"$\\beta = {beta_target:.4f}$",
             linewidth=1,
         )
-    ax.legend(loc="lower right", fontsize="x-small")
+    ax.legend(loc="lower right", fontsize="small")
 
     # Panel labels
     for i, ax in enumerate(axes.flatten()):
