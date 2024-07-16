@@ -135,7 +135,7 @@ is less than the original sample size $M$.
 \centering
 \includegraphics[width=\linewidth]{ch3/ising_samples.pdf}
 \caption[Sample of Ising model at different temperatures]{
-Typical sample of the Ising model on the $100 \times 100$ square lattice at inverse temperatures $\beta = 0.3, 0.44, 0.6$. The red and blue plaquettes denote spin up and down respectively. Around the critical temperature $\beta_\text{c} \approx 0.44$, the clusters of spins are particularly visible, which pose difficulty to MCMC with single-spin updates.
+Typical sample of the Ising model on the $100 \times 100$ square lattice at inverse temperatures $\beta = 0.3, 0.44, 0.6$. The blue and orange plaquettes denote spin up and down respectively. Around the critical temperature $\beta_\text{c} \approx 0.44$, the clusters of spins are particularly visible, which pose difficulty to MCMC with single-spin updates.
 }
 \label{fig:ising-samples}
 \end{figure}
@@ -152,8 +152,8 @@ The autocorrelation time $\tau$ is an important metric for the effectiveness of 
 \centering
 \includegraphics[width=0.7\linewidth]{ch3/multi_chains.pdf}
 \caption[Convergence of multiple Markov chains]{
-Convergence of multiple random Markov chains for the Ising model on the $10 \times 10$ square lattice at inverse temperature $\beta = 0.2$.
-The $y$-axis shows the estimated energy using the samples up to the current step.
+Convergence of five random Markov chains, shown with different colors, for the Ising model on the $10 \times 10$ square lattice at inverse temperature $\beta = 0.2$.
+The $y$-axis is the estimated energy using the samples up to the current step.
 Although the chains start from different random initializations, they eventually reach the equilibrium distribution and produce consistent estimations of the energy after sufficiently many steps.
 }
 \label{fig:multi-chains}
@@ -285,7 +285,9 @@ Like how we have approximated \cref{eq:cl-obs} by \cref{eq:monte-carlo}, the var
 \vs^{(i)} \sim q.
 \label{eq:fq-monte-carlo}
 \end{equation}
-This method has close resemblance to the variational Monte Carlo (VMC) method for quantum systems, which we will discuss in the next part, although the term VMC is generally unused in the context of classical systems. It is worth noting that the variational inference requires to evaluate the probability $q(\vs)$, including the normalization. This is in contrast to the MCMC method in the last chapter, where the normalization constant cancels out in the derivation of the Markov Chain, as in \cref{eq:metropolis}. Therefore, it is important to choose an ansatz $q(\vs)$ whose probability can be computed efficiently.
+This method has close resemblance to the variational Monte Carlo (VMC) method for quantum systems, which we will discuss in the next part, although the term VMC is generally unused in the context of classical systems. It is worth noting that the variational inference requires to evaluate the probability $q(\vs)$, including the normalization. This is in contrast to MCMC in the last chapter, where the normalization constant cancels out in the derivation of the Markov Chain, as in \cref{eq:metropolis}. Therefore, it is important to choose an ansatz $q(\vs)$ whose probability can be computed efficiently.
+
+Besides being able to estimate observables that require the partition function, another feature of the variational inference in contrast to MCMC is that it always produces an upper bound of the true free energy, within the statistical error of Monte Carlo sampling. This leads to an intuitive way to compare the accuracy of two variational methods: a lower variational free energy indicates better approximation of the target distribution. However, this also means a systematic bias in the estimated energy, and other estimated observables can contain biases with unknown directions. If the bias is infeasible, we may use the variational ansatz with MCMC importance sampling in \cref{eq:mcmc-importance} to obtain unbiased estimations of observables.
 
 \todo{Before neural networks, what ansatzes were used in classical problems that require Monte Carlo sampling rather than analytical study?}
 
@@ -313,11 +315,9 @@ The second term of \cref{eq:fq-grad-2-terms} becomes
 \begin{align}
 &\phantom{{}={}}\frac{1}{\beta} \sum_\vs q(\vs) \frac{\partial \ln q(\vs)}{\partial \theta} \\
 &= \frac{1}{\beta} \sum_\vs \frac{\partial q(\vs)}{\partial \theta} \\
-&= \frac{1}{\beta} \frac{\partial}{\partial \theta} \sum_\vs q(\vs) \\
-&= \frac{1}{\beta} \frac{\partial}{\partial \theta} 1 \\
-&= 0,
+&= \frac{1}{\beta} \frac{\partial}{\partial \theta} \sum_\vs q(\vs).
 \end{align}
-as $q(\vs)$ is normalized. The remaining first term of \cref{eq:fq-grad-2-terms} can be again estimated by Monte Carlo sampling:
+As we have the normalization $\sum_\vs q(\vs) = 1$, this term is always zero. The remaining first term of \cref{eq:fq-grad-2-terms} can be again estimated by Monte Carlo sampling:
 \begin{equation}
 \bbE_\text{MC}\left[ \frac{\partial F_q}{\partial \theta} \right]
 = \frac{1}{M} \sum_{i = 1}^M F_{q\,\text{loc}}\left( \vs^{(i)} \right) \frac{\partial \ln q\left( \vs^{(i)} \right)}{\partial \theta}, \quad
@@ -393,7 +393,7 @@ As shown in \cref{fig:cw-tanh}, non-zero solutions to \cref{eq:cw} appear only w
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.65\linewidth]{ch3/cw_tanh.pdf}
+\includegraphics[width=0.7\linewidth]{ch3/cw_tanh.pdf}
 \caption[Geometrical solution to Curie--Weiss self-consistent equation]{
 Geometrical solution to the Curie--Weiss self-consistent equation in \cref{eq:cw}, where $x = -m$. The equation $x = \tanh a x$ has non-zero solutions only when $a = 2 d \beta (-J) > 1$.
 }
@@ -539,7 +539,7 @@ which maps from $\bbR$ to $(0, 1)$, or to another interval with an additional li
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.65\linewidth]{ch3/activations.pdf}
+\includegraphics[width=0.7\linewidth]{ch3/activations.pdf}
 \caption[Commonly used activation functions in neural networks]{
 Commonly used activation functions ReLU, GELU, and sigmoid in neural networks.
 Both ReLU and GELU have asymptotic behaviors $y \to 0$ when $x \to -\infty$ and $y \to x$ when $x \to \infty$, while GELU has more subtle nonlinearity around $x = 0$.
@@ -555,7 +555,7 @@ y_{i, c} = \left( \sum_{k = 1}^{n_\text{k}} \sum_{c' = 1}^{n_\text{c in}} W_{j, 
 \end{equation}
 where $\vx$ is an array of size $n_\text{s} \times n_\text{c in}$, $\vy$ is an array of size $n_\text{s} \times n_\text{c out}$, and we assume that the spatial dimension $n_\text{s}$ is the same in the inputs and the outputs for simplicity. Both the inputs and the outputs have another dimension of ``channels'', also known as ``features'', which determines the size of the network. The convolutional layer acts as if a linear layer on the channel dimension, mapping from $n_\text{c in}$ channels to $n_\text{c out}$ channels. Only on the spatial dimension, it performs a convolution. The weights $\mW$ is an array of size $n_\text{k} \times n_\text{c out} \times n_\text{c in}$, where $n_\text{s}$ is the convolution kernel size, and the biases $\mb$ is an array of size $n_\text{k} \times n_\text{c out}$. Higher-dimensional convolutional layers can be defined similarly.
 
-In \cref{eq:conv-layer}, care should be taken when accessing the out-of-boundary values $x_{i, c}$ where $i > n_\text{s}$. For physical systems with OBC, the common practice is padding with zeros: $x_{i, c} = 0$; while for PBC, the boundary can be correspondingly periodic: $x_{i, c} = x_{i - L, c}$. In the PBC case, the convolutional layer is translational equivariant in the spatial dimension, which means a translation of the inputs leads to the same translation of the outputs:
+In \cref{eq:conv-layer}, care should be taken when accessing the out-of-boundary values $x_{i, c}$ where $i > n_\text{s}$. For physical systems with open boundary conditions, the common practice is padding with zeros: $x_{i, c} = 0$; while for periodic boundary conditions, the convolution can be correspondingly periodic: $x_{i, c} = x_{i - L, c}$. In the latter case, the convolutional layer is translational equivariant in the spatial dimension, which means a translation of the inputs leads to the same translation of the outputs:
 \begin{equation}
 T_d \text{Conv}(\vx) = \text{Conv}(T_d \vx),
 \end{equation}

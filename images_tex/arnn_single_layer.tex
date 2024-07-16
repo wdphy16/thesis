@@ -1,0 +1,42 @@
+\documentclass[tikz]{standalone}
+\usepackage{stix}
+
+\def \layersep {2 cm}
+\def \sitesep {0.5 cm}
+\def \layerwidth {5}
+
+\def \centerx {\the\numexpr \layerwidth / 2 \relax}
+
+\newcommand{\condeq}[4]{\ifnum#1=#2#3\else#4\fi}
+\newcommand{\condlt}[4]{\ifnum#1<#2#3\else#4\fi}
+\newcommand{\condgt}[4]{\ifnum#1>#2#3\else#4\fi}
+\newcommand{\condle}[4]{\condgt{#1}{#2}{#4}{#3}}
+\newcommand{\condge}[4]{\condlt{#1}{#2}{#4}{#3}}
+
+\tikzstyle{neuron}=[circle, draw]
+\tikzstyle{annot}=[node distance=0.5 cm]
+
+\begin{document}
+\begin{tikzpicture}[->]
+
+\foreach \x in {1, ..., \layerwidth}
+    \node[neuron, fill=\condlt{\x}{\centerx}{blue}{white}] (I\x) at (0, -\x * \sitesep) {};
+
+\foreach \x in {1, ..., \layerwidth}
+    \node[neuron, fill=\condeq{\x}{\centerx}{red}{white}] (O\x) at (\layersep, -\x * \sitesep) {};
+
+\node[neuron] (F) at (\layersep * 2, {-(\layerwidth + 1) / 2 * \sitesep}) {};
+
+\foreach \x in {1, ..., \the\numexpr \layerwidth - 1 \relax}
+    \foreach \y in {\the\numexpr \x + 1 \relax, ..., \layerwidth}
+        \draw[\condlt{\x}{\centerx}{\condeq{\y}{\centerx}{blue}{black}}{black}] (I\x) -- (O\y);
+
+\foreach \x in {1, ..., \layerwidth}
+    \draw (O\x) -- (F);
+
+\node[annot, above of=I1] {$s$};
+\node[annot, above of=O1] {$\hat{s}$};
+\node[annot, above of=F] {$F_q$};
+
+\end{tikzpicture}
+\end{document}

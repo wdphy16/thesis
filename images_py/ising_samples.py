@@ -3,6 +3,7 @@
 import h5py
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.colors import ListedColormap
 
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["font.serif"] = "STIXGeneral"
@@ -22,10 +23,10 @@ def main():
         with h5py.File(in_filename, "r") as f:
             sample = np.asarray(f["sample"])
 
-        ax.imshow(sample, cmap="bwr", interpolation="none")
+        cmap = ListedColormap(["C1", "C0"])
+        ax.imshow(sample, cmap=cmap, interpolation="none")
         ax.set_axis_off()
 
-        # ax.text(0.05, 0.9, f"$\\beta = {beta:.2f}$", color="w", transform=ax.transAxes)
         ax.set_title(f"$\\beta = {beta:.2f}$", fontsize="medium")
 
     fig.tight_layout()
