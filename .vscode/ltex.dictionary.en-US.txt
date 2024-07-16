@@ -1,6 +1,7 @@
 ansatzes
 approximators
 ARNN
+autocorrelated
 Autocorrelation
 autocorrelation
 Debiasing
@@ -18,6 +19,7 @@ Gelman
 GELU
 Hopfield
 Ising
+Khinchin
 Kullback
 Langevin
 Leibler

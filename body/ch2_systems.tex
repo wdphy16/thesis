@@ -43,13 +43,21 @@ Computational complexity of computing $Z$, so smart exact methods are not much b
 
 \subsection{Classical Ising model}
 
+The Ising model with general interactions $J_{i j}$:
+\begin{equation}
+H(\vs) = \sum_{i, j} J_{i j} s_i s_j.
+\label{eq:cl-ising-general}
+\end{equation}
+In this thesis, we omit the external fields for simplicity.
+
+In the simplest case, we only consider uniform nearest neighbor interactions, and omit the external fields:
 \begin{equation}
 H(\vs) = J \sum_{\langle i, j \rangle} s_i s_j,
 \label{eq:cl-ising}
 \end{equation}
-where $\langle i, j \rangle$ runs over nearest neighbors.
+where $\langle i, j \rangle$ runs over nearest neighbors, and we assume $J = 1$ unless stated otherwise.
 
-We can also consider interactions beyond nearest neighbors, but still local:
+We can also consider local interactions beyond nearest neighbors, which depend on the distance:
 \begin{equation}
 H(\vs) = J_1 \sum_{\langle i, j \rangle} s_i s_j + J_2\!\sum_{\llangle i, j \rrangle}\!s_i s_j + J_3\!\!\sum_{\langle\!\langle\!\langle i, j \rangle\!\rangle\!\rangle}\!\!s_i s_j \ldots
 \label{eq:cl-ising-nnn}

@@ -73,13 +73,13 @@ def get_hist_interp(L, beta_1, beta_2, beta_target):
 
 
 def main():
-    fig, axes = plt.subplots(ncols=2, sharex=True, sharey=True, figsize=(7, 2.5))
+    fig, axes = plt.subplots(ncols=2, sharex=True, sharey=True, figsize=(6, 2.5))
 
     ax = axes[0]
     for L, beta_1, beta_2, beta_target, color in config:
         energy_ticks, hist = get_hist_interp(L, beta_1, beta_2, beta_target)
         ax.plot(energy_ticks, hist, color=color, label=f"$L = {L}$", linewidth=1)
-    ax.legend(loc="upper right")
+    ax.legend(loc="upper right", fontsize="x-small")
 
     ax = axes[1]
     for L, beta_1, beta_2, beta_target, color in config_beta:
@@ -91,7 +91,7 @@ def main():
             label=f"$\\beta = {beta_target:.4f}$",
             linewidth=1,
         )
-    ax.legend(loc="lower right")
+    ax.legend(loc="lower right", fontsize="x-small")
 
     # Panel labels
     for i, ax in enumerate(axes.flatten()):
@@ -107,6 +107,7 @@ def main():
         ax.set_ylim(0.45, 0.85)
 
     fig.tight_layout()
+    print(out_filename)
     fig.savefig(out_filename, bbox_inches="tight", pad_inches=0)
 
 
