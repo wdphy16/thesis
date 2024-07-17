@@ -64,7 +64,7 @@ def plot_f(fig, ax):
     ax.plot(betas_all, F_exact_all, color="k", label="Exact", linewidth=0.5)
 
     ax.set_xlabel("$\\beta$")
-    ax.set_ylabel("$F$")
+    ax.set_ylabel("$F / N$")
     ax.set_xlim(0.25, 1.05)
     ax.set_ylim(-2.21, -1.99)
     ax.legend(
@@ -137,7 +137,7 @@ def plot_s(fig, ax):
         )
 
     ax.set_xlabel("$\\beta$")
-    ax.set_ylabel("$S$")
+    ax.set_ylabel("$S / N$")
     ax.legend(
         loc="upper right",
         ncols=2,

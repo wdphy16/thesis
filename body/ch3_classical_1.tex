@@ -192,7 +192,7 @@ Apart from exactly sampling the target distribution $p(\vs)$, and the MCMC sampl
 \bbE_\text{imp}[O] &= \frac{\sum_{i = 1}^M w\left( \vs^{(i)} \right) O\left( \vs^{(i)} \right)}{\sum_{i = 1}^M w\left( \vs^{(i)} \right)}, \label{eq:importance-sampling} \\
 w\left( \vs^{(i)} \right) &= \frac{p\left( \vs^{(i)} \right)}{q\left(\vs^{(i)} \right)},
 \end{align}
-given that $q(\vs)$ has a wider support than $p(\vs)$, i.e., $q(\vs) > 0$ for all $\vs$ such that $p(\vs) > 0$. This method is called importance sampling in statistics~\cite{kloek1978bayesian, bugallo2017adaptive}. The distribution $q(\vs)$ is also called an ``ansatz'' in the context of statistical physics. It should be close to $p(\vs)$, and easier to sample from than $p(\vs)$. Some choices of the ansatz for importance sampling will be discussed in \cref{sec:ansatz}. The variance of this estimator is
+given that $q(\vs)$ has a wider support than $p(\vs)$, i.e., $q(\vs) > 0$ for all $\vs$ such that $p(\vs) > 0$. This method is called importance sampling in statistics~\cite{kloek1978bayesian, bugallo2017adaptive}. The distribution $q(\vs)$ is also called an ``ansatz'' in the context of statistical physics. It should be close to $p(\vs)$, and easier to sample from than $p(\vs)$. Some choices of the ansatz for importance sampling will be discussed in \cref{sec:nmf}. The variance of this estimator is
 \begin{equation}
 \Var\big[ \bbE_\text{imp}[O] \big] = \frac{1}{M_{\text{eff}\,w}} \Var[\bar{O}],
 \label{eq:importance-sampling-var}
@@ -215,13 +215,14 @@ A variety of cluster update algorithms can also be discussed in the framework of
 \dwcomment{Maybe discuss parallel tempering if there is spare time and space, but it's not used anywhere else in this thesis}
 
 \section{Mode collapse}
+\label{sec:mode-collapse}
 
 Even if we collect effectively independent samples according to the autocorrelation time and the Gelman--Rubin statistic, it can still be questionable whether those samples actually represent the entire target distribution. The target distribution can have multiple modes, where a ``mode'' is defined to be a cluster of configurations $\{\vs_1, \vs_2, \vs_3, \ldots\}$ with high target probabilities $p(\vs_i)$ and high Markov transition probabilities $M_{\vs_j \vs_i}$ in \cref{eq:markov-matrix} between each other. The paths of configurations to transition from one mode to another always encounter energy barriers whose heights are proportional to the system size, so the probability of visiting different modes is exponentially low. A possible failure of MCMC is the mode collapse, where the Markov chain is seemingly in equilibrium, but actually it is only in ``equilibrium'' within a mode, and it takes an impractically long time to visit another mode, which leads to bias in the estimation of observables.
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch3/mag_hist.pdf}
-\caption[Distribution of magnetization for Ising model, and magnetizations during sampling]{
+\caption[Distribution of magnetization for Ising model]{
 (a) Distribution of magnetization for the Ising model on the $10 \times 10$ square lattice at inverse temperature $\beta = 0.44$.
 The two modes characterized by the magnetization are clearly visible.
 The energy barrier between the two modes will be even higher as the system size increases, leading to exponentially low probability of transitioning from one mode to another.
@@ -241,7 +242,7 @@ The effect of mode collapse is also demonstrated in the context of importance sa
 \centering
 \includegraphics[width=\linewidth]{ch3/fpm_hist_p.pdf}
 \caption[Distribution of energy for frustrated plaquette model]{
-Distribution of the energy per site $\epsilon$ for the frustrated plaquette model (FPM) in \cref{eq:fpm}.
+Distribution of the energy per site for the frustrated plaquette model (FPM) in \cref{eq:fpm}.
 (a) The results with different system sizes at their respective phase transition temperatures.
 (b) The results at different temperatures with the system size $L = 32$.
 The probability density function (PDF) of the distribution is estimated from the samples using Silverman’s method~\cite{silverman1986density}.
@@ -256,7 +257,7 @@ A particular consequence of mode collapse is the difficulty of MCMC sampling aro
 
 Although MCMC is widely used to compute various observables of many-body systems, a limitation is that it is agnostic of the partition function $Z$ in \cref{eq:boltzmann}, therefore it cannot compute quantities that require $Z$ or the probabilities $p_\text{B}(\vs)$, including the free energy and the entropy. Variants of MCMC have been proposed to compute $Z$, such as the Wang--Landau algorithm~\cite{wang2001efficient, landau2021guide5}. However, they involve other issues such as the discretization of energy histogram~\cite{belardinelli2007wang}, which limit their applicable scenarios.
 
-A different approach is to track the probability distribution in the framework of variational inference~\cite{jordan1999introduction, mackay2003information}, which also has deep roots in statistical physics, starting from mean-field theories~\cite{chaikin1995principles4, zdeborova2016statistical}. We define a trial distribution $q(\vs)$, or the ``ansatz'' in the context of statistical physics, to approximate the target distribution $p(\vs)$. The form of the ansatz is chosen such that the probability $q(\vs)$ can be computed given a configuration $\vs$, and it can be easier to sample from than $p(\vs)$, or even be analytically summed over in \cref{eq:cl-obs}. Some choices of the ansatz for variational inference will be discussed in \cref{sec:ansatz}.
+A different approach is to track the probability distribution in the framework of variational inference~\cite{jordan1999introduction, mackay2003information}, which also has deep roots in statistical physics, starting from mean-field theories~\cite{chaikin1995principles4, zdeborova2016statistical}. We define a trial distribution $q(\vs)$, or the ``ansatz'' in the context of statistical physics, to approximate the target distribution $p(\vs)$. The form of the ansatz is chosen such that the probability $q(\vs)$ can be computed given a configuration $\vs$, and it can be easier to sample from than $p(\vs)$, or even be analytically summed over in \cref{eq:cl-obs}. Some choices of the ansatz for variational inference will be discussed in \cref{sec:nmf}.
 
 To make a good approximation, we want $q(\vs)$ to be as close to $p(\vs)$ as possible. A natural metric of the distance between two distributions is the Kullback--Leibler (KL) divergence~\cite{kullback1951information}:
 \begin{equation}
@@ -285,11 +286,11 @@ Like how we have approximated \cref{eq:cl-obs} by \cref{eq:monte-carlo}, the var
 \vs^{(i)} \sim q.
 \label{eq:fq-monte-carlo}
 \end{equation}
-This method has close resemblance to the variational Monte Carlo (VMC) method for quantum systems, which we will discuss in the next part, although the term VMC is generally unused in the context of classical systems. It is worth noting that the variational inference requires to evaluate the probability $q(\vs)$, including the normalization. This is in contrast to MCMC in the last chapter, where the normalization constant cancels out in the derivation of the Markov Chain, as in \cref{eq:metropolis}. Therefore, it is important to choose an ansatz $q(\vs)$ whose probability can be computed efficiently.
-
-Besides being able to estimate observables that require the partition function, another feature of the variational inference in contrast to MCMC is that it always produces an upper bound of the true free energy, within the statistical error of Monte Carlo sampling. This leads to an intuitive way to compare the accuracy of two variational methods: a lower variational free energy indicates better approximation of the target distribution. However, this also means a systematic bias in the estimated energy, and other estimated observables can contain biases with unknown directions. If the bias is infeasible, we may use the variational ansatz with MCMC importance sampling in \cref{eq:mcmc-importance} to obtain unbiased estimations of observables.
+This method has close resemblance to the variational Monte Carlo (VMC) method for quantum systems, which we will discuss in the next part, although the term VMC is generally unused in the context of classical systems. It is worth noting that the variational inference requires to evaluate the probability $q(\vs)$, including the normalization. This is in contrast to MCMC in the previous chapter, where the normalization constant cancels out in the derivation of the Markov Chain, as in \cref{eq:metropolis}. Therefore, it is important to choose an ansatz $q(\vs)$ whose probability can be computed efficiently.
 
 \todo{Before neural networks, what ansatzes were used in classical problems that require Monte Carlo sampling rather than analytical study?}
+
+Besides being able to estimate observables that require the partition function, another feature of the variational inference in contrast to MCMC is that it always produces an upper bound of the true free energy, within the statistical error of Monte Carlo sampling. This leads to an intuitive way to compare the accuracy of two variational methods: a lower variational free energy indicates better approximation of the target distribution. However, this also means a systematic bias in the estimated energy, and other estimated observables can contain biases with unknown directions. Moreover, there is no straightforward way to improve the accuracy of the variational inference as the computation budget grows, whether by increasing the number of variational parameters or optimization steps. In contrast, we can always improve the accuracy or the probability to cover all modes in MCMC by increasing the number of samples. Therefore, to obtain unbiased and highly accurate estimations of observables, we may use the variational ansatz with MCMC importance sampling in \cref{eq:mcmc-importance}.
 
 The ansatz $q(\vs)$ is usually controlled by some tunable parameters $\theta$, which allows us to minimize the KL divergence by varying $\theta$. In \cref{eq:kl-fq}, the $F$ term is independent of $\theta$, so we only need to minimize $F_q$. As the KL divergence is non-negative, the lower bond of $F_q$ is exactly the true free energy $F$, which is desired to compute in many cases. In practice, the target function to minimize is $\beta F_q$ rather than $F_q$ itself, which avoids the singularity of $\frac{1}{\beta}$ in \cref{eq:fq} when $\beta \to 0$.
 
@@ -338,7 +339,7 @@ where $F^* = \bbE_\text{MC}[F_q]$, but in \cref{eq:fq-grad-baseline} we do not t
 In the following, we discuss some widely used ansatzes to approximate the Boltzmann distribution. They may be easy to sample from than the target distribution, which can be applied to MCMC importance sampling in \cref{eq:mcmc-importance}; or they may support efficient evaluation of the normalized probability, which is crucial for the variational inference in \cref{eq:fq}.
 
 \section{Naive mean-field ansatz}
-\label{sec:ansatz}
+\label{sec:nmf}
 
 An early practice of mean-field theory, known as the Curie--Weiss model~\cite{weiss1907hypothese, nishimori2001statistical}, was proposed to study the phase transition of the classical Ising model. Here we recapitulate its derivation and reformulate it in the framework of variational ansatzes.
 
@@ -425,6 +426,7 @@ S_\text{MF} &= -\sum_\vs p_\text{MF}(\vs) \ln p_\text{MF}(\vs) \\
 Under this ansatz, the free energy $F_\text{MF} = E_\text{MF} - \frac{1}{\beta} S_\text{MF}$ is the same as \cref{eq:fe-mf} derived from the approximated Hamiltonian. It is an upper bound of the true free energy, as it is now derived from the original Hamiltonian. For more complicated models on non-regular graphs and with more than two-body interactions, were \cref{eq:cw} is not directly applicable, we can still apply the NMF ansatz to obtain a preliminary variational approximation.
 
 \section{Bethe ansatz}
+\label{sec:bethe}
 
 Starting from an analytical solution to the 1D quantum Heisenberg model~\cite{bethe1931theorie}, the Bethe ansatz has become a gross term for methods to exactly solve~\cite{baxter1995solvable, caravelli2022some} or approximate partition functions on lattices and other graphs~\cite{gujrati1995bethe, mezard2001bethe}. It is also deeply related to the belief propagation, a message passing algorithm used in Bayesian inference and in the recent trend of graph machine learning~\cite{yedidia2003understanding, ikeda2004stochastic}. Unlike the NMF ansatz which approximates the original model using only uniform global interactions, the Bethe ansatz utilizes the local geometry to more accurately evaluate interactions between nearest neighbors.
 
@@ -501,6 +503,7 @@ Since their breakthrough on image classification problems~\cite{krizhevsky2012im
 Neural networks are composed of a common set of functions, known as ``layers'', and the composition can be arbitrarily sophisticated. The basic architecture is the feedforward neural network (FFNN), which is defined by a sequential composition of alternating linear layers and nonlinear activation layers:
 \begin{equation}
 \vy = (\text{Lin}_1 \circ \text{Act}_1 \circ \text{Lin}_2 \circ \text{Act}_2 \circ \cdots \circ \text{Lin}_{n_\text{l}} \circ \text{Act}_{n_\text{l}})(\vx),
+\label{eq:ffnn}
 \end{equation}
 where $\vx$ is the inputs to the network, $\vy$ is the outputs, $n_\text{l}$ is the number of layers, and $\circ$ denotes function composition. This architecture is sketched in \cref{fig:nn-arch}.
 
@@ -516,6 +519,7 @@ Architecture of the feedforward neural network (FFNN), which is a sequential com
 The linear layer is defined by
 \begin{equation}
 \text{Lin}_i(\vx_i) = \mW_i \vx_i + \mb_i,
+\label{eq:linear-layer}
 \end{equation}
 where $\mW_i$ is the weight and $\mb_i$ is the bias, which are the parameters of this layer, and the parameters are not shared between layers. Assuming $\vx_i$ is a vector of size $n_{\text{in}\,i}$, we can choose an output size $n_{\text{out}\,i}$, then $\mW_i$ is inferred to be a matrix of size $n_{\text{out}\,i} \times n_{\text{in}\,i}$, $\mb_i$ is a vector of size $n_{\text{out}\,i}$, and the input size of the next linear layer $n_{\text{in}\,i + 1}$ is $n_{\text{out}\,i}$.
 In practice, the inputs $\vx_i$ have an additional batch dimension, which denotes evaluating the same network on different input samples, but it is omitted in our discussion for simplicity. The sizes of the intermediate outputs are known as the ``hidden sizes'', and the hyperparameters of the network include the number of layers and the hidden sizes. These hyperparameters, in contrast to the parameters $\mW_i$ and $\mb_i$, define the architecture of the network and mostly determine its expressiveness.
@@ -524,7 +528,7 @@ The activation layer, also referred to as the activation function, is an element
 \begin{equation}
 \text{ReLU}(x) = \begin{cases}
 x, & x > 0 \\
-0, & x \leq 0
+0, & x \le 0
 \end{cases}.
 \end{equation}
 It has been used since the early research on neural networks, and is still efficient today despite its simplicity. A modern choice is the Gaussian error linear unit (GELU)~\cite{hendrycks2016gaussian}:
@@ -553,7 +557,7 @@ Many-body systems usually have symmetries and locality, which also arise in mach
 y_{i, c} = \left( \sum_{k = 1}^{n_\text{k}} \sum_{c' = 1}^{n_\text{c in}} W_{j, c, c'} x_{i + j - 1, c'} \right) + b_{i, c},
 \label{eq:conv-layer}
 \end{equation}
-where $\vx$ is an array of size $n_\text{s} \times n_\text{c in}$, $\vy$ is an array of size $n_\text{s} \times n_\text{c out}$, and we assume that the spatial dimension $n_\text{s}$ is the same in the inputs and the outputs for simplicity. Both the inputs and the outputs have another dimension of ``channels'', also known as ``features'', which determines the size of the network. The convolutional layer acts as if a linear layer on the channel dimension, mapping from $n_\text{c in}$ channels to $n_\text{c out}$ channels. Only on the spatial dimension, it performs a convolution. The weights $\mW$ is an array of size $n_\text{k} \times n_\text{c out} \times n_\text{c in}$, where $n_\text{s}$ is the convolution kernel size, and the biases $\mb$ is an array of size $n_\text{k} \times n_\text{c out}$. Higher-dimensional convolutional layers can be defined similarly.
+where $\vx$ is an array of size $n_\text{s} \times n_\text{c in}$, $\vy$ is an array of size $n_\text{s} \times n_\text{c out}$, and we assume that the spatial dimension $n_\text{s}$ is the same in the inputs and the outputs for simplicity. Both the inputs and the outputs have another dimension of ``channels'', also known as ``features'', which determines the size of the network. The convolutional layer acts as if a linear layer on the channel dimension, mapping from $n_\text{c in}$ channels to $n_\text{c out}$ channels. Only on the spatial dimension, it performs a convolution. The weights $\mW$ is an array of size $n_\text{k} \times n_\text{c out} \times n_\text{c in}$, where $n_\text{s}$ is the convolution kernel size, and the biases $\mb$ is an array of size $n_\text{k} \times n_\text{c out}$. Higher-dimensional convolutional layers can be defined similarly. In contrast to the convolutional layer, the general linear layer is also known as the dense layer.
 
 In \cref{eq:conv-layer}, care should be taken when accessing the out-of-boundary values $x_{i, c}$ where $i > n_\text{s}$. For physical systems with open boundary conditions, the common practice is padding with zeros: $x_{i, c} = 0$; while for periodic boundary conditions, the convolution can be correspondingly periodic: $x_{i, c} = x_{i - L, c}$. In the latter case, the convolutional layer is translational equivariant in the spatial dimension, which means a translation of the inputs leads to the same translation of the outputs:
 \begin{equation}

@@ -1,4 +1,5 @@
 \documentclass[tikz]{standalone}
+\usepackage{bm}
 \usepackage{stix}
 
 \def \layersep {2 cm}
@@ -136,10 +137,10 @@
 }
 \end{pgfonlayer}
 
-\node[annot, above of=I02] {$s$};
-\node[annot, above of=H02] {$h_1$};
-\node[annot, above of=H202] {$h_2$};
-\node[annot, above of=O02] {$\hat{s}$};
+\node[annot, above of=I02] {$\bm{s}$};
+\node[annot, above of=H02] {$\bm{h}_1$};
+\node[annot, above of=H202] {$\bm{h}_2$};
+\node[annot, above of=O02] {$\hat{\bm{s}}$};
 
 \end{tikzpicture}
 \end{document}

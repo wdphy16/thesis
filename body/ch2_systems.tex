@@ -69,6 +69,29 @@ Open boundary conditions (OBC) and periodic boundary conditions (PBC)
 
 Disorder in $J$
 
+\subsection{Hopfield model}
+
+The Hopfield model~\cite{hopfield1982neural, amit1985spin} is a model of associative memory. It is defined by the Ising model in \cref{eq:cl-ising-general} with the interactions
+\begin{equation}
+J_{i j} = -\frac{1}{N} \sum_{p = 1}^{n_\text{p}} \xi^{(p)}_i \xi^{(p)}_j,
+\label{eq:hopfield}
+\end{equation}
+where $\{\vxi^{(1)}, \vxi^{(2)}, \ldots, \vxi^{(n_\text{p})}\}$ are some special spin configurations, known as the ``patterns'', and $n_\text{p}$ is the number of patterns. We define the overlap between two configurations:
+\begin{equation}
+\ip{\vs}{\vs'} = \frac{1}{N} \sum_i s_i s'_i.
+\label{eq:cl-overlap}
+\end{equation}
+The patterns need to be orthogonal:
+\begin{equation}
+\ip{\vxi^{(p)}}{\vxi^{(q)}} = 0, \quad \forall p, q.
+\end{equation}
+The model has $2 n_\text{p}$ degenerate ground states: $\vs_0 = \pm \vxi^{(p)}$, $H(\vs_0) = -N$. Therefore, we say the model ``memorizes'' the patterns.
+
+\subsection{Sherrington--Kirkpatrick (SK) model}
+\label{sec:sk}
+
+The Sherrington--Kirkpatrick (SK) model is defined by the Ising model in \cref{eq:cl-ising-general} with each interaction $J_{i j}$ sampled from a Gaussian distribution with zero mean and a variance of $\frac{1}{N}$.
+
 \subsection{Frustrated plaquette model}
 
 The 2D frustrated plaquette model (FPM)

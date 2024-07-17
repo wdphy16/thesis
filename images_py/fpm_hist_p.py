@@ -100,7 +100,7 @@ def main():
 
     axes[0].set_ylabel("PDF")
     for ax in axes:
-        ax.set_xlabel("$\\epsilon$")
+        ax.set_xlabel("$E / N$")
         ax.set_xticks([-3.5, -3, -2.5, -2])
         ax.set_yticks([0.5, 0.6, 0.7, 0.8])
         ax.set_xlim(-3.575, -1.925)

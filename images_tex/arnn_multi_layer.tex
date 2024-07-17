@@ -1,4 +1,5 @@
 \documentclass[tikz]{standalone}
+\usepackage{bm}
 \usepackage{stix}
 
 \def \layersep {2 cm}
@@ -41,10 +42,9 @@
 \foreach \x in {1, ..., \layerwidth}
     \draw (H\hiddenlayers\x) -- (F);
 
-\node[annot, above of=I1] {$s$};
+\node[annot, above of=I1] {$\bm{s}$};
 \foreach \l in {1, ..., \hiddenlayers}
-    \node[annot, above of=H\l1] {\condeq{\l}{\hiddenlayers}{$\hat{s}$}{$h_\l$}};
-    % \node[annot, above of=H\l1] {\condeq{\l}{\hiddenlayers}{$\hat{s}$}{$h$}};
+    \node[annot, above of=H\l1] {\condeq{\l}{\hiddenlayers}{$\hat{\bm{s}}$}{$\bm{h}_\l$}};
 \node[annot, above of=F] {$F_q$};
 
 \end{tikzpicture}

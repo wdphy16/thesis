@@ -1,4 +1,5 @@
 \documentclass[tikz]{standalone}
+\usepackage{bm}
 \usepackage{stix}
 
 \def \layersep {2 cm}
@@ -34,8 +35,8 @@
 \foreach \x in {1, ..., \layerwidth}
     \draw (O\x) -- (F);
 
-\node[annot, above of=I1] {$s$};
-\node[annot, above of=O1] {$\hat{s}$};
+\node[annot, above of=I1] {$\bm{s}$};
+\node[annot, above of=O1] {$\hat{\bm{s}}$};
 \node[annot, above of=F] {$F_q$};
 
 \end{tikzpicture}
