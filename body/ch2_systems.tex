@@ -37,7 +37,7 @@ Ground state energy $E_0 = \min_\vs H(\vs) = \lim_{T \to 0} E$
 
 The analytical method to calculate the observable is known only in some cases of simple systems. Many 1D classical systems are solvable using the transfer matrix method~\cite{chaikin1995principles5}, with a few 2D classical and 1D quantum results such as the celebrated Onsager's solution for the 2D Ising model~\cite{onsager1944crystal, baxter1995solvable,march2016exactly, caravelli2022some}. In the remaining cases that constitute rich and unknown physical phenomena, numerical methods are required to compute them.
 
-The summation in \cref{eq:cl-obs} runs over $2^N$ possible configurations of the system in total, which is exponentially large and quickly becomes intractable as $N$ increases. As of this writing, the largest supercomputers in the world have peak computational power in the order of $10^{18}$ floating point operations per second ($1$ exaFLOPS)~\cite{kogge2022frontier}, which can sum over only $81$ spins in the ``reasonable'' time budget of a month, even if the summation is unrealistically optimized to take one floating point operation for each configuration, and other costs such as the storage are ignored. Therefore, we can only resort to approximation methods to compute the expectation in practice, which we will discuss in the following chapters.
+The summation in \cref{eq:cl-obs} runs over $2^N$ possible configurations of the system in total, which is exponentially large and quickly becomes intractable as $N$ increases. As of this writing, the largest supercomputers in the world have peak computational power on the order of $10^{18}$ floating point operations per second ($1$ exaFLOPS)~\cite{kogge2022frontier}, which can sum over only $81$ spins in the ``reasonable'' time budget of a month, even if the summation is unrealistically optimized to take one floating point operation for each configuration, and other costs such as the storage are ignored. This means we can only resort to approximation methods to compute the expectation in practice, which we will discuss in the following chapters.
 
 Computational complexity of computing $Z$, so smart exact methods are not much better than brute force
 
@@ -105,7 +105,7 @@ H(\vs) = &\phantom{{}+{}} J_1 \sum_{i, j = 1}^L s_{i, j} (s_{i + 1, j} + s_{i, j
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.7\linewidth]{ch2/fpm_phase.pdf}
-\caption[Phase diagram for frustrated plaquette model]{
+\caption[Phase diagram of frustrated plaquette model (FPM)]{
 Sketch of the phase diagram for the frustrated plaquette model (FPM) with $J_1 = J_3 = -1$.
 Examples of the ground state in the ferromagnetic (FM) and the ferrimagnetic (fM) phases are shown respectively.
 The first-order phase transition at $K = 2$ is studied in Ref.~\cite{wu2021unbiased}, as indicated by the dashed vertical line.
@@ -145,7 +145,7 @@ where $\ket{\psi_i}$ is the $i$-th lowest eigenstate of the Hamiltonian, and $p_
 \bar{O} = \tr[\hat{O} \hat{\rho}].
 \label{eq:dm-obs}
 \end{equation}
-The density matrix pose extra difficulties of computing both the states $\ket{\psi_i}$ and their probabilities $p_i$. In this thesis, we mainly focus on the ground state.
+The density matrix poses extra difficulties of computing both the states $\ket{\psi_i}$ and their probabilities $p_i$. In this thesis, we mainly focus on the ground state.
 
 \subsection{Quantum Ising model}
 

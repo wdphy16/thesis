@@ -16,14 +16,14 @@ q_i(s_i \mid \vs_{< i}) = \frac{\sum_{\vs_{> i}} q(\vs)}{\sum_{\vs_{\ge i}} q(\v
 \end{equation}
 which involves summations over exponentially many terms. However, neither do we know the joint probability in practice, nor can we exactly perform the summations. We generally parameterize the conditional probabilities by arbitrarily expressive neural networks, therefore the name ARNN, and use variational inference to optimize them towards the target distribution. The requirement of normalization in the variational inference is particularly easy to fulfill under this factorization, because as long as each conditional probability is normalized: $\sum_{s_i} q_i(s_i \mid \vs_{< i}) = 1$, then the joint probability in \cref{eq:autoreg} will automatically be normalized. For binary variables, each conditional probability is naturally modeled by a Bernoulli distribution $\calB(s_i \mid \hat{s}_i) = (1 - \hat{s}_i) \delta_{s_i, -1} + \hat{s}_i \delta_{s_i, +1}$, which is always normalized and easy to sample from, and the parameter $\hat{s}_i$ can have arbitrarily sophisticated dependency on the previous variables $\vs_{< i}$.
 
-When sampling from the joint probability, we only need to generate the variables sequentially, following their order defined by the AR model. We first determine the value of $s_1$ from the independent distribution $q_1(s_1)$, then obtain the distribution $q_2(s_2 \mid s_1)$ and determine the value of $s_2$, then obtain the distribution $q_3(s_3 \mid s_1, s_2)$ and so forth, until all variables are generated. This procedure involves $N$ sequential evaluations of the neural network, which can be a bottleneck in the time complexity of the variational inference. On the other hand, when evaluating $q(\vs)$ given all variables $\vs$, all the conditional probabilities can be computed in parallel, which is usually not a concern in time complexity.
+The joint probability of an AR model supports exact sampling, as we can sample the variables sequentially, following their order defined by the AR model. We first determine the value of $s_1$ from the independent distribution $q_1(s_1)$, then obtain the distribution $q_2(s_2 \mid s_1)$ and determine the value of $s_2$, then obtain the distribution $q_3(s_3 \mid s_1, s_2)$ and so forth, until all variables are sampled. This procedure involves $N$ sequential evaluations of the neural network, which can be a bottleneck in the time complexity of the variational inference. On the other hand, when evaluating $q(\vs)$ given all variables $\vs$, all the conditional probabilities can be computed in parallel, which is usually not a concern in time complexity.
 
 In the following, we introduce some neural network architectures to parameterize the conditional probabilities, each with its own use cases.
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.9\linewidth]{ch3/arnn_arch.pdf}
-\caption[Architectures of dense and convolutional autoregressive neural networks]{
+\caption[Architectures of autoregressive neural networks (ARNN)]{
 Architectures of dense and convolutional autoregressive neural networks (ARNN) for variational inference.
 The spins $\vs$ are the inputs to the network.
 The values $\hat{\vs}$ are the outputs from the network, which become parameters of the Bernoulli distributions.
@@ -52,7 +52,7 @@ where $\odot$ denotes the element-wise multiplication. This masked linear layer 
 
 Convolutional layers can also be applied to utilize the translational symmetry and the locality of the physical system, with the same mask $\mM$ to ensure the AR property. However, unlike a single convolutional FFNN, the joint probability $q(\vs)$ of a convolutional ARNN is not translational invariant. The ARNN always assigns an artificial order to factorize the joint probability, thus breaks the translational symmetry. Instead, the purpose of convolutions in ARNN should be understood as enforcing the translational invariance of some rules to determine the effect of the local environment on a spin.
 
-An early application of 1D convolutional ARNN is the modeling of audios, known as WaveNet~\cite{oord2016wavenet}. The 2D convolutional ARNN has been similarly applied to the modeling of images, known as PixelCNN~\cite{oord2016pixel}, whose shape of the 2D convolutional kernel is illustrated in \cref{fig:arnn-arch}~(c). These ARNN architectures have also been introduced to the modeling of many-body systems, and achieved superior results compared to traditional variational ansatzes~\cite{wu2019solving}.
+An early application of 1D convolutional ARNN is the modeling of audios, known as WaveNet~\cite{oord2016wavenet}. The 2D convolutional ARNN has been similarly applied to the modeling of images, known as PixelCNN~\cite{oord2016pixel}, whose shape of the 2D convolutional kernel is illustrated in \cref{fig:arnn-arch}~(c). These ARNN architectures have also been introduced to the modeling of many-body systems, originally under the name of variational autoregressive networks (VAN)~\cite{wu2019solving}, and achieved superior results compared to traditional variational ansatzes.
 
 Besides the dense and the convolutional ones, another widely used family of ARNNs is the recurrent neural networks (RNN), which incorporate the translational symmetry of the physical system in another way. They maintain the AR property by updating of some hidden variables $\vh^{(i)}$, also known as ``memories'', at each AR step $i$:
 \begin{align}
@@ -94,8 +94,8 @@ In \cref{fig:arnn-ising}~(b), the ARNN produces entropies that exponentially dec
 Log-probability of samples from a dense ARNN, for the Hopfield model with $N = 100$ spins and $n_\text{p} = 2$ orthogonal patterns.
 The top row shows the 3D view of the log-probability surfaces, and the bottom row shows the same results in the 2D view from top.
 The columns are results with different inverse temperature $\beta = 0.3, 1.0, 1.5$.
-The $O_1$ and $O_2$ axes are the overlaps between each sample and the two patterns respectively, and the four ground states have $(O_1, O_2)$ = $(+1, 0)$, $(-1, 0)$, $(0, +1)$, $(0, -1)$.
-\todo{Reformat this plot if we have time}
+The $O_1$ and $O_2$ axes are the overlaps between each sample and the two patterns respectively, and the four ground states have $(O_1, O_2)$ = $(+1, 0)$, $(-1, 0)$, $(0, +1)$, $(0, -1)$ respectively.
+This figure is reproduced from Fig.~6 in Ref.~\cite{wu2019solving}.
 }
 \label{fig:arnn-hop}
 \end{figure}
@@ -105,7 +105,7 @@ Another experiment to study the ability of ARNN to capture multiple ground state
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch3/arnn_sk.pdf}
-\caption[ARNN results of Sherrington--Kirkpatrick model]{
+\caption[ARNN results of Sherrington--Kirkpatrick (SK) model and inverse SK problem]{
 (a) Free energy per site for a random instance of the Sherrington--Kirkpatrick (SK) model with $N = 20$ spins, computed by a dense ARNN, compared to the exact result by enumeration, the NMF ansatz, and the Bethe ansatz. The inset shows the relative error of the variational result compared to the exact result.
 The iterative solution of the Bethe ansatz converges only when $\beta \le 1.5$.
 (b) Reconstruction error of the inverse SK problem with $N = 20$ spins, computed by a dense ARNN, compared to the NMF ansatz~\cite{roudi2009ising}, the Sessak--Monasson (SM) expansion~\cite{sessak2009small}, and the Bethe ansatz~\cite{ricci2012bethe}.
@@ -125,7 +125,7 @@ In this problem, we use an ARNN with two dense layers to estimate $C_{i j}$. The
 \end{equation}
 where $J_{i j}$ are the estimated values and $J^*_{i j}$ are the true values. The results are shown in \cref{fig:arnn-ising}~(b), where the ARNN again outperforms traditional methods by a large margin.
 
-It is worth discussing the sizes of the ARNNs used in the above experiments. For the fully connected cases of the Hopfield model and the SK model, we use small ARNNs containing only $O(N^2)$ parameters, and they produce significantly better results than the Bethe ansatzes with the same order of parameters. For the Ising models on the $16 \times 16$ square and triangular lattices, however, the ARNNs with the optimal sizes we find contain as many as $O(10^6)$ parameters, while the Bethe ansatzes only contain $O(10^3)$. The large number of parameters also leads to significantly more computation time to evaluate the observables, as the training and the sampling of such a large network typically take several hours on a modern GPU, while the NMF ansatz and the Bethe ansatz can be solved almost instantly. Therefore, many use cases of neural networks instead of traditional ansatzes are in the regime where we seek much higher accuracy at the cost of correspondingly more computation. The comparison of neural networks and traditional methods under the same computation budget will be discussed in \cref{sec:arnn-mcmc}.
+It is worth discussing the sizes of the ARNNs used in the above experiments. For the fully connected cases of the Hopfield model and the SK model, we use small ARNNs containing only $O(N^2)$ parameters, and they produce significantly better results than the Bethe ansatzes with the same order of parameters. For the Ising models on the $16 \times 16$ square and triangular lattices, however, the ARNNs with the optimal variational free energies we find contain as many as $O(10^6)$ parameters, while the Bethe ansatzes only contain $O(10^3)$. The large number of parameters also leads to significantly more computation time to evaluate the observables, as the training and the sampling of such a large network typically take several hours on a modern GPU, while the NMF ansatz and the Bethe ansatz can be solved almost instantly. Therefore, many use cases of neural networks instead of traditional ansatzes are in the regime where we seek much higher accuracy at the cost of correspondingly more computation. The comparison of neural networks and traditional methods under the same computation budget will be discussed in \cref{sec:arnn-mcmc}.
 
 \section{Sparse two-body ARNN}
 
