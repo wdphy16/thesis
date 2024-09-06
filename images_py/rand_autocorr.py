@@ -12,7 +12,7 @@ out_filename = "./rand_autocorr.pdf"
 
 
 def main():
-    fig, axes = plt.subplots(ncols=2, figsize=(6, 2.5))
+    fig, axes = plt.subplots(ncols=2, sharey=True, figsize=(6, 2.5))
 
     ax = axes[0]
 
@@ -38,6 +38,7 @@ def main():
         ax.text(0.05, 0.9, f"({c})", transform=ax.transAxes)
 
     axes[0].set_ylabel("$E$")
+    axes[0].set_ylim(-50, 50)
     for ax in axes:
         ax.set_xlabel("Step")
 

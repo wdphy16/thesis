@@ -79,7 +79,6 @@ This figure is reproduced from Fig.~2 in Ref.~\cite{wu2019solving}.
 \end{figure}
 
 We first demonstrate the performance of ARNN on the well-studied ferromagnetic (FM) Ising model on the $10 \times 10$ square lattice with periodic boundary conditions (PBC), where the analytical result~\cite{onsager1944crystal} and the previous variational methods of naive mean field (NMF) in \cref{sec:nmf} and Bethe ansatz in \cref{sec:bethe} are available for comparison. A dense ARNN and a convolutional ARNN are trained on the Boltzmann distribution of this Hamiltonian, whose hyperparameters, such as the number of layers, the number of channels, and the convolution kernel size are selected to produce the lowest variational free energies within a reasonable computation budget. The networks are trained from scratch at each inverse temperature $\beta = 0.1, 0.2, \ldots, 1$. \Cref{fig:arnn-ising}~(a) shows the results of free energy, where we can clearly see that the ARNNs produce superior results compared to the traditional ansatzes, whose relative errors are lower by orders of magnitude.
-\dwcomment{Maybe mention the transfer of temperature somewhere}
 
 In particular, the results from the convolutional ARNN are generally more accurate than the dense one with a similar number of parameters, thanks to the utilization of the translational symmetry and the locality of the physical system. This comparison justifies the use of convolutional layers in ARNN, even if the overall joint probability is not translational invariant. However, this advantage diminishes around the critical temperature $\beta_c = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$, where the correlation length of the physical system diverges until bounded by the system size. The convolutional neural network can capture such long-range correlations only if the size of its receptive field is at least comparable to the correlation length.
 
@@ -127,7 +126,11 @@ where $J_{i j}$ are the estimated values and $J^*_{i j}$ are the true values. Th
 
 It is worth discussing the sizes of the ARNNs used in the above experiments. For the fully connected cases of the Hopfield model and the SK model, we use small ARNNs containing only $O(N^2)$ parameters, and they produce significantly better results than the Bethe ansatzes with the same order of parameters. For the Ising models on the $16 \times 16$ square and triangular lattices, however, the ARNNs with the optimal variational free energies we find contain as many as $O(10^6)$ parameters, while the Bethe ansatzes only contain $O(10^3)$. The large number of parameters also leads to significantly more computation time to evaluate the observables, as the training and the sampling of such a large network typically take several hours on a modern GPU, while the NMF ansatz and the Bethe ansatz can be solved almost instantly. Therefore, many use cases of neural networks instead of traditional ansatzes are in the regime where we seek much higher accuracy at the cost of correspondingly more computation. The comparison of neural networks and traditional methods under the same computation budget will be discussed in \cref{sec:arnn-mcmc}.
 
+Apart from training a new network for each system size and temperature, it has also been proposed to directly reuse or fine-tune a trained network for different system sizes and temperatures~\cite{efthymiou2019super, mills2019extensive, rende2024fine}. This line of research opens a way to numerically compute the renormalization group (RG) flow, and extrapolate the critical temperature to the thermodynamic limit~\cite{ron2002inverse}.
+
 \section{Sparse two-body ARNN}
+
+\cite{pan2021solving}
 
 \cite{biazzo2024sparse}
 
