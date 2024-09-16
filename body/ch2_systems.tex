@@ -41,6 +41,8 @@ The summation in \cref{eq:cl-obs} runs over $2^N$ possible configurations of the
 
 Computational complexity of computing $Z$, so smart exact methods are not much better than brute force
 
+Relation to combinatorial optimization
+
 \subsection{Classical Ising model}
 
 The Ising model with general interactions $J_{i j}$:
@@ -88,7 +90,7 @@ The patterns need to be orthogonal:
 \end{equation}
 For any configuration $\vs$ and two orthogonal configurations $\vt_1$ and $\vt_2$, we have
 \begin{equation}
-|\ip{\vs}{\vt_1} + \ip{\vs}{\vt_2}| < 1.
+|\ip{\vs}{\vt_1} + \ip{\vs}{\vt_2}| \le 1.
 \end{equation}
 The model has $2 n_\text{p}$ degenerate ground states: $\vs_0 = \pm \vxi^{(p)}$, $H(\vs_0) = -N$. Therefore, we say the model ``memorizes'' the patterns.
 
