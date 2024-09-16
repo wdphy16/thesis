@@ -2,6 +2,10 @@
 \usepackage{bm}
 \usepackage{stix}
 
+\definecolor{mplblue}{HTML}{1f77b4}
+\definecolor{mplred}{HTML}{d62728}
+\definecolor{mplpink}{HTML}{e377c2}
+
 \def \layersep {2 cm}
 \def \sitesep {0.5 cm}
 \def \layerwidth {5}
@@ -22,22 +26,22 @@
 \begin{tikzpicture}[->]
 
 \foreach \x in {1, ..., \layerwidth}
-    \node[neuron, fill=\condlt{\x}{\centerx}{blue}{white}] (I\x) at (0, -\x * \sitesep) {};
+    \node[neuron, fill=\condlt{\x}{\centerx}{mplblue}{white}] (I\x) at (0, -\x * \sitesep) {};
 
 \foreach \l in {1, ..., \hiddenlayers}
     \foreach \x in {1, ..., \layerwidth}
-        \node[neuron, fill=\condeq{\l}{\hiddenlayers}{\condeq{\x}{\centerx}{red}{white}}{\condle{\x}{\centerx}{magenta}{white}}] (H\l\x) at (\layersep * \l, -\x * \sitesep) {};
+        \node[neuron, fill=\condeq{\l}{\hiddenlayers}{\condeq{\x}{\centerx}{mplred}{white}}{\condle{\x}{\centerx}{mplpink}{white}}] (H\l\x) at (\layersep * \l, -\x * \sitesep) {};
 
 \node[neuron] (F) at ({\layersep * (\hiddenlayers + 1)}, {-(\layerwidth + 1) / 2 * \sitesep}) {};
 
 \foreach \x in {1, ..., \the\numexpr \layerwidth - 1 \relax}
     \foreach \y in {\the\numexpr \x + 1 \relax, ..., \layerwidth}
-        \draw[\condlt{\x}{\centerx}{\condeq{\y}{\centerx}{blue}{black}}{black}] (I\x) -- (H1\y);
+        \draw[\condlt{\x}{\centerx}{\condeq{\y}{\centerx}{mplblue}{black}}{black}] (I\x) -- (H1\y);
 
 \foreach \l in {1, ..., \the\numexpr \hiddenlayers - 1 \relax}
     \foreach \x in {1, ..., \layerwidth}
         \foreach \y in {\x, ..., \layerwidth}
-            \draw[\condle{\x}{\centerx}{\condeq{\y}{\centerx}{magenta}{black}}{black}] (H\l\x) -- (H\the\numexpr \l + 1 \relax\y);
+            \draw[\condle{\x}{\centerx}{\condeq{\y}{\centerx}{mplpink}{black}}{black}] (H\l\x) -- (H\the\numexpr \l + 1 \relax\y);
 
 \foreach \x in {1, ..., \layerwidth}
     \draw (H\hiddenlayers\x) -- (F);

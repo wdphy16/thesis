@@ -2,6 +2,10 @@
 \usepackage{bm}
 \usepackage{stix}
 
+\definecolor{mplblue}{HTML}{1f77b4}
+\definecolor{mplred}{HTML}{d62728}
+\definecolor{mplpink}{HTML}{e377c2}
+
 \def \layersep {2 cm}
 \def \sitexsep {0.354 cm}
 \def \siteysep {0.5 cm}
@@ -47,7 +51,7 @@
 {
     \pgfmathtruncatemacro{\i}{(\x - 1) / \sitelen}
     \pgfmathtruncatemacro{\j}{\x - \i * \sitelen - 1}
-    \node[neuron, fill=\condconvI{\x}{\i}{\j}{blue}{white}, fill opacity=0.8] (I\i\j) at (\j * \sitexsep, -\i * \siteysep + \j * \sitezsep) {};
+    \node[neuron, fill=\condconvI{\x}{\i}{\j}{mplblue}{white}, fill opacity=0.8] (I\i\j) at (\j * \sitexsep, -\i * \siteysep + \j * \sitezsep) {};
 }
 
 \foreach \i in {0, ..., \the\numexpr \sitelen - 2 \relax}
@@ -64,7 +68,7 @@
 {
     \pgfmathtruncatemacro{\i}{(\x - 1) / \sitelen}
     \pgfmathtruncatemacro{\j}{\x - \i * \sitelen - 1}
-    \node[neuron, fill=\condconvH{\x}{\i}{\j}{magenta}{white}, fill opacity=0.8] (H\i\j) at (\layersep + \j * \sitexsep, -\i * \siteysep + \j * \sitezsep) {};
+    \node[neuron, fill=\condconvH{\x}{\i}{\j}{mplpink}{white}, fill opacity=0.8] (H\i\j) at (\layersep + \j * \sitexsep, -\i * \siteysep + \j * \sitezsep) {};
 }
 
 \foreach \i in {0, ..., \the\numexpr \sitelen - 2 \relax}
@@ -81,7 +85,7 @@
 {
     \pgfmathtruncatemacro{\i}{(\x - 1) / \sitelen}
     \pgfmathtruncatemacro{\j}{\x - \i * \sitelen - 1}
-    \node[neuron, fill=\condconv{\x}{\i}{\j}{magenta}{white}, fill opacity=0.8] (H2\i\j) at (2 * \layersep + \j * \sitexsep, -\i * \siteysep + \j * \sitezsep) {};
+    \node[neuron, fill=\condconv{\x}{\i}{\j}{mplpink}{white}, fill opacity=0.8] (H2\i\j) at (2 * \layersep + \j * \sitexsep, -\i * \siteysep + \j * \sitezsep) {};
 }
 
 \foreach \i in {0, ..., \the\numexpr \sitelen - 2 \relax}
@@ -98,7 +102,7 @@
 {
     \pgfmathtruncatemacro{\i}{(\x - 1) / \sitelen}
     \pgfmathtruncatemacro{\j}{\x - \i * \sitelen - 1}
-    \node[neuron, fill=\condeq{\x}{\centerx}{red}{white}, fill opacity=0.8] (O\i\j) at (3 * \layersep + \j * \sitexsep, -\i * \siteysep + \j * \sitezsep) {};
+    \node[neuron, fill=\condeq{\x}{\centerx}{mplred}{white}, fill opacity=0.8] (O\i\j) at (3 * \layersep + \j * \sitexsep, -\i * \siteysep + \j * \sitezsep) {};
 }
 
 \foreach \i in {0, ..., \the\numexpr \sitelen - 2 \relax}
@@ -115,7 +119,7 @@
 {
     \pgfmathtruncatemacro{\i}{(\x - 1) / \sitelen}
     \pgfmathtruncatemacro{\j}{\x - \i * \sitelen - 1}
-    \condconvex{\x}{\i}{\j}{\draw[->, blue] (I\i\j) -- (H\centeri\centeri);}{}
+    \condconvex{\x}{\i}{\j}{\draw[->, mplblue] (I\i\j) -- (H\centeri\centeri);}{}
 }
 \end{pgfonlayer}
 
@@ -124,7 +128,7 @@
 {
     \pgfmathtruncatemacro{\i}{(\x - 1) / \sitelen}
     \pgfmathtruncatemacro{\j}{\x - \i * \sitelen - 1}
-    \condconv{\x}{\i}{\j}{\draw[->, magenta] (H\i\j) -- (H2\centeri\centeri);}{}
+    \condconv{\x}{\i}{\j}{\draw[->, mplpink] (H\i\j) -- (H2\centeri\centeri);}{}
 }
 \end{pgfonlayer}
 
@@ -133,7 +137,7 @@
 {
     \pgfmathtruncatemacro{\i}{(\x - 1) / \sitelen}
     \pgfmathtruncatemacro{\j}{\x - \i * \sitelen - 1}
-    \condconv{\x}{\i}{\j}{\draw[->, magenta] (H2\i\j) -- (O\centeri\centeri);}{}
+    \condconv{\x}{\i}{\j}{\draw[->, mplpink] (H2\i\j) -- (O\centeri\centeri);}{}
 }
 \end{pgfonlayer}
 

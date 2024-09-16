@@ -32,7 +32,7 @@ def main():
 
         ax = axes[f"A{i}"]
 
-        im = ax.plot_trisurf(xs, ys, zs, cmap="viridis")
+        im = ax.plot_trisurf(xs, ys, zs, cmap="rainbow")
 
         ax.set_title(f"$\\beta = {beta:.1f}$", fontsize="medium")
         ax.set_xlim(-1, 1)
@@ -69,7 +69,7 @@ def main():
 
         ax = axes[f"B{i}"]
 
-        ax.tripcolor(xs, ys, zs, cmap="viridis", zorder=2)
+        ax.tripcolor(xs, ys, zs, cmap="rainbow", zorder=2)
 
         ax.set_xlim(-1, 1)
         ax.set_ylim(-1, 1)
