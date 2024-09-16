@@ -213,7 +213,29 @@ A(\vs \to \vs') = \min\left( 1, \frac{p(\vs') q(\vs)}{p(\vs) q(\vs')} \right),
 \end{equation}
 which is close to $1$ if $q(\vs)$ is close to $p(\vs)$. Moreover, this method also reduces the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to the overall reduction of the autocorrelation time. There exist more advanced methods to construct the proposal distribution $g(\vs' \mid \vs)$ depending on the current configuration $\vs$, such as the Langevin Monte Carlo~\cite{rossky1978brownian} and the Hamiltonian Monte Carlo~\cite{duane1987hybrid}.
 
-A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling. They have originally arisen from studies of the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for the Ising model with two-body interactions. In each sampling step, it constructs a cluster of spins and flips it, where the choice of the cluster satisfies $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, so the acceptance probability is always $1$.
+A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling. They have originally arisen from studies of the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for Ising models with two-body interactions. In each sampling step, it constructs a cluster of spins according to \cref{alg:wolff} and flips it. The resulting proposal probability satisfies $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, so the acceptance probability is always $1$, which makes the Wolff cluster update far more efficient than the single-spin update when it is applicable.
+
+\begin{algorithm}[H]
+\caption[Wolff cluster update algorithm]{
+Wolff algorithm to construct a cluster of spins in the cluster update MCMC, for sampling the Boltzmann distribution of Ising models with two-body interactions.
+$\calC$ is the cluster, $\calB$ is a set of spins on the boundary of the cluster, $\beta$ is the inverse temperature, $\partial i$ denotes the neighbors of the site $i$, and \texttt{rand()} generates a random number from the uniform distribution over $[0, 1)$.
+}
+\label{alg:wolff}
+\begin{algorithmic}[1]
+\STATE Input the current configuration $\vs$, interactions $\mJ$
+\STATE Starting from a random site $i$, $\calC \gets \{i\}$, $\calB \gets \{i\}$
+\WHILE{$\calB \neq \emptyset$}
+    \STATE $i \gets$ any site in $\calB$
+    \FOR{$j \in \partial i$}
+        \IF{$j \notin \calC$ \AND \texttt{rand()} $> \rme^{\,2 \beta J_{i j} s_i s_j}$}
+            \STATE $\calC \gets \calC \cup \{j\}$, $\calB \gets \calB \cup \{j\}$
+        \ENDIF
+    \ENDFOR
+    \STATE $\calB \gets \calB \setminus \{i\}$
+\ENDWHILE
+\STATE Output $\calC$
+\end{algorithmic}
+\end{algorithm}
 
 \dwcomment{Maybe discuss parallel tempering if there is spare time and space, but it's not used anywhere else in this thesis}
 
@@ -493,7 +515,7 @@ S_\calV &= \sum_i \ln \sum_{s_i} \prod_{j \in \partial i} \sum_{s_j} f_{i j}(s_i
 \end{align}
 and the Bethe free energy $F_\text{Bethe} = E_\text{Bethe} - \frac{1}{\beta} S_\text{Bethe}$.
 
-When the graph is a tree, there actually exists a probability distribution $p_\text{Bethe}(\vs)$ that produces the marginals $\mu_{i j}(s_i, s_j)$ and the energy $E_\text{Bethe}$, and its entropy is exactly $S_\text{Bethe}$, so the Bethe ansatz can serve as a variational ansatz. For general graphs, however, $S_\text{Bethe}$ no longer equals the entropy of $p_\text{Bethe}(\vs)$, so $F_\text{Bethe}$ is not guaranteed to be an upper bound of the true free energy. Nevertheless, it is a close approximation in many cases.
+When the graph is a tree, there actually exists a probability distribution $p_\text{Bethe}(\vs)$ that produces the marginals $\mu_{i j}(s_i, s_j)$ and the energy $E_\text{Bethe}$, and its entropy is exactly $S_\text{Bethe}$, so the Bethe ansatz can serve as a variational ansatz. For general graphs, however, $S_\text{Bethe}$ no longer equals the entropy of $p_\text{Bethe}(\vs)$, so $F_\text{Bethe}$ is not guaranteed to be an upper bound of the true free energy. Nevertheless, it is a close approximation in many cases. Similar techniques have been generalized to systems beyond two-body interactions, known as cluster variation methods~\cite{pelizzola2005cluster}.
 
 \section{Neural network ansatzes}
 
