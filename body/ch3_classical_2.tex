@@ -3,6 +3,8 @@
 
 In the previous chapter, we have seen the power of variational inference to approximate the free energy of intractable many-body systems. A crucial requirement for this method is a variational ansatz that supports efficient evaluation of normalized probability, and preferably has the rich expressiveness of neural networks. The search for this kind of variational ansatz has led to the development of autoregressive (AR) models, which have yielded the most prominent achievements in modern machine learning, and also find broad applications in many-body physics.
 
+\section{Autoregressive factorization of joint probability}
+
 We start from noticing that any joint probability $q(\vs)$ can be factorized into a product of conditional probabilities:
 \begin{align}
 q(\vs) &= \prod_i q_i(s_i \mid \vs_{< i}) \label{eq:autoreg} \\
@@ -133,6 +135,8 @@ Apart from training a new network with each system size and temperature, it has 
 \section{Sparse two-body ARNN}
 
 \cite{pan2021solving}
+
+\cite{biazzo2023autoregressive}
 
 \cite{biazzo2024sparse}
 

@@ -2,6 +2,8 @@
 
 As seen from the previous part, observables of many-body systems embody a rich variety of physical phenomena emerged from statistics of microscopic configurations. Their exponentially large configuration spaces prohibit exact enumerations, and motivate us to use numerical approximation methods in the studies of their properties. In this part, we first review the traditional method of Markov chain Monte Carlo (MCMC) and the variational method for classical systems, list some commonly used ansatzes to approximate the Boltzmann distribution, and discuss their limitations. Then we introduce the autoregressive models with the advantage of exact sampling, and combine the strengths of the exact sampling and the Markov chain sampling to remove the bias in the variational method.
 
+\section{Monte Carlo method}
+
 When studying an observable of a classical many-body system in \cref{eq:cl-obs}, we have seen that it consists of a summation over all configurations of the system, which costs an exponentially large amount of computation if performed by an exact enumeration. Instead, to obtain the result within a practical computation budget, a general method is to generate many random samples of configuration $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ following the target distribution $p(\vs)$, where $M$ is the sample size, then estimate the $p$-weighted summation over all configurations by the uniform average over only the samples:
 \begin{equation}
 \bbE_\text{MC}[O] = \frac{1}{M} \sum_{i = 1}^M O\left( \vs^{(i)} \right).
@@ -14,7 +16,13 @@ This method is named Monte Carlo, after the casino that would later become famou
 \end{equation}
 where the sample variance $\Var\big[ \bbE_\text{MC}[O] \big] = \bbE_\text{MC}\left[ \left( O - \bbE_\text{MC}[O] \right)^2 \right]$ and the true variance $\Var[\bar{O}] = \overline{(O - \bar{O})^2}$. Therefore, the sample variance vanishes and the estimator converges to the true value as $M$ increases, given that the true variance is finite, and all samples are independently drawn from the true distribution.
 
-However, generating random samples from a given distribution is not always straightforward. In computational physics, the so-called ``random numbers'' are produced by pseudorandom number generators (PRNG)~\cite{press2007numerical}, which are originally designed to generate statistically random values from the univariate uniform distribution $\calU$ over an interval, such as $[0, 1)$. In some simple cases, we can transform every sample from the PRNG to the target distribution in a deterministic way: Univariate distributions can be sampled by transforming the probability density function (PDF) with a change of variable $p(x) = q(y) \frac{\partial y}{\partial x}$, also known as reparameterization, where $p(x)$ is the target distribution and $q(y)$ is the uniform distribution $\calU[0, 1)$. Multivariate distributions can be sampled by first generating multiple independent values from $\calU[0, 1)$ and then changing the variables. For example, the 2D unit Gaussian distribution
+\section{Exact sampling}
+
+The Monte Carlo method requires randomly generating independent samples from a given distribution, but this is not always straightforward. In computational physics, the so-called ``random numbers'' are produced by pseudorandom number generators (PRNG)~\cite{press2007numerical}, which are originally designed to generate statistically random values from the univariate uniform distribution $\calU$ over an interval, such as $[0, 1)$. In some simple cases, we can transform every sample from the PRNG to the target distribution in a deterministic way: Univariate distributions can be sampled by a change of variable, also known as reparameterization. For example, the exponential distribution $p(x) = \rme^{-x}$, $x \in [0, +\infty)$ can be sampled by $x = -\ln u$, where $u$ is randomly generated from $\calU[0, 1)$, as the probability density function (PDF) satisfies
+\begin{equation}
+p(x) = q(u) \left| \frac{\partial u}{\partial x} \right| = 1 \cdot \left| \frac{\partial}{\partial x} \rme^{-x} \right| = \rme^{-x}.
+\end{equation}
+Multivariate distributions can be sampled by first generating multiple independent values from $\calU[0, 1)$ and then changing the variables. For example, the 2D unit Gaussian distribution
 $p(x, y) = \frac{1}{2 \pi} \rme^{-\frac{1}{2} (x^2 + y^2)}$ can be sampled by the Box--Muller transform~\cite{box1958note}:
 \begin{gather}
 p(x, y) = q(u) q(v) \begin{Vmatrix}
@@ -41,7 +49,9 @@ Discrete Bernoulli distribution from continuous uniform distribution.
 \end{algorithmic}
 \end{algorithm}
 
-In the case of Boltzmann distributions for many-body systems with complicated energy landscapes, such analytical transformation is generally impossible to find, and we can only resort to indirect methods for sampling these distributions. A common method is to construct a Markov chain of samples, whose equilibrium distribution converges to the target one, therefore this sampling method is known as Markov chain Monte Carlo (MCMC)~\cite{gelfand1990sampling, robert2020markov}. For spin systems, such a Markov chain is usually constructed by the Metropolis--Hastings algorithm~\cite{hastings1970monte}. In each sampling step, we propose to update the current configuration $\vs$ to a new one $\vs'$ with the proposal distribution $g(\vs' \mid \vs)$, where $\sum_{\vs'} g(\vs' \mid \vs) = 1$ for all $\vs$. Then we accept $\vs'$ to become the current configuration by an acceptance probability defined by
+\section{Markov chain sampling}
+
+In the case of Boltzmann distributions for many-body systems with complicated energy landscapes, an analytical transformation for exact sampling is generally impossible to find, and we can only resort to indirect methods for sampling these distributions. A common method is to construct a Markov chain of samples, whose equilibrium distribution converges to the target one, therefore this sampling method is known as Markov chain Monte Carlo (MCMC)~\cite{gelfand1990sampling, robert2020markov}. For spin systems, such a Markov chain is usually constructed by the Metropolis--Hastings algorithm~\cite{hastings1970monte}. In each sampling step, we propose to update the current configuration $\vs$ to a new one $\vs'$ with the proposal distribution $g(\vs' \mid \vs)$, where $\sum_{\vs'} g(\vs' \mid \vs) = 1$ for all $\vs$. Then we accept $\vs'$ to become the current configuration by an acceptance probability defined by
 \begin{equation}
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs') g(\vs \mid \vs')}{p(\vs) g(\vs' \mid \vs)} \right).
 \label{eq:metropolis}
@@ -69,7 +79,7 @@ so the time to compute the acceptance probability, and therefore the total time 
 
 After collecting many samples from the Markov chain, we estimate the observables using \cref{eq:monte-carlo}. Care should be taken when generating these samples, as we will discuss below.
 
-\section{Autocorrelation time and critical slowing down}
+\section{Autocorrelation time}
 \label{sec:iat}
 
 \begin{figure}[htb]
@@ -140,6 +150,8 @@ Typical sample of the Ising model on the $100 \times 100$ square lattice at inve
 }
 \label{fig:ising-samples}
 \end{figure}
+
+\section{Critical slowing down}
 
 In many-body systems, the autocorrelation time particularly depends on the physical parameters, such as the inverse temperature $\beta$. It is a long-standing issue with MCMC that the autocorrelation time significantly increases when the system is around its critical point, known as critical slowing down~\cite{goodman1989multigrid, wolff1990critical}. Intuitively, the collective dynamics of the spins form clusters in the system, which separate from each other by domain walls, as shown in \cref{fig:ising-samples}. Their average diameter is roughly the correlation length $\xi$ of the system. In the case of single-spin update, the Markov chain can be interpreted as a random walk in the configuration space, where it moves from one configuration to an adjacent one with a spin flipped. As a corollary, the time $\tau$ to walk the distance $\xi$ scales by $\tau \sim \xi^2$, regardless of the spatial dimension. Detailed analysis from lattice field theory has shown that $\tau \sim \xi^z$, where $z$ is the dynamical critical exponent, and $z \approx 2$ in many cases~\cite{hohenberg1977theory}. At the critical point, $\xi$ diverges until it is bounded by the system size~\cite{lubetzky2012critical}, therefore the critical slowing down occurs.
 
@@ -213,17 +225,15 @@ A(\vs \to \vs') = \min\left( 1, \frac{p(\vs') q(\vs)}{p(\vs) q(\vs')} \right),
 \end{equation}
 which is close to $1$ if $q(\vs)$ is close to $p(\vs)$. Moreover, this method also reduces the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to the overall reduction of the autocorrelation time. There exist more advanced methods to construct the proposal distribution $g(\vs' \mid \vs)$ depending on the current configuration $\vs$, such as the Langevin Monte Carlo~\cite{rossky1978brownian} and the Hamiltonian Monte Carlo~\cite{duane1987hybrid}.
 
-A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling. They have originally arisen from studies of the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for Ising models with two-body interactions. In each sampling step, it constructs a cluster of spins according to \cref{alg:wolff} and flips it. The resulting proposal probability satisfies $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, so the acceptance probability is always $1$, which makes the Wolff cluster update far more efficient than the single-spin update when it is applicable.
-
 \begin{algorithm}[H]
 \caption[Wolff cluster update algorithm]{
-Wolff algorithm to construct a cluster of spins in the cluster update MCMC, for sampling the Boltzmann distribution of Ising models with two-body interactions.
+Wolff cluster update algorithm to construct and flip a cluster of spins, in the MCMC sampling of the Boltzmann distribution of Ising models with two-body interactions.
 $\calC$ is the cluster, $\calB$ is a set of spins on the boundary of the cluster, $\beta$ is the inverse temperature, $\partial i$ denotes the neighbors of the site $i$, and \texttt{rand()} generates a random number from the uniform distribution over $[0, 1)$.
 }
 \label{alg:wolff}
 \begin{algorithmic}[1]
 \STATE Input the current configuration $\vs$, interactions $\mJ$
-\STATE Starting from a random site $i$, $\calC \gets \{i\}$, $\calB \gets \{i\}$
+\STATE Randomly choose a site $i$, $\calC \gets \{i\}$, $\calB \gets \{i\}$
 \WHILE{$\calB \neq \emptyset$}
     \STATE $i \gets$ any site in $\calB$
     \FOR{$j \in \partial i$}
@@ -233,9 +243,14 @@ $\calC$ is the cluster, $\calB$ is a set of spins on the boundary of the cluster
     \ENDFOR
     \STATE $\calB \gets \calB \setminus \{i\}$
 \ENDWHILE
-\STATE Output $\calC$
+\FOR{$i \in \calC$}
+    \STATE $s_i \gets -s_i$
+\ENDFOR
+\STATE Output the new configuration $\vs' \gets \vs$
 \end{algorithmic}
 \end{algorithm}
+
+A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling. They have originally arisen from studies of the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for Ising models with two-body interactions. In each sampling step, it constructs and flips a cluster of spins according to \cref{alg:wolff}. The resulting proposal probability satisfies $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, so the acceptance probability is always $1$, which makes the Wolff cluster update far more efficient than the single-spin update when it is applicable.
 
 \dwcomment{Maybe discuss parallel tempering if there is spare time and space, but it's not used anywhere else in this thesis}
 
@@ -284,6 +299,8 @@ Although MCMC is widely used to compute various observables of many-body systems
 
 A different approach is to track the probability distribution in the framework of variational inference~\cite{jordan1999introduction, mackay2003information}, which also has deep roots in statistical physics, traced back to mean-field theories~\cite{chaikin1995principles4, zdeborova2016statistical}. We define a trial distribution $q(\vs)$, or the ``ansatz'' in the context of statistical physics, to approximate the target distribution $p(\vs)$. The form of the ansatz is chosen such that the normalized probability $q(\vs)$ can be efficiently computed given a configuration $\vs$, and the distribution can be easier to sample from than $p(\vs)$, or even be analytically summed over in \cref{eq:cl-obs}. Some choices of the ansatz for variational inference will be discussed in \cref{sec:nmf}.
 
+\section{Variational free energy}
+
 To make a good approximation, we want $q(\vs)$ to be as close to $p(\vs)$ as possible. A natural metric of the distance between two distributions is the Kullback--Leibler (KL) divergence~\cite{kullback1951information}:
 \begin{equation}
 D_\text{KL}(q \mid\mid p) = \sum_\vs q(\vs) \ln \frac{q(\vs)}{p(\vs)}.
@@ -313,6 +330,8 @@ Similar to how we have approximated \cref{eq:cl-obs} by \cref{eq:monte-carlo}, t
 \end{equation}
 This method has close resemblance to the variational Monte Carlo (VMC) method for quantum systems, which we will discuss in the next part, although the term VMC is rarely used in the context of classical systems. It is worth noting that the variational inference requires to evaluate the normalized probability $q(\vs)$, in contrast to MCMC in the previous chapter where the normalization constant cancels out in the derivation of the Markov Chain, as in \cref{eq:metropolis}. Therefore, it is important to choose an ansatz $q(\vs)$ whose probability is tractable.
 
+\section{Gradient descent optimizer}
+
 The ansatz $q(\vs)$ is usually controlled by some parameters $\theta$, which allows us to minimize the KL divergence by varying $\theta$. In \cref{eq:kl-fq}, the $F$ term is independent of $\theta$, so we only need to minimize $F_q$. As the KL divergence is non-negative, the lower bond of $F_q$ among all possible ansatzes is exactly the true free energy $F$, which is desired to compute in many cases. This property is known as Bogolubov inequality~\cite{bogolubov1966model}. A common practice is to minimize $\beta F_q$ rather than $F_q$ itself, which avoids the singularity of $\frac{1}{\beta}$ in \cref{eq:fq} when $\beta \to 0$.
 
 As $F_q$ is generally a multivariate nonlinear function of $\theta$, its optimization is usually performed by gradient descent (GD)-based algorithms~\cite{curry1944method}. In the naive setting of GD, in each optimization step $t$ we update $\theta$ by
@@ -325,6 +344,8 @@ where $\gamma$ is a small positive number called the learning rate. A common cha
 When estimating the gradient in \cref{eq:gd}, we usually generate a set of random samples $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ in each sampling step, rather than sum over the exponentially large space of configurations. This practice is known as stochastic gradient descent (SGD)~\cite{robbins1951stochastic, bottou1998online}, and the sample size $M$ is also known as the ``batch'' size in machine learning. In the continuous-time limit, SGD is equivalent to the exact gradient flow with an additional Brownian noise, and the magnitude of the noise depends on the variance of the estimator~\cite{hu2017diffusion}. This noise helps the optimizer escape from local minima and saddle points, given an appropriate ratio of the learning rate to the batch size, which may explain the successful application of SGD in many non-convex problems.
 
 Many advanced variants of SGD have been proposed in the recent trend of machine learning~\cite{kashyap2022survey}. The Adam optimizer~\cite{kingma2014adam} has become the most popular among them. It estimates the appropriate learning rate for each parameter by the second moment of the gradient, which largely reduces the manual labor to tune the learning rate, in addition to using the first moment to improve the convergence. Numerous experiments have demonstrated its broad applicability to machine learning problems, although its convergence properties are still debatable in physical problems that require high accuracy.
+
+\section{Gradient estimator}
 
 The gradient $\frac{\partial F_q}{\partial \theta}$ in \cref{eq:gd} is derived by automatic differentiation (AD)~\cite{baydin2018automatic} in modern software, which can be more accurate and efficient than traditional methods of finite difference, and more error-prone than manually deriving and implementing the gradient. Care should be taken that \cref{eq:fq} involves the distribution $q(\vs)$, which is a function of $\theta$, but this term no longer exists after replacing \cref{eq:fq} by \cref{eq:fq-monte-carlo}, and we cannot take the gradient of this term in the usual way after sampling the configurations in \cref{eq:fq-monte-carlo}. Therefore, we rewrite the gradient of \cref{eq:fq} as
 \begin{align}
@@ -356,6 +377,8 @@ Moreover, a common practice is to subtract a ``baseline'' term $\tilde{F}$ from 
 \label{eq:fq-grad-baseline}
 \end{equation}
 where $\tilde{F} = \bbE_\text{MC}[F_q]$, but in \cref{eq:fq-grad-baseline} we do not take the gradient of $\tilde{F}$ w.r.t.\ $\theta$. Although $\tilde{F}$ does not affect the expectation of the estimator, it reduces the variance of the estimator in many practical cases, and thus improves the convergence of SGD. This technique falls in a broader family of control variate methods to reduce variances~\cite{ranganath2014black}.
+
+\subsubsection{Comparison between MCMC and variational method}
 
 Besides being able to estimate observables that require the partition function, another feature of variational inference in contrast to MCMC is that it always produces an upper bound of the true free energy, within the statistical error of Monte Carlo sampling. This leads to an intuitive way to compare the accuracies of two variational methods: a lower variational free energy indicates a better approximation of the target distribution. However, this also means a systematic bias in the estimated energy. Other estimated observables can contain biases with unknown directions, and a lower variational free energy does not necessarily indicate that other estimated observables are more accurate. Moreover, there is no straightforward way to improve the accuracy of variational inference as the computation budget grows, whether by increasing the number of variational parameters or optimization steps. In contrast, we can always improve the accuracy or the probability to cover all modes in MCMC by increasing the number of samples. Therefore, to obtain unbiased and accurate estimations of observables, we may use a variational ansatz with MCMC importance sampling in \cref{eq:mcmc-importance}.
 
@@ -525,6 +548,8 @@ Neural networks, in the context of modern machine learning, are a diverse class 
 
 Since their breakthrough on image classification problems~\cite{krizhevsky2012imagenet}, the neural networks with deep and layered architectures have opened a new era of machine learning studies, known as ``deep learning''~\cite{goodfellow2016deep}. They have achieved state-of-the-art results on all machine learning domains, and led to a growth of the data-driven paradigm in vast scientific fields~\cite{montans2019data}. The prominent examples including the modeling of languages~\cite{brown2020language}, images~\cite{rombach2022high}, and strategic games~\cite{silver2016mastering}. Such success is conjectured to stem from the high efficiency of neural networks to represent complicated probability distributions in exponentially high-dimensional spaces --- probabilities of valid speeches in the space of many words, probabilities of recognizable images in the space of many pixels, and probabilities of winning moves in the space of many game board states. Therefore, they have also been introduced as ansatzes in many-body physics, where such distributions are a central problem.
 
+\subsection{Layers in neural networks}
+
 Neural networks are composed of a common set of functions, known as ``layers'', and the composition can be arbitrarily sophisticated. The basic architecture is the feedforward neural network (FFNN), which is defined by a sequential composition of alternating linear layers and nonlinear activation layers:
 \begin{equation}
 \vy = (\text{Lin}_1 \circ \text{Act}_1 \circ \text{Lin}_2 \circ \text{Act}_2 \circ \cdots \circ \text{Lin}_{n_\text{l}} \circ \text{Act}_{n_\text{l}})(\vx),
@@ -581,6 +606,8 @@ In contrast, the output of sigmoid is bounded in $(0, 1)$.
 \label{fig:activations}
 \end{figure}
 
+\subsection{Symmetries in neural networks}
+
 Many-body systems usually have symmetries and locality, which also arise in machine learning of natural images. To take these advantages, the linear layers can be specialized into convolutional layers. Ignoring the layer index, a convolutional layer is denoted by $\vy = \text{Conv}(\vx)$, and in the 1D case it is defined by
 \begin{equation}
 y_{i, c} = \left( \sum_{k = 1}^{n_\text{k}} \sum_{c' = 1}^{n_\text{c in}} W_{k, c, c'} x_{i + k - 1, c'} \right) + b_{i, c},
@@ -603,6 +630,8 @@ where $f$ is a neural network composed of convolutional, activation, and pooling
 \begin{equation}
 \text{Pool}(\vx) = \sum_{i = 1}^{n_\text{s}} x_i.
 \end{equation}
+
+\subsection{Neural network as variational ansatz}
 
 After introducing the various layers as building blocks, we proceed to apply a neural network as the ansatz for a many-body system of $N$ spins. One may naively define
 \begin{align}
