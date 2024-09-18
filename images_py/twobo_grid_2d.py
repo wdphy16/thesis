@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 import networkx as nx
+from matplotlib.colors import to_rgb
 
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["font.serif"] = "STIXGeneral"
@@ -10,6 +11,12 @@ plt.rcParams["mathtext.fontset"] = "stix"
 out_filename = "./twobo_grid_2d.pdf"
 L = 5
 node_i = 12
+
+
+def lighten(c):
+    c = to_rgb(c)
+    c = tuple((x + 1) / 2 for x in c)
+    return c
 
 
 def main():
@@ -33,14 +40,14 @@ def main():
 
     target_node = (int(node_i / L), node_i % L)
     node_colors = [
-        "#2ca02c" if node == target_node else "#ff7f0e" for node in G.nodes()
+        lighten("#2ca02c" if node == target_node else "#ff7f0e") for node in G.nodes()
     ]
 
     plt.figure(figsize=(4, 4))
 
     nx.draw(G, pos, node_color=node_colors, with_labels=False, node_size=1000)
     nx.draw_networkx_edges(
-        G, pos, edgelist=highlighted_edges, edge_color="#1f77b4", width=5.5
+        G, pos, edgelist=highlighted_edges, edge_color="#1f77b4", width=3
     )
     nx.draw_networkx_labels(
         G, pos, labels=labels, font_family="serif", verticalalignment="center_baseline"

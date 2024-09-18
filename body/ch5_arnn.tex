@@ -74,7 +74,7 @@ where $f$ and $g$ can be arbitrarily sophisticated neural networks, and their pa
 \includegraphics[width=\linewidth]{ch5/arnn_ising.pdf}
 \caption[ARNN results of Ising model on square and triangular lattices]{
 (a) Free energy per site of the ferromagnetic (FM) Ising model on the $16 \times 16$ square lattice with periodic boundary conditions (PBC), given by a dense ARNN and a convolutional ARNN, compared to the exact result~\cite{onsager1944crystal} and the traditional methods of naive mean field (NMF) and Bethe ansatz.
-The inset shows the relative error of the variational result compared to the exact result.
+The inset shows the relative error of the variational result compared to the exact result. \\
 (b) Entropy per site of the frustrated antiferromagnetic (AFM) Ising model on triangular lattices of various sizes $N = L \times L$ with PBC, given by a convolutional ARNN.
 The curves are least-square fittings of $S / N = a \rme^{-b \beta} + c$, where $a, b, c$ are parameters for fitting, and $c$ is the residual  entropy when $\beta \to \infty$.
 The horizontal dashed line indicates the exact result $S / N = \frac{2}{\pi} \int_0^{\frac{\pi}{3}} \ln(2 \cos \omega) \dd \omega \approx 0.323$ when $\beta \to \infty$ and $L \to \infty$~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}.
@@ -119,7 +119,7 @@ An experiment to qualitatively study the ability of ARNN to capture multiple gro
 \includegraphics[width=\linewidth]{ch5/arnn_sk.pdf}
 \caption[ARNN results of Sherrington--Kirkpatrick (SK) model and inverse SK problem]{
 (a) Free energy per site for a random instance of the Sherrington--Kirkpatrick (SK) model with $N = 20$ spins, given by a dense ARNN, compared to the exact result by enumeration, the NMF ansatz, and the Bethe ansatz. The inset shows the relative error of the variational result compared to the exact result.
-The iterative solution of the Bethe ansatz converges only when $\beta \le 1.5$.
+The iterative solution of the Bethe ansatz converges only when $\beta \le 1.5$. \\
 (b) Reconstruction error of the inverse SK problem with $N = 20$ spins, given by a dense ARNN, compared to the NMF ansatz~\cite{roudi2009ising}, the Sessak--Monasson (SM) expansion~\cite{sessak2009small}, and the Bethe ansatz~\cite{ricci2012bethe}.
 This figure is reproduced from Fig.~4 in Ref.~\cite{wu2019solving}.
 }
@@ -148,13 +148,100 @@ Apart from training a new network with each system size and temperature, it has 
 
 \section{Sparse two-body ARNN}
 
+
+
+This architecture is named TwoBo, because the authors were tired of the ever-growing lengths of acronyms.
+
+
+
 \cite{pan2021solving}
 
 \cite{biazzo2023autoregressive}
 
 \cite{biazzo2024sparse}
 
+
+\begin{figure}[htb]
+\centering
+\hspace*{\fill}
+\subfloat[]{\raisebox{0.055\linewidth}{\includegraphics[width=0.4\linewidth]{ch5/twobo_arch.pdf}}}
+\hspace*{\fill}
+\subfloat[]{\includegraphics[width=0.4\linewidth]{ch5/twobo_grid_2d.pdf}}
+\hspace*{\fill}
+\caption{
+(a) Sketch of the TwoBo ARNN architecture to compute a conditional probability $q_i(s_i = +1 \mid \vs_{< i})$.
+The parameters of the first layer are directly taken from the interaction matrix $\bm{J}$.
+The function $\rho_i$ is parameterized by a FFNN, whose inputs are the variables $\vxi_i$ after the first layer.
+The last activation function $S$ is the sigmoid function in \cref{eq:sigmoid}. \\
+(b) Calculating the conditional probability $q_i(s_i \mid \vs_{< i})$ with $i = 13$ on a 2D grid of $N = 25$ spins. The edges between the spins $\vs_{< i}$ and $\vs_{\ge i}$ are highlighted in blue, and only those edges are used when computing the intermediate variable $\xi_{i l}$. Therefore, among the variables $\{\xi_{i l} \mid l > i\}$, only those with $l < i + L$ are kept as inputs to $\rho_i$, and the others are ensured to be zero, which enhances the sparsity of the TwoBo network.
+This figure is reproduced from Fig.~1 in Ref.~\cite{biazzo2024sparse}.
+}
+\label{fig:twobo-arch-grid}
+\end{figure}
+
 \subsection{Numerical results}
+
+\subsubsection{Variational free energy}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\linewidth]{ch5/twobo_ea_rrg.pdf}
+\caption{
+Variational free energy (left column) and minimum energy of sampled configurations (right column) at each $\beta$ on 2D EA (top row), 3D EA (middle row), and RRG (bottom row) models of different sizes. We compare the performances of TwoBo, MADE, and RNN (only in 2D).
+The variational free energy is shown as the relative difference from TwoBo at the same $\beta$, and the minimum energy as the relative difference from the one found by TwoBo at $\beta = 3$.
+The results are averaged over $10$ random instances of the Hamiltonian, and the error bars show the standard errors over the instances.
+This figure is reproduced from Fig.~2 in Ref.~\cite{biazzo2024sparse}.
+}
+\label{fig:twobo-ea-rrg}
+\end{figure}
+
+\subsubsection{Convergence of training}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\linewidth]{ch5/twobo_converge.pdf}
+\caption{
+Convergence of variational free energy when training at fixed values of $\beta$ on 2D EA model with $N = 14^2 = 576$.
+The results are averaged over $10$ random instances of the Hamiltonian, and the error bars show the standard errors over the instances.
+This figure is reproduced from Fig.~3 in Ref.~\cite{biazzo2024sparse}.
+}
+\label{fig:twobo-converge}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\linewidth]{ch5/twobo_converge_max_steps.pdf}
+\caption{
+Variational free energy using different numbers of optimization steps at each $\beta$ on 2D EA model with $N = 576$, shown as the relative difference from TwoBo at the same $\beta$ using 1024 steps.
+The results are averaged over $10$ random instances of the Hamiltonian, and the standard errors over the instances are too small to be visible.
+This figure is reproduced from Fig.~4 in Ref.~\cite{biazzo2024sparse}.
+}
+\label{fig:twobo-converge-max-steps}
+\end{figure}
+
+\subsubsection{Parameter efficiency}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\linewidth]{ch5/twobo_param.pdf}
+\caption{
+Number of trainable parameters in TwoBo and MADE on 2D EA, 3D EA, and RRG models of various system sizes $N$.
+For RRG, the number of trainable parameters in TwoBo is averaged over $10$ random instances.
+This figure is reproduced from Fig.~S1 in the supplementary material of Ref.~\cite{biazzo2024sparse}.
+}
+\label{fig:twobo-param}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\linewidth]{ch5/twobo_rnn_param.pdf}
+\caption{
+Variational free energy of TwoBo compared to RNN with different numbers of memory units ($2, 4, 8, 16, 24, 32, 40$), on 2D EA model with $N = 576$.
+The results are averaged over $10$ random instances of the Hamiltonian, and the error bars show the standard errors over the instances.
+This figure is reproduced from Fig.~S3 in the supplementary material of Ref.~\cite{biazzo2024sparse}.
+}
+\label{fig:compare_rnn}
+\end{figure}
 
 \section{ARNN in MCMC importance sampling}
 \label{sec:arnn-mcmc}

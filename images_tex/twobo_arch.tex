@@ -3,47 +3,51 @@
 \usepackage{stix}
 
 \definecolor{mplblue}{HTML}{1f77b4}
-\definecolor{mplorange}{HTML}{ff7f0e}
 
-\tikzstyle{lin}=[rounded corners, fill=mplblue!50!white]
-\tikzstyle{act}=[rounded corners, fill=mplorange!50!white]
+\tikzstyle{neuron}=[circle, draw, minimum size=0.8cm, inner sep=0pt]
+\tikzstyle{box}=[rounded corners, draw, minimum width=0.8cm, minimum height=0.48cm]
 
 \begin{document}
-\begin{tikzpicture}
+\begin{tikzpicture}[y=-1cm]
 
-\draw[lin] (0  , 0) rectangle ++(1, 2);
-\draw[act] (1.5, 0) rectangle ++(1, 2);
-\draw[lin] (3  , 0) rectangle ++(1, 2);
-\draw[act] (4.5, 0) rectangle ++(1, 2);
-\draw[lin] (7.5, 0) rectangle ++(1, 2);
-\draw[act] (9  , 0) rectangle ++(1, 2);
+\node[neuron] (s1) at (0, 0.75) {$s_1$};
+\node[neuron] (s2) at (0, 1.75) {$s_2$};
+\node at (0, 2.5) {$\vdots$};
+\node[neuron] (s9) at (0, 3.25) {$s_{i - 1}$};
 
-\node[rotate=90] at (0.5, 1) {Lin$_1$};
-\node[rotate=90] at (2  , 1) {Act$_1$};
-\node[rotate=90] at (3.5, 1) {Lin$_2$};
-\node[rotate=90] at (5  , 1) {Act$_2$};
-\node[rotate=90] at (8  , 1) {Lin$_{n_\mathrm{l}}$};
-\node[rotate=90] at (9.5, 1) {Act$_{n_\mathrm{l}}$};
+\node[neuron] (x0) at (2, 0) {$\xi_{i, i}$};
+\node[neuron] (x1) at (2, 1.5) {$\xi_{i, i + 1}$};
+\node[neuron] (x2) at (2, 2.5) {$\xi_{i, i + 2}$};
+\node at (2, 3.25) {$\vdots$};
+\node[neuron] (x9) at (2, 4) {$\xi_{i, N}$};
 
-\draw[->] (-0.4, 1) -- ( 0  , 1);
-\draw[->] ( 1  , 1) -- ( 1.5, 1);
-\draw[->] ( 2.5, 1) -- ( 3  , 1);
-\draw[->] ( 4  , 1) -- ( 4.5, 1);
-\draw[->] ( 5.5, 1) -- ( 6  , 1);
-\draw[->] ( 7  , 1) -- ( 7.5, 1);
-\draw[->] ( 8.5, 1) -- ( 9  , 1);
-\draw[->] (10  , 1) -- (10.4, 1);
+\draw[mplblue, thick] (s1.east) -- (x0.west);
+\draw[mplblue, thick] (s1.east) -- (x1.west);
+\draw[mplblue, thick] (s1.east) -- (x2.west);
+\draw[mplblue, thick] (s1.east) -- (x9.west);
+\draw[mplblue, thick] (s2.east) -- (x0.west);
+\draw[mplblue, thick] (s2.east) -- (x1.west);
+\draw[mplblue, thick] (s2.east) -- (x2.west);
+\draw[mplblue, thick] (s2.east) -- (x9.west);
+\draw[mplblue, thick] (s9.east) -- (x0.west);
+\draw[mplblue, thick] (s9.east) -- (x1.west);
+\draw[mplblue, thick] (s9.east) -- (x2.west);
+\draw[mplblue, thick] (s9.east) -- (x9.west);
 
-\node at (-0.6, 1) {$\bm{x}$};
-\node at (10.6, 1) {$\bm{y}$};
-\node at (6.5, 0.97) {$\cdots$};
+\node at (0.9, 0) {\color{mplblue} $\bm{J}$};
 
-\node at (1.25, 1.3) {\small $\bm{x}'_1$};
-\node at (2.75, 1.3) {\small $\bm{x}_2$};
-\node at (4.25, 1.3) {\small $\bm{x}'_2$};
-\node at (5.75, 1.3) {\small $\bm{x}_3$};
-\node at (7.25, 1.3) {\small $\bm{x}_{n_\mathrm{l}}$};
-\node at (8.75, 1.3) {\small $\bm{x}'_{n_\mathrm{l}}$};
+\node[box] (rho) at (3.5, 2) {$\rho_i$};
+\node[box] (S) at (5, 2) {$S$};
+\node (q) at (6, 2) {$q_i$};
+
+\draw (x1.east) -- (rho.west);
+\draw (x2.east) -- (rho.west);
+\draw (x9.east) -- (rho.west);
+
+\draw (x0.east) -- (S.west);
+\draw (rho.east) -- (S.west);
+
+\draw (S.east) -- (q.west);
 
 \end{tikzpicture}
 \end{document}
