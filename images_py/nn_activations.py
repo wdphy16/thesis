@@ -8,7 +8,7 @@ plt.rcParams["font.family"] = "serif"
 plt.rcParams["font.serif"] = "STIXGeneral"
 plt.rcParams["mathtext.fontset"] = "stix"
 
-out_filename = "./activations.pdf"
+out_filename = "./nn_activations.pdf"
 
 
 def main():
