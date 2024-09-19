@@ -67,22 +67,22 @@ where $f$ and $g$ can be arbitrarily sophisticated neural networks, and their pa
 
 \subsection{Numerical results}
 
-\subsubsection{Square Ising model}
-
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/arnn_ising.pdf}
 \caption[ARNN results of Ising model on square and triangular lattices]{
-(a) Free energy per site of the ferromagnetic (FM) Ising model on the $16 \times 16$ square lattice with periodic boundary conditions (PBC), given by a dense ARNN and a convolutional ARNN, compared to the exact result~\cite{onsager1944crystal} and the traditional methods of naive mean field (NMF) and Bethe ansatz.
-The inset shows the relative error of the variational result compared to the exact result. \\
-(b) Entropy per site of the frustrated antiferromagnetic (AFM) Ising model on triangular lattices of various sizes $N = L \times L$ with PBC, given by a convolutional ARNN.
+(a) Free energy per site $F / N$ of the ferromagnetic (FM) Ising model on the $16 \times 16$ square lattice with periodic boundary conditions (PBC), at varying inverse temperature $\beta$, given by a dense ARNN and a convolutional ARNN, compared to the exact result~\cite{onsager1944crystal} and the traditional methods of naive mean field (NMF) and Bethe ansatz.
+The inset shows the relative error of the numerical results compared to the exact result. \\
+(b) Entropy per site $S / N$ of the frustrated antiferromagnetic (AFM) Ising model on triangular lattices of different sizes $N = L \times L$ with PBC, given by a convolutional ARNN.
 The curves are least-square fittings of $S / N = a \rme^{-b \beta} + c$, where $a, b, c$ are parameters for fitting, and $c$ is the residual  entropy when $\beta \to \infty$.
-The horizontal dashed line indicates the exact result $S / N = \frac{2}{\pi} \int_0^{\frac{\pi}{3}} \ln(2 \cos \omega) \dd \omega \approx 0.323$ when $\beta \to \infty$ and $L \to \infty$~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}.
+The horizontal dashed line indicates the exact result $\lim_{L \to \infty} \lim_{\beta \to \infty} S / N \approx 0.323$~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}.
 Note that the curves for $L = 8, 14, 16$ are almost overlapped.
 This figure is reproduced from Fig.~2 in Ref.~\cite{wu2019solving}.
 }
 \label{fig:arnn-ising}
 \end{figure}
+
+\subsubsection{Square Ising model}
 
 We first demonstrate the performance of ARNN on the well-studied ferromagnetic (FM) Ising model on the $10 \times 10$ square lattice with periodic boundary conditions (PBC), where the analytical result~\cite{onsager1944crystal} and the traditional methods of naive mean field (NMF) ansatz in \cref{sec:nmf} and Bethe ansatz in \cref{sec:bethe} are available for comparison. A dense ARNN and a convolutional ARNN are trained on the Boltzmann distribution of this Hamiltonian, whose hyperparameters, such as the number of layers, the number of channels, and the convolution kernel size are selected to produce the lowest variational free energies within a reasonable computation budget. The networks are trained from scratch at each inverse temperature $\beta = 0.1, 0.2, \ldots, 1$. \Cref{fig:arnn-ising}~(a) shows the results of free energy, where we can clearly see that the ARNNs produce superior results compared to the traditional ansatzes, whose relative errors are lower by orders of magnitude.
 
@@ -90,9 +90,9 @@ In particular, the results from the convolutional ARNN are generally more accura
 
 \subsubsection{Triangular Ising model}
 
-Then we apply the convolutional ARNN to the more complicated problem of antiferromagnetic (AFM) Ising model on the triangular lattice with PBC, which is geometrically frustrated. As discussed in \cref{sec:mode-collapse}, the frustration leads to exponentially many degenerate ground states. The entropy of this system at zero temperature is $S = \ln N_\text{GS}$, where $N_\text{GS}$ is the number of ground states. In the thermodynamic limit $N \to \infty$, we assume $N_\text{GS} = A \rme^{c N}$, where $A$ and $c$ are parameters to be determined. Therefore, we have $S / N = \frac{1}{N} \ln A + c$, which converges to $c$ as $N \to \infty$, and $c$ is known as the residual entropy~\cite{wannier1950antiferromagnetism, mambrini1999residual, vanderstraeten2018residual}. The existence of a non-zero residual entropy indicates the exponentially large number of degenerate ground states, which poses challenge for MCMC methods and previous variational ansatzes to accurately count it, or merely count its order of magnitude. For the relatively simple case of triangular Ising model, the analytical result of the residual entropy has been derived~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}.
+Then we apply the convolutional ARNN to the more complicated problem of antiferromagnetic (AFM) Ising model on the triangular lattice with PBC, which is geometrically frustrated. As discussed in \cref{sec:mode-collapse}, the frustration leads to exponentially many degenerate ground states. The entropy of this system at zero temperature is $S = \ln N_\text{GS}$, where $N_\text{GS}$ is the number of ground states. In the thermodynamic limit $N \to \infty$, we assume $N_\text{GS} = A \rme^{c N}$, where $A$ and $c$ are parameters to be determined. Therefore, we have $\frac{S}{N} = \frac{1}{N} \ln A + c$, which converges to $c$ as $N \to \infty$, and $c$ is known as the residual entropy~\cite{wannier1950antiferromagnetism, mambrini1999residual, vanderstraeten2018residual}. The existence of a non-zero residual entropy indicates the exponentially large number of degenerate ground states, which poses challenge for MCMC methods and previous variational ansatzes to accurately count it, or merely count its order of magnitude. For the relatively simple case of triangular Ising model, the analytical result of the residual entropy has been derived that $\lim_{L \to \infty} \lim_{\beta \to \infty} \frac{S}{N} = \frac{2}{\pi} \int_0^{\frac{\pi}{3}} \ln(2 \cos \omega) \dd \omega \approx 0.323$~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}.
 
-In \cref{fig:arnn-ising}~(b), the ARNN produces entropies that exponentially decay to a constant as $\beta \to \infty$ for each system size $L$, and converge to the analytical result as $L \to \infty$. This demonstrates the rich expressiveness of ARNN, which has the potential to accurately approximate exponentially complex target distributions using polynomial computation time and number of parameters.
+In \cref{fig:arnn-ising}~(b), the ARNN produces entropies that exponentially decay to a constant as $\beta \to \infty$ for each system size $L$, and converge around the analytical result as $L \to \infty$. These results demonstrate the rich expressiveness of ARNN, which has the potential to accurately approximate exponentially complex target distributions using polynomial computation time and number of parameters.
 
 \subsubsection{Hopfield model}
 
@@ -100,7 +100,7 @@ In \cref{fig:arnn-ising}~(b), the ARNN produces entropies that exponentially dec
 \centering
 \includegraphics[width=\linewidth]{ch5/arnn_hop.pdf}
 \caption[ARNN results of Hopfield model]{
-Log-probability of samples from a dense ARNN, for the Hopfield model with $N = 100$ spins and $n_\text{p} = 2$ orthogonal patterns.
+Log-probability $\ln q$ of samples from a dense ARNN, for the Hopfield model with $N = 100$ spins and $n_\text{pat} = 2$ orthogonal patterns.
 The top row shows the 3D view of the log-probability surfaces, and the bottom row shows the same results in the 2D view from top.
 The columns are results with different inverse temperatures $\beta = 0.3, 1.0, 1.5$.
 The $O_1$ and $O_2$ axes denote the overlaps between each sample and the two patterns respectively, as defined in \cref{eq:cl-overlap}.
@@ -110,7 +110,7 @@ This figure is reproduced from Fig.~3 in Ref.~\cite{wu2019solving}.
 \label{fig:arnn-hop}
 \end{figure}
 
-An experiment to qualitatively study the ability of ARNN to capture multiple ground states is on the Hopfield model in \cref{eq:hopfield}. We construct a Hopfield model with $N = 100$ spins and $n_\text{p} = 2$ random orthogonal patterns, and train a dense ARNN that only consists of a single layer. Then we generate $10^4$ samples from the ARNN, and compute their probabilities and their overlaps with the two patterns respectively. \Cref{fig:arnn-hop} shows that the ARNN successfully samples the memorized patterns with exponentially higher probabilities than other states, in the retrieval phase with high $\beta$. This indicates the capability of ARNN to avoid mode collapse and capture all the modes separated by exponentially high energy barriers in this Hamiltonian.
+An experiment to qualitatively study the ability of ARNN to capture multiple ground states is on the Hopfield model in \cref{sec:hopfield}. We construct a Hopfield model with $N = 100$ spins and $n_\text{pat} = 2$ random orthogonal patterns, and train a dense ARNN that only consists of a single layer. Then we generate $10^4$ samples from the ARNN, and compute their probabilities and their overlaps with the two patterns respectively. \Cref{fig:arnn-hop} shows that the ARNN successfully samples the memorized patterns with exponentially higher probabilities than other states, in the retrieval phase with high $\beta$. This indicates the capability of ARNN to avoid mode collapse and capture all the modes separated by exponentially high energy barriers in this Hamiltonian.
 
 \subsubsection{SK model}
 
@@ -118,7 +118,7 @@ An experiment to qualitatively study the ability of ARNN to capture multiple gro
 \centering
 \includegraphics[width=\linewidth]{ch5/arnn_sk.pdf}
 \caption[ARNN results of Sherrington--Kirkpatrick (SK) model and inverse SK problem]{
-(a) Free energy per site for a random instance of the Sherrington--Kirkpatrick (SK) model with $N = 20$ spins, given by a dense ARNN, compared to the exact result by enumeration, the NMF ansatz, and the Bethe ansatz. The inset shows the relative error of the variational result compared to the exact result.
+(a) Free energy per site $F / N$ for a random instance of the Sherrington--Kirkpatrick (SK) model with $N = 20$ spins, at varying inverse temperature $\beta$, given by a dense ARNN, compared to the exact result by enumeration, the NMF ansatz, and the Bethe ansatz. The inset shows the relative error of the numerical results compared to the exact result.
 The iterative solution of the Bethe ansatz converges only when $\beta \le 1.5$. \\
 (b) Reconstruction error of the inverse SK problem with $N = 20$ spins, given by a dense ARNN, compared to the NMF ansatz~\cite{roudi2009ising}, the Sessak--Monasson (SM) expansion~\cite{sessak2009small}, and the Bethe ansatz~\cite{ricci2012bethe}.
 This figure is reproduced from Fig.~4 in Ref.~\cite{wu2019solving}.
@@ -140,13 +140,42 @@ In this problem, we use an ARNN with two dense layers to estimate $C_{i j}$. The
 \end{equation}
 where $J_{i j}$ are the estimated values and $J^*_{i j}$ are the true values. The results are shown in \cref{fig:arnn-ising}~(b), where the ARNN again outperforms traditional methods by a large margin.
 
-\subsubsection{Remarks on network sizes}
+\subsubsection{Remarks on network sizes and computation times}
 
 It is worth discussing the sizes of the ARNNs used in the above experiments. For the fully connected cases of the Hopfield model, the SK model, and the inverse SK problem, we use small ARNNs containing only $O(N^2)$ parameters, and they produce significantly better results than the Bethe ansatzes with the same order of parameters. For the Ising models on the $16 \times 16$ square and triangular lattices, however, the ARNNs with the optimal variational free energies we have found contain as many as $O(10^6)$ parameters, while the Bethe ansatzes only contain $O(10^3)$. The large number of parameters also leads to significantly more computation time to evaluate the observables, as the training and the sampling of such a large neural network typically take several hours on a modern GPU, while the NMF ansatz and the Bethe ansatz can be solved almost instantly. Therefore, many use cases of neural networks to replace traditional ansatzes appear only in the regime where we seek much higher accuracy at the cost of correspondingly more computation. The comparison of neural networks and traditional methods under the same computation budget will be discussed in \cref{sec:arnn-mcmc}.
 
 Apart from training a new network with each system size and temperature, it has also been proposed to directly reuse or fine-tune a trained network with different system sizes and temperatures~\cite{efthymiou2019super, mills2019extensive, rende2024fine}. This line of research opens a promising way to numerically compute the renormalization group (RG) flow, and extrapolate the critical temperature to the thermodynamic limit~\cite{ron2002inverse}.
 
 \section{Sparse two-body ARNN}
+
+In the previous section, we have seen that the simple ARNN with dense architecture approximates many-body systems to much higher accuracy than traditional ansatzes, but also introduces much more trainable parameters and requires longer computation time. The convolutional ARNN reaches even higher accuracy with the same amount of parameters, as it utilizes the translational symmetry and the locality of the physical system. In this section, we continue to seek for a more sophisticated ARNN architecture that further embodies knowledge of the physical system, particularly the sparsity, to reduce the number of trainable parameters and the computation time without losing the expressiveness.
+
+\begin{figure}[htb]
+\centering
+\hspace*{\fill}
+\subfloat[]{\raisebox{0.055\linewidth}{\includegraphics[width=0.4\linewidth]{ch5/twobo_arch.pdf}}}
+\hspace*{\fill}
+\subfloat[]{\includegraphics[width=0.4\linewidth]{ch5/twobo_grid_2d.pdf}}
+\hspace*{\fill}
+\caption[Architecture of the sparse two-body ARNN (TwoBo)]{
+(a) Sketch of the TwoBo ARNN architecture to compute a conditional probability $q_i(s_i = +1 \mid \vs_{< i})$.
+The parameters of the first layer are directly taken from the interaction matrix $\bm{J}$.
+The function $\rho_i$ is parameterized by a FFNN, whose inputs are the variables $\{\xi_{i l} \mid l > i\}$ after the first layer.
+The last activation function $S$ is the sigmoid function in \cref{eq:sigmoid}. \\
+(b) Calculating the conditional probability $q_i(s_i \mid \vs_{< i})$ with $i = 13$ on a 2D grid of $N = 25$ spins. The edges between the spins $\vs_{< i}$ and $\vs_{\ge i}$ are highlighted in blue, and only those edges are used when computing the intermediate variable $\xi_{i l}$. Therefore, among the variables $\{\xi_{i l} \mid l > i\}$, only those with $l < i + L$ are kept as inputs to $\rho_i$, and the others are ensured to be zero, which enhances the sparsity of the TwoBo network.
+This figure is reproduced from Fig.~1 in Ref.~\cite{biazzo2024sparse}.
+}
+\label{fig:twobo-arch-grid}
+\end{figure}
+
+We start from directly factorizing the many-body Boltzmann distribution $p_\text{B}(\vs)$ into the AR conditional distributions in \cref{eq:autoreg}:
+\begin{equation}
+p_{\text{B} i}(s_i \mid \vs_{< i})
+= \frac{\sum_{\vs_{> i}} p_\text{B}(\vs)}{\sum_{\vs_{\ge i}} p_\text{B}(\vs)}
+= \frac{\sum_{\vs_{> i}} \rme^{-\beta H(\vs)}}{\sum_{\vs_{\ge i}} \rme^{-\beta H(\vs)}},
+\end{equation}
+and simplify the resulting expression.
+
 
 
 
@@ -160,25 +189,6 @@ This architecture is named TwoBo, because the authors were tired of the ever-gro
 
 \cite{biazzo2024sparse}
 
-
-\begin{figure}[htb]
-\centering
-\hspace*{\fill}
-\subfloat[]{\raisebox{0.055\linewidth}{\includegraphics[width=0.4\linewidth]{ch5/twobo_arch.pdf}}}
-\hspace*{\fill}
-\subfloat[]{\includegraphics[width=0.4\linewidth]{ch5/twobo_grid_2d.pdf}}
-\hspace*{\fill}
-\caption{
-(a) Sketch of the TwoBo ARNN architecture to compute a conditional probability $q_i(s_i = +1 \mid \vs_{< i})$.
-The parameters of the first layer are directly taken from the interaction matrix $\bm{J}$.
-The function $\rho_i$ is parameterized by a FFNN, whose inputs are the variables $\vxi_i$ after the first layer.
-The last activation function $S$ is the sigmoid function in \cref{eq:sigmoid}. \\
-(b) Calculating the conditional probability $q_i(s_i \mid \vs_{< i})$ with $i = 13$ on a 2D grid of $N = 25$ spins. The edges between the spins $\vs_{< i}$ and $\vs_{\ge i}$ are highlighted in blue, and only those edges are used when computing the intermediate variable $\xi_{i l}$. Therefore, among the variables $\{\xi_{i l} \mid l > i\}$, only those with $l < i + L$ are kept as inputs to $\rho_i$, and the others are ensured to be zero, which enhances the sparsity of the TwoBo network.
-This figure is reproduced from Fig.~1 in Ref.~\cite{biazzo2024sparse}.
-}
-\label{fig:twobo-arch-grid}
-\end{figure}
-
 \subsection{Numerical results}
 
 \subsubsection{Variational free energy}
@@ -186,7 +196,7 @@ This figure is reproduced from Fig.~1 in Ref.~\cite{biazzo2024sparse}.
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/twobo_ea_rrg.pdf}
-\caption{
+\caption[TwoBo results of Edwards--Anderson (EA) model]{
 Variational free energy (left column) and minimum energy of sampled configurations (right column) at each $\beta$ on 2D EA (top row), 3D EA (middle row), and RRG (bottom row) models of different sizes. We compare the performances of TwoBo, MADE, and RNN (only in 2D).
 The variational free energy is shown as the relative difference from TwoBo at the same $\beta$, and the minimum energy as the relative difference from the one found by TwoBo at $\beta = 3$.
 The results are averaged over $10$ random instances of the Hamiltonian, and the error bars show the standard errors over the instances.
@@ -195,12 +205,14 @@ This figure is reproduced from Fig.~2 in Ref.~\cite{biazzo2024sparse}.
 \label{fig:twobo-ea-rrg}
 \end{figure}
 
+All the RRGs have degree $d = 3$, and are generated from the uniform distribution of all such RRGs using the Steger--Wormald algorithm~\cite{steger1999generating}.
+
 \subsubsection{Convergence of training}
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/twobo_converge.pdf}
-\caption{
+\caption[Convergence of TwoBo variational free energy in training]{
 Convergence of variational free energy when training at fixed values of $\beta$ on 2D EA model with $N = 14^2 = 576$.
 The results are averaged over $10$ random instances of the Hamiltonian, and the error bars show the standard errors over the instances.
 This figure is reproduced from Fig.~3 in Ref.~\cite{biazzo2024sparse}.
@@ -211,7 +223,7 @@ This figure is reproduced from Fig.~3 in Ref.~\cite{biazzo2024sparse}.
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/twobo_converge_max_steps.pdf}
-\caption{
+\caption[TwoBo variational free energy vs.\ annealing speed]{
 Variational free energy using different numbers of optimization steps at each $\beta$ on 2D EA model with $N = 576$, shown as the relative difference from TwoBo at the same $\beta$ using 1024 steps.
 The results are averaged over $10$ random instances of the Hamiltonian, and the standard errors over the instances are too small to be visible.
 This figure is reproduced from Fig.~4 in Ref.~\cite{biazzo2024sparse}.
@@ -224,7 +236,7 @@ This figure is reproduced from Fig.~4 in Ref.~\cite{biazzo2024sparse}.
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/twobo_param.pdf}
-\caption{
+\caption[Number of parameters vs.\ system size for TwoBo and MADE]{
 Number of trainable parameters in TwoBo and MADE on 2D EA, 3D EA, and RRG models of various system sizes $N$.
 For RRG, the number of trainable parameters in TwoBo is averaged over $10$ random instances.
 This figure is reproduced from Fig.~S1 in the supplementary material of Ref.~\cite{biazzo2024sparse}.
@@ -235,7 +247,7 @@ This figure is reproduced from Fig.~S1 in the supplementary material of Ref.~\ci
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/twobo_rnn_param.pdf}
-\caption{
+\caption[Variational free energy vs.\ number of parameters for TwoBo and RNN]{
 Variational free energy of TwoBo compared to RNN with different numbers of memory units ($2, 4, 8, 16, 24, 32, 40$), on 2D EA model with $N = 576$.
 The results are averaged over $10$ random instances of the Hamiltonian, and the error bars show the standard errors over the instances.
 This figure is reproduced from Fig.~S3 in the supplementary material of Ref.~\cite{biazzo2024sparse}.

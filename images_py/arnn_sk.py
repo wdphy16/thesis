@@ -61,7 +61,7 @@ def plot_sk(fig, ax):
     ax.plot(betas, F_exact, color="k", label="Exact", linewidth=0.5)
 
     ax.set_xlabel("$\\beta$")
-    ax.set_ylabel("$F$")
+    ax.set_ylabel("$F / N$")
     ax.set_xlim(0.25, 1.75)
     ax.set_ylim(-1.65, -0.75)
     ax.legend(
