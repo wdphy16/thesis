@@ -23,6 +23,7 @@ The joint probability of an AR model supports exact sampling, because we can sam
 In the following, we introduce some neural network architectures to parameterize the conditional probabilities, each with its own use cases.
 
 \section{Dense and convolutional ARNNs}
+\label{sec:made}
 
 \begin{figure}[htb]
 \centering
@@ -144,9 +145,9 @@ It is worth discussing the sizes of the ARNNs used in the above experiments. For
 
 Apart from training a new network with each system size and temperature, it has also been proposed to directly reuse or fine-tune a trained network with different system sizes and temperatures~\cite{efthymiou2019super, mills2019extensive, rende2024fine}. This line of research opens a promising way to numerically compute the renormalization group (RG) flow, and extrapolate the critical temperature to the thermodynamic limit~\cite{ron2002inverse}.
 
-\section{Sparse two-body ARNN}
+\section{Sparse two-body ARNN (TwoBo)}
 
-In the previous section, we have seen that the simple ARNN with dense architecture approximates many-body systems to much higher accuracy than traditional ansatzes, but also introduces much more trainable parameters and requires longer computation time. The convolutional ARNN reaches even higher accuracy with the same amount of parameters, as it utilizes the translational symmetry and the locality of the physical system. In this section, we continue to seek for a more sophisticated ARNN architecture that further embodies knowledge of the physical system, particularly the sparsity, to reduce the number of trainable parameters and the computation time without losing the expressiveness.
+In the previous section, we have seen that the simple ARNN with dense architecture approximates many-body systems to much higher accuracy than traditional ansatzes, but also introduces much more trainable parameters and requires longer computation time. The convolutional ARNN reaches even higher accuracy with the same amount of parameters, as it utilizes the translational symmetry and the locality of the physical system. In this section, we continue to seek for a more sophisticated ARNN architecture that further embodies knowledge of the physical system, particularly the sparsity, to reduce the number of trainable parameters and the computation time without losing the expressiveness. An approach has been proposed in Ref.~\cite{pan2021solving} to convert any many-body system on a sparse graph into an equivalent system on a smaller dense graph using the feedback vertex set. We take a different approach, based on the properties of the Boltzmann distribution.
 
 \begin{figure}[htb]
 \centering
@@ -157,8 +158,8 @@ In the previous section, we have seen that the simple ARNN with dense architectu
 \hspace*{\fill}
 \caption[Architecture of the sparse two-body ARNN (TwoBo)]{
 (a) Sketch of the TwoBo ARNN architecture to compute a conditional probability $q_i(s_i = +1 \mid \vs_{< i})$.
-The parameters of the first layer are directly taken from the interaction matrix $\bm{J}$.
-The function $\rho_i$ is parameterized by a FFNN, whose inputs are the variables $\{\xi_{i l} \mid l > i\}$ after the first layer.
+The parameters of the first layer are directly taken from the interaction matrix $\mJ$.
+The function $\rho_i$ is parameterized by a dense layer, whose inputs are the variables $\{\xi_{i l} \mid l > i\}$ after the first layer.
 The last activation function $S$ is the sigmoid function in \cref{eq:sigmoid}. \\
 (b) Calculating the conditional probability $q_i(s_i \mid \vs_{< i})$ with $i = 13$ on a 2D grid of $N = 25$ spins. The edges between the spins $\vs_{< i}$ and $\vs_{\ge i}$ are highlighted in blue, and only those edges are used when computing the intermediate variable $\xi_{i l}$. Therefore, among the variables $\{\xi_{i l} \mid l > i\}$, only those with $l < i + L$ are kept as inputs to $\rho_i$, and the others are ensured to be zero, which enhances the sparsity of the TwoBo network.
 This figure is reproduced from Fig.~1 in Ref.~\cite{biazzo2024sparse}.
@@ -166,26 +167,28 @@ This figure is reproduced from Fig.~1 in Ref.~\cite{biazzo2024sparse}.
 \label{fig:twobo-arch-grid}
 \end{figure}
 
-We start from directly factorizing the many-body Boltzmann distribution $p_\text{B}(\vs)$ into the AR conditional distributions in \cref{eq:autoreg}:
+\subsubsection{TwoBo architecture from Boltzmann distribution}
+
+We start from directly factorizing the many-body Boltzmann distribution $p_\text{B}(\vs)$ into AR conditional distributions in \cref{eq:autoreg}:
 \begin{equation}
 p_{\text{B} i}(s_i \mid \vs_{< i})
 = \frac{\sum_{\vs_{> i}} p_\text{B}(\vs)}{\sum_{\vs_{\ge i}} p_\text{B}(\vs)}
 = \frac{\sum_{\vs_{> i}} \rme^{-\beta H(\vs)}}{\sum_{\vs_{\ge i}} \rme^{-\beta H(\vs)}},
 \end{equation}
-and simplify the resulting expression.
+and simplify the resulting expression. When the Hamiltonian has only two-body interactions in \cref{eq:cl-ising-general}, it has been derived in Ref.~\cite{biazzo2024sparse} that the conditional probability takes the form:
+\begin{align}
+p_{\text{B} i}(s_i = +1 \mid \vs_{<i}) &= S\left( 2 \beta \xi_{i i} + \rho_{\text{B} i}\left( \{\xi_{i l} \mid l > i\} \right) \right), \label{eq:twobo} \\
+\xi_{i l} &= \sum_{k < i} J_{k l} s_k, \label{eq:twobo-xi}
+\end{align}
+in the notations of this thesis, and omitting the external fields for simplicity. Here $S$ is the sigmoid function in \cref{eq:sigmoid}, and $\rho_{\text{B} i}$ is a function depending on $\mJ$ and $\beta$. The function $\rho_{\text{B} i}$ is different for each index $i$, and it only takes the intermediate variables $\xi_{i l}$ with $l > i$ as the inputs. Although the exact evaluation of $\rho_{\text{B} i}$ can take exponential time, it has been shown in Ref.~\cite{biazzo2023autoregressive} that it can be simplified for specific physical systems, such as an analytical expression for the Curie--Weiss model and a replica symmetric breaking (RSB) approximation for the SK model.
 
+For the purpose of this thesis, we approximate $\rho_{\text{B} i}$ using a neural network $\rho_i$ with trainable parameters, and we have surprisingly found that using a single dense layer is enough to obtain results with satisfactory accuracies in our numerical experiments. Also, we interpret the linear transformation from the input spins $s_i$ to the intermediate variables $\xi_{i l}$ in \cref{eq:twobo-xi} as another linear layer, whose parameters are directly taken from $\mJ$ and not trained. Therefore, \cref{eq:twobo} becomes an ARNN ansatz $q_i(s_i \mid \vs_{< i})$ as shown in \cref{fig:twobo-arch-grid}~(a). This architecture is named TwoBo, because the authors were tired of the ever-growing lengths of acronyms.
 
+\subsubsection{Sparsity of intermediate variables}
 
+The incorporation of the interaction matrix $\mJ$ into the parameters of TwoBo leads to the opportunity of reducing the computation time and the number of trainable parameters using the sparsity of the physical system. In general, the first layer in \cref{eq:twobo-xi} can be evaluated by a matrix-vector multiplication $\mJ \vs$ while storing cumulative sums, which takes $O(N^2)$ time, where $N$ is the number of spins. When the physical system is sparse and the number of non-zero entries in $\mJ$ only scales by $O(N)$, the evaluation takes only $O(N)$ time as well.
 
-This architecture is named TwoBo, because the authors were tired of the ever-growing lengths of acronyms.
-
-
-
-\cite{pan2021solving}
-
-\cite{biazzo2023autoregressive}
-
-\cite{biazzo2024sparse}
+For each function $\rho_i$, there are $(N - i)$ input variables in general and a scalar output, which introduces $O(N)$ parameters and $O(N)$ computation time when parameterized by a single dense layer. Fortunately, when the physical system has a local geometry, many of the input variables are ensured to be zero. For example, on a 2D grid with $N = L^2$ spins as shown in \cref{fig:twobo-arch-grid}~(b), each variable $\xi_{i l}$ is non-zero only when $i < l < i + L$, thus the number of input variables to $\rho_i$, the number of parameters in it, and the time to evaluate it are all reduced from $O(L^2)$ to $O(L)$. Considering all the functions $\{\rho_i \mid 1 \le i \le N\}$, they take $O(L N) = O(L^3)$ time to evaluate in total, which dominates over the $O(N)$ time of the first layer. They also have $O(L^3)$ parameters in total. Therefore, the time to evaluate the TwoBo ansatz and the number of trainable parameters in it both scale by $O(L^3)$, which is polynomially lower than $O(L^4)$ of the dense architecture (MADE) in \cref{sec:made}. Similarly, the time and the space are reduced from $O(L^6)$ to $O(L^5)$ on 3D grids.
 
 \subsection{Numerical results}
 
@@ -203,7 +206,7 @@ This figure is reproduced from Fig.~2 in Ref.~\cite{biazzo2024sparse}.
 \label{fig:twobo-ea-rrg}
 \end{figure}
 
-All the RRGs have degree $d = 3$, and are generated from the uniform distribution of all such RRGs using the Steger--Wormald algorithm~\cite{steger1999generating}.
+All the RRGs have degree $d = 3$, and are sampled from the uniform distribution of all such RRGs using the Steger--Wormald algorithm~\cite{steger1999generating}.
 
 \subsubsection{Convergence of training}
 
