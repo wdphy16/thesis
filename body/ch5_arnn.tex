@@ -22,6 +22,8 @@ The joint probability of an AR model supports exact sampling, because we can sam
 
 In the following, we introduce some neural network architectures to parameterize the conditional probabilities, each with its own use cases.
 
+\section{Dense and convolutional ARNNs}
+
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.9\linewidth]{ch5/arnn_arch.pdf}
@@ -39,8 +41,6 @@ This figure is reproduced from Fig.~1 in Ref.~\cite{wu2019solving}.
 }
 \label{fig:arnn-arch}
 \end{figure}
-
-\section{Dense and convolutional ARNNs}
 
 The most general way to parameterize the conditional probabilities is a dense feedforward neural network (FFNN) as in \cref{eq:ffnn}, which takes the spins $\vs$ as inputs, and outputs the parameters $\hat{\vs}$, then the conditional probabilities are modeled by the Bernoulli distributions $\calB(s_i \mid \hat{s}_i)$. The network needs to fulfill the AR property: each output $\hat{s}_i$ can only depend on the previous inputs $\vs_{< i}$. For a single dense layer, this is achieved by applying a triangular mask on the weight matrix in \cref{eq:linear-layer}:
 \begin{gather}
@@ -61,9 +61,7 @@ Besides the dense and the convolutional ones, another widely used family of ARNN
 \vh^{(i)} &= f\left( s_{i - 1}, \vh^{(i - 1)} \right), \\
 \hat{s}_i &= g\left( \vh^{(i)} \right),
 \end{align}
-where $f$ and $g$ can be arbitrarily sophisticated neural networks, and their parameters are usually shared between sites. Because of the parameter sharing, RNNs can achieve satisfactory results with fewer parameters than dense networks. More variants of RNNs, including hybrids with CNNs and tensor networks, are also used in practice~\cite{oord2016pixel, khandoker2023supplementing}. Notably, the popular large language models in modern machine learning have essentially inherited the principles of RNN~\cite{brown2020language}.
-
-\todo{Mention hierarchical and frequency-space ARNN}
+where $f$ and $g$ can be arbitrarily sophisticated neural networks, and their parameters are usually shared between sites. Because of the parameter sharing, RNNs can achieve satisfactory results with fewer parameters than dense networks. More variants of RNNs, including hybrids with CNNs and tensor networks, are also used in practice~\cite{oord2016pixel, khandoker2023supplementing}. Notably, the popular large language models in modern machine learning have essentially inherited the principles of RNN~\cite{brown2020language}. It is also worth mentioning that ARNNs with hierarchical architectures~\cite{bialas2022hierarchical} and representations in frequency and wavelet spaces~\cite{nash2021generating, mattar2024wavelets} have been proposed to enhance the translational symmetry and the scalability.
 
 \subsection{Numerical results}
 
