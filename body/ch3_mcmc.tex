@@ -82,6 +82,8 @@ After collecting many samples from the Markov chain, we estimate the observables
 \section{Autocorrelation time}
 \label{sec:iat}
 
+\subsection{Autocorrelation in Markov chain}
+
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch3/rand_autocorr.pdf}
@@ -112,6 +114,8 @@ Autocorrelation in energy $C_E(t)$ of the Ising model on the $10 \times 10$ squa
 \label{fig:autocorr}
 \end{figure}
 
+\subsection{Integrated autocorrelation time}
+
 The integrated autocorrelation time~\cite{ambegaokar2010estimating, goodman2010ensemble}, or ``autocorrelation time'' for short, is a metric for MCMC to assess the loss in sample diversity due to autocorrelation, defined by
 \begin{equation}
 \tau = \frac{1}{C_O(0)} \sum_{t = 1}^\infty C_O(t).
@@ -132,6 +136,8 @@ The probability density function (PDF) of the distribution is estimated from the
 
 Intuitively, the autocorrelation time takes two factors into account that affect the sample diversity: the correlation between the proposed configuration and the current one, and the acceptance probability. For single-spin updates, the successive samples are almost fully correlated, which leads to high autocorrelation in the observable values. On the other extreme, if we do global updates, i.e., randomly generate a proposed configuration $\vs'$ from the uniform distribution of all configurations in each sampling step, then it is fully uncorrelated with the current one. However, the energy $H(\vs')$ from the uniform distribution is almost always much higher than the current one from the target distribution, as shown in \cref{fig:energy-hist}, which makes the acceptance probability exponentially low, and the collected samples are still almost fully correlated. Between the two extremes of single-spin updates and global updates, a variety of cluster updates have been proposed to balance these two factors, which we will discuss in \cref{sec:importance-sampling}.
 
+\subsection{Effective sample size}
+
 The loss in sample diversity is reflected quantitatively in the variance of the Monte Carlo estimator in \cref{eq:monte-carlo-var}. When the Markov chain is in equilibrium, in the presence of autocorrelation, the variance increases to
 \begin{equation}
 \Var\big[ \bbE_\text{MCMC}[O] \big] = \frac{1}{M_{\text{eff}\,\tau}} \Var[\bar{O}],
@@ -142,6 +148,8 @@ M_{\text{eff}\,\tau} = \frac{1}{2 \tau + 1} M
 \end{equation}
 is less than the original sample size $M$.
 
+\section{Critical slowing down}
+
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch3/ising_samples.pdf}
@@ -150,8 +158,6 @@ A typical sample of the Ising model on the $100 \times 100$ square lattice at di
 }
 \label{fig:ising-samples}
 \end{figure}
-
-\section{Critical slowing down}
 
 In many-body systems, the autocorrelation time particularly depends on the physical parameters, such as the inverse temperature $\beta$. It is a long-standing issue with MCMC that the autocorrelation time significantly increases when the system is around its critical point, known as critical slowing down~\cite{goodman1989multigrid, wolff1990critical}. Intuitively, the collective dynamics of the spins form clusters in the system, which separate from each other by domain walls, as shown in \cref{fig:ising-samples}. Their average diameter is roughly the correlation length $\xi$ of the system. In the case of single-spin update, the Markov chain can be interpreted as a random walk in the configuration space, where it moves from one configuration to an adjacent one with a spin flipped. As a corollary, the time $\tau$ to walk the distance $\xi$ scales by $\tau \sim \xi^2$, regardless of the spatial dimension. Detailed analysis from lattice field theory has shown that $\tau \sim \xi^z$, where $z$ is the dynamical critical exponent, and $z \approx 2$ in many cases~\cite{hohenberg1977theory}. At the critical point, $\xi$ diverges until it is bounded by the system size~\cite{lubetzky2012critical}, therefore the critical slowing down occurs.
 

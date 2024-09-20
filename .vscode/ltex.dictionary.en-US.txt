@@ -25,6 +25,7 @@ fM
 Gelman
 GELU
 Goldfarb
+Hamiltonians
 Hopfield
 initializations
 Ising
@@ -39,7 +40,9 @@ Magnetizations
 magnetizations
 Marquardt
 MaskedLin
+McGroundstate
 Monasson
+MQLib
 NetKet
 NN
 observables

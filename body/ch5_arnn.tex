@@ -20,7 +20,7 @@ which involves summations over exponentially many terms. However, neither do we 
 
 The joint probability of an AR model supports exact sampling, because we can sample the variables sequentially, following their order defined by the AR model. We first generate the value of $s_1$ from the independent distribution $q_1(s_1)$, then obtain the distribution $q_2(s_2 \mid s_1)$ and generate the value of $s_2$, then obtain the distribution $q_3(s_3 \mid s_1, s_2)$ and so forth, until all variables are generated. This procedure is also known as ancestral sampling. It involves $N$ sequential evaluations of the neural network, which can be a bottleneck in the time complexity of variational inference. On the other hand, when evaluating $q(\vs)$ given all variables $\vs$, all the conditional probabilities can be computed in parallel, which is comparatively not a concern in time complexity.
 
-In the following, we introduce some neural network architectures to parameterize the conditional probabilities, each with its own use cases.
+ARNN is an excellent ansatz for variational inference in \cref{eq:fq}, because it supports exact sampling and efficient evaluation of the normalized probability, while having the rich expressiveness of neural networks. In the following, we introduce some neural network architectures to parameterize the conditional probabilities, each with its own use cases.
 
 \section{Dense and convolutional ARNNs}
 \label{sec:made}
@@ -141,7 +141,7 @@ where $J_{i j}$ are the estimated values and $J^*_{i j}$ are the true values. Th
 
 \subsubsection{Remarks on network sizes and computation times}
 
-It is worth discussing the sizes of the ARNNs used in the above experiments. For the fully connected cases of the Hopfield model, the SK model, and the inverse SK problem, we use small ARNNs containing only $O(N^2)$ parameters, and they produce significantly better results than the Bethe ansatzes with the same order of parameters. For the Ising models on the $16 \times 16$ square and triangular lattices, however, the ARNNs with the optimal variational free energies we have found contain as many as $O(10^6)$ parameters, while the Bethe ansatzes only contain $O(10^3)$. The large number of parameters also leads to significantly more computation time to evaluate the observables, as the training and the sampling of such a large neural network typically take several hours on a modern GPU, while the NMF ansatz and the Bethe ansatz can be solved almost instantly. Therefore, many use cases of neural networks to replace traditional ansatzes appear only in the regime where we seek much higher accuracy at the cost of correspondingly more computation. The comparison of neural networks and traditional methods under the same computation budget will be discussed in \cref{sec:arnn-mcmc}.
+It is worth discussing the sizes of the ARNNs used in the above experiments. For the fully connected cases of the Hopfield model, the SK model, and the inverse SK problem, we use small ARNNs containing only $O(N^2)$ parameters which take minutes to train on a high-end GPU as of this writing, and they produce significantly better results than the Bethe ansatzes with the same order of parameters. For the Ising models on the $16 \times 16$ square and triangular lattices, however, the ARNNs with the optimal variational free energies we have found contain as many as $O(10^6)$ parameters, while the Bethe ansatzes only contain $O(10^3)$. The large number of parameters also leads to significantly more computation time to evaluate the observables, as the training and the sampling of such a large neural network typically take hours on a high-end GPU, while the NMF ansatz and the Bethe ansatz can be solved almost instantly. Therefore, many use cases of neural networks to replace traditional ansatzes appear only in the regime where we seek much higher accuracy at the cost of correspondingly more computation. The comparison of neural networks and traditional methods under the same computation budget will be discussed in \cref{sec:arnn-mcmc}.
 
 Apart from training a new network with each system size and temperature, it has also been proposed to directly reuse or fine-tune a trained network with different system sizes and temperatures~\cite{efthymiou2019super, mills2019extensive, rende2024fine}. This line of research opens a promising way to numerically compute the renormalization group (RG) flow, and extrapolate the critical temperature to the thermodynamic limit~\cite{ron2002inverse}.
 
@@ -158,16 +158,16 @@ In the previous section, we have seen that the simple ARNN with dense architectu
 \hspace*{\fill}
 \caption[Architecture of the sparse two-body ARNN (TwoBo)]{
 (a) Sketch of the TwoBo ARNN architecture to compute a conditional probability $q_i(s_i = +1 \mid \vs_{< i})$.
-The parameters of the first layer are directly taken from the interaction matrix $\mJ$.
+The weights of the first layer are directly taken from the interaction matrix $\mJ$ and fixed.
 The function $\rho_i$ is parameterized by a dense layer, whose inputs are the variables $\{\xi_{i l} \mid l > i\}$ after the first layer.
-The last activation function $S$ is the sigmoid function in \cref{eq:sigmoid}. \\
-(b) Calculating the conditional probability $q_i(s_i \mid \vs_{< i})$ with $i = 13$ on a 2D grid of $N = 25$ spins. The edges between the spins $\vs_{< i}$ and $\vs_{\ge i}$ are highlighted in blue, and only those edges are used when computing the intermediate variable $\xi_{i l}$. Therefore, among the variables $\{\xi_{i l} \mid l > i\}$, only those with $l < i + L$ are kept as inputs to $\rho_i$, and the others are ensured to be zero, which enhances the sparsity of the TwoBo network.
+The last activation function $S$ is the sigmoid function in \cref{eq:sigmoid}, and there is a skip connection from $\xi_{i i }$ to $S$ with the fixed weight $2 \beta$. \\
+(b) Calculating the conditional probability $q_i(s_i \mid \vs_{< i})$ with $i = 13$ on a 2D grid of $N = 25$ spins. The edges between the spins $\vs_{< i}$ and $\vs_{\ge i}$ are highlighted in blue, and only these edges are used when computing the intermediate variable $\xi_{i l}$. Therefore, among the variables $\{\xi_{i l} \mid l > i\}$, only those with $l < i + L$ are kept as inputs to $\rho_i$, and the others are ensured to be zero, which enhances the sparsity of the TwoBo network.
 This figure is reproduced from Fig.~1 in Ref.~\cite{biazzo2024sparse}.
 }
 \label{fig:twobo-arch-grid}
 \end{figure}
 
-\subsubsection{TwoBo architecture from Boltzmann distribution}
+\subsection{TwoBo architecture from Boltzmann distribution}
 
 We start from directly factorizing the many-body Boltzmann distribution $p_\text{B}(\vs)$ into AR conditional distributions in \cref{eq:autoreg}:
 \begin{equation}
@@ -182,31 +182,41 @@ p_{\text{B} i}(s_i = +1 \mid \vs_{<i}) &= S\left( 2 \beta \xi_{i i} + \rho_{\tex
 \end{align}
 in the notations of this thesis, and omitting the external fields for simplicity. Here $S$ is the sigmoid function in \cref{eq:sigmoid}, and $\rho_{\text{B} i}$ is a function depending on $\mJ$ and $\beta$. The function $\rho_{\text{B} i}$ is different for each index $i$, and it only takes the intermediate variables $\xi_{i l}$ with $l > i$ as the inputs. Although the exact evaluation of $\rho_{\text{B} i}$ can take exponential time, it has been shown in Ref.~\cite{biazzo2023autoregressive} that it can be simplified for specific physical systems, such as an analytical expression for the Curie--Weiss model and a replica symmetric breaking (RSB) approximation for the SK model.
 
-For the purpose of this thesis, we approximate $\rho_{\text{B} i}$ using a neural network $\rho_i$ with trainable parameters, and we have surprisingly found that using a single dense layer is enough to obtain results with satisfactory accuracies in our numerical experiments. Also, we interpret the linear transformation from the input spins $s_i$ to the intermediate variables $\xi_{i l}$ in \cref{eq:twobo-xi} as another linear layer, whose parameters are directly taken from $\mJ$ and not trained. Therefore, \cref{eq:twobo} becomes an ARNN ansatz $q_i(s_i \mid \vs_{< i})$ as shown in \cref{fig:twobo-arch-grid}~(a). This architecture is named TwoBo, because the authors were tired of the ever-growing lengths of acronyms.
+For the purpose of this thesis, we approximate $\rho_{\text{B} i}$ using a neural network $\rho_i$ with trainable parameters, and we have surprisingly found that using a single dense layer is enough to obtain results with satisfactory accuracies in our numerical experiments. Also, we interpret the linear transformation from the input spins $s_i$ to the intermediate variables $\xi_{i l}$ in \cref{eq:twobo-xi} as another linear layer without bias, whose weights are directly taken from $\mJ$ and not trained. Therefore, \cref{eq:twobo} becomes an ARNN ansatz $q_i(s_i \mid \vs_{< i})$ as shown in \cref{fig:twobo-arch-grid}~(a). This architecture is named TwoBo, because the authors were tired of the ever-growing lengths of acronyms.
 
-\subsubsection{Sparsity of intermediate variables}
+\subsection{Sparsity of intermediate variables}
+\label{sec:twobo-sparse}
 
 The incorporation of the interaction matrix $\mJ$ into the parameters of TwoBo leads to the opportunity of reducing the computation time and the number of trainable parameters using the sparsity of the physical system. In general, the first layer in \cref{eq:twobo-xi} can be evaluated by a matrix-vector multiplication $\mJ \vs$ while storing cumulative sums, which takes $O(N^2)$ time, where $N$ is the number of spins. When the physical system is sparse and the number of non-zero entries in $\mJ$ only scales by $O(N)$, the evaluation takes only $O(N)$ time as well.
 
-For each function $\rho_i$, there are $(N - i)$ input variables in general and a scalar output, which introduces $O(N)$ parameters and $O(N)$ computation time when parameterized by a single dense layer. Fortunately, when the physical system has a local geometry, many of the input variables are ensured to be zero. For example, on a 2D grid with $N = L^2$ spins as shown in \cref{fig:twobo-arch-grid}~(b), each variable $\xi_{i l}$ is non-zero only when $i < l < i + L$, thus the number of input variables to $\rho_i$, the number of parameters in it, and the time to evaluate it are all reduced from $O(L^2)$ to $O(L)$. Considering all the functions $\{\rho_i \mid 1 \le i \le N\}$, they take $O(L N) = O(L^3)$ time to evaluate in total, which dominates over the $O(N)$ time of the first layer. They also have $O(L^3)$ parameters in total. Therefore, the time to evaluate the TwoBo ansatz and the number of trainable parameters in it both scale by $O(L^3)$, which is polynomially lower than $O(L^4)$ of the dense architecture (MADE) in \cref{sec:made}. Similarly, the time and the space are reduced from $O(L^6)$ to $O(L^5)$ on 3D grids.
+For each function $\rho_i$, there are $(N - i)$ input variables in general and a scalar output, which introduces $O(N)$ parameters and $O(N)$ computation time when parameterized by a single dense layer. Fortunately, when the physical system has a local geometry, many of the input variables are ensured to be zero. For example, on a 2D grid with $N = L^2$ spins as shown in \cref{fig:twobo-arch-grid}~(b), each variable $\xi_{i l}$ is non-zero only when $i < l < i + L$, thus the number of input variables to $\rho_i$, the number of parameters in it, and the time to evaluate it are all reduced from $O(L^2)$ to $O(L)$. Considering all the functions $\{\rho_i \mid 1 \le i \le N\}$, they take $O(L N) = O(L^3)$ time to evaluate in total, which dominates over the $O(N)$ time of the first layer. They also have $O(L^3)$ parameters in total. Therefore, the time to evaluate the TwoBo ansatz and the number of trainable parameters in it both scale by $O(L^3)$, which is polynomially lower than $O(L^4)$ of the dense ARNN (MADE) in \cref{sec:made}. Similarly, the time and the space are reduced from $O(L^6)$ to $O(L^5)$ on 3D grids.
 
 \subsection{Numerical results}
 
-\subsubsection{Variational free energy}
+To demonstrate the performance of TwoBo, we conduct numerical experiments using the Edwards--Anderson (EA) model on 2D and 3D grids with PBC, as well as random regular graphs (RRG). As discussed in \cref{sec:ea}, the EA model is generally more difficult to solve than the simple Ising model in \cref{sec:made}, and the 3D EA model is particularly challenging from the perspective of computational complexity. Moreover, the RRG demonstrates the performance of TwoBo on systems without regular geometry. We use RRGs with degree $d = 3$, and sample them from the uniform distribution of all RRGs with the given $N$ and $d$ using the Steger--Wormald algorithm~\cite{steger1999generating}. Each reported result is averaged over $10$ random instances of the Hamiltonian, and the error bar shows the standard error over the instances.
+
+The results from TwoBo are compared with those from MADE. The MADE has only one layer, and it still has more trainable parameters than the TwoBo with the same system size. On the 2D grids, another comparison is made with the RNN architecture in~\cite{hibat2021variational}, which has outperformed several dense and convolutional ARNN architectures in the regime of numerous parameters. In this thesis, we mainly compare with it in the regime of few parameters, using only $4$ memory units and a comparable number of trainable parameters to TwoBo, while the comparison using more parameters will be shown in \cref{fig:compare_rnn}.
+
+An annealing procedure is performed to compute the free energies at different inverse temperatures $\beta \in (0, 3]$, and help the optimization converge to the desired global minimum at high $\beta$. We equally divide the range of $\beta$ into $N_\text{anneal} = 60$ annealing steps. At the first $\beta = 0.05$, we perform $N_\text{warm} = 500$ optimization steps as warm-up. After that, in each annealing step, we perform $N_\text{opt} = 200$ optimization steps while keeping $\beta$ unchanged. In the next annealing step, we continue to optimize the ansatz with a different value of $\beta$. All the architectures of TwoBo, MADE, and RNN are trained using this procedure.
+
+\subsubsection{Variational free energy and ground state energy}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=\linewidth]{ch5/twobo_ea_rrg.pdf}
+\includegraphics[width=\linewidth]{ch5/twobo_ea.pdf}
 \caption[TwoBo results of Edwards--Anderson (EA) model]{
-Variational free energy (left column) and minimum energy of sampled configurations (right column) at each $\beta$ on 2D EA (top row), 3D EA (middle row), and RRG (bottom row) models of different sizes. We compare the performances of TwoBo, MADE, and RNN (only in 2D).
-The variational free energy is shown as the relative difference from TwoBo at the same $\beta$, and the minimum energy as the relative difference from the one found by TwoBo at $\beta = 3$.
-The results are averaged over $10$ random instances of the Hamiltonian, and the error bars show the standard errors over the instances.
+Variational free energy (left column) and minimum energy of sampled configurations (right column) at varying inverse temperature $\beta$, for the EA model on 2D grids (top row), 3D grids (middle row), and RRGs (bottom row) of different sizes.
+The performances of TwoBo, MADE, and RNN (only in 2D) architectures are compared.
+The variational free energy is shown as the relative difference from TwoBo at the same $\beta$, and the minimum energy is relative from the one found by TwoBo at $\beta = 3$.
+The $y$-axis uses logarithmic scale when the absolute value is greater than $10^{-4}$.
 This figure is reproduced from Fig.~2 in Ref.~\cite{biazzo2024sparse}.
 }
-\label{fig:twobo-ea-rrg}
+\label{fig:twobo-ea}
 \end{figure}
 
-All the RRGs have degree $d = 3$, and are sampled from the uniform distribution of all such RRGs using the Steger--Wormald algorithm~\cite{steger1999generating}.
+As shown in the left column of \cref{fig:twobo-ea}, TwoBo gives lower variational free energy than MADE and RNN with comparable numbers of trainable parameters, on almost all tested geometries, system sizes, and temperatures, except in the simple cases of low $\beta$. This demonstrates the accuracy of TwoBo in approximating the Boltzmann distribution, even with disordered and frustrated Hamiltonians. This advantage becomes more significant at large system sizes.
+
+The right column of \cref{fig:twobo-ea} shows the minimum energy found by the ansatzes in the annealing procedure, which is of more interest in combinatorial optimization problems. TwoBo is also able to find lower energies than MADE and RNN, especially at large system sizes. In addition to variational methods, we also use exact solvers in McGroundstate~\cite{charfreitag2022mcsparse} and heuristic solvers in MQLib~\cite{dunning2018what} to solve the same systems. TwoBo gives equal or lower energies within comparable computation time in all tested cases, which provides evidence that the sophisticated heuristics of neural networks can outperform traditional methods.
 
 \subsubsection{Convergence of training}
 
@@ -214,8 +224,7 @@ All the RRGs have degree $d = 3$, and are sampled from the uniform distribution 
 \centering
 \includegraphics[width=\linewidth]{ch5/twobo_converge.pdf}
 \caption[Convergence of TwoBo variational free energy in training]{
-Convergence of variational free energy when training at fixed values of $\beta$ on 2D EA model with $N = 14^2 = 576$.
-The results are averaged over $10$ random instances of the Hamiltonian, and the error bars show the standard errors over the instances.
+Convergence of variational free energy during the optimization steps in an annealing step, at different inverse temperatures $\beta$, on the 2D EA model with $N = 576$.
 This figure is reproduced from Fig.~3 in Ref.~\cite{biazzo2024sparse}.
 }
 \label{fig:twobo-converge}
@@ -223,14 +232,20 @@ This figure is reproduced from Fig.~3 in Ref.~\cite{biazzo2024sparse}.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=\linewidth]{ch5/twobo_converge_max_steps.pdf}
+\includegraphics[width=\linewidth]{ch5/twobo_n_opt.pdf}
 \caption[TwoBo variational free energy vs.\ annealing speed]{
-Variational free energy using different numbers of optimization steps at each $\beta$ on 2D EA model with $N = 576$, shown as the relative difference from TwoBo at the same $\beta$ using 1024 steps.
-The results are averaged over $10$ random instances of the Hamiltonian, and the standard errors over the instances are too small to be visible.
+Variational free energy as a function of the annealing speed, at different inverse temperatures $\beta$, on the 2D EA model with $N = 576$.
+The annealing speed is controlled by the number of optimization steps $N_\text{opt} = 4, 8, 16, \ldots, 1024$ in each annealing step.
+The variational free energy is shown as the relative difference from TwoBo at the same $\beta$ with $N_\text{opt} = 1024$.
+The $y$-axis uses logarithmic scale when the value is greater than $10^{-4}$.
 This figure is reproduced from Fig.~4 in Ref.~\cite{biazzo2024sparse}.
 }
-\label{fig:twobo-converge-max-steps}
+\label{fig:twobo-n-opt}
 \end{figure}
+
+Besides the accuracy after training, TwoBo also has the advantage of fast convergence during training. As shown in \cref{fig:twobo-converge}, in each annealing step with a fixed $\beta$, TwoBo always starts from a lower variational energy, and reaches convergence in fewer optimization steps. This advantage can be attributed to the incorporation of the interactions $\mJ$ in the parameters, which makes the initialization of the ansatz $q(\vs)$ physically feasible, i.e., closer to the target distribution $p_\text{B}(\vs)$ than a neural network with only random initialization.
+
+This fast convergence also allows us to reduce the total computation time of the annealing procedure using a higher annealing speed. The annealing speed is controlled by the number of optimization steps $N_\text{opt}$ in each annealing step. As shown in \cref{fig:twobo-n-opt}, the variational free energy systematically decreases as $N_\text{opt}$ increases, presumably in a power law. In particular, TwoBo reaches the same variational free energy with almost an order of magnitude smaller $N_\text{opt}$ than MADE and RNN, which demonstrates its high efficiency in training.
 
 \subsubsection{Parameter efficiency}
 
@@ -238,8 +253,7 @@ This figure is reproduced from Fig.~4 in Ref.~\cite{biazzo2024sparse}.
 \centering
 \includegraphics[width=\linewidth]{ch5/twobo_param.pdf}
 \caption[Number of parameters vs.\ system size for TwoBo and MADE]{
-Number of trainable parameters in TwoBo and MADE on 2D EA, 3D EA, and RRG models of various system sizes $N$.
-For RRG, the number of trainable parameters in TwoBo is averaged over $10$ random instances.
+Number of trainable parameters in TwoBo and MADE as a function of the system size $N$, on 2D grids, 3D grids, and RRGs.
 This figure is reproduced from Fig.~S1 in the supplementary material of Ref.~\cite{biazzo2024sparse}.
 }
 \label{fig:twobo-param}
@@ -249,12 +263,17 @@ This figure is reproduced from Fig.~S1 in the supplementary material of Ref.~\ci
 \centering
 \includegraphics[width=\linewidth]{ch5/twobo_rnn_param.pdf}
 \caption[Variational free energy vs.\ number of parameters for TwoBo and RNN]{
-Variational free energy of TwoBo compared to RNN with different numbers of memory units ($2, 4, 8, 16, 24, 32, 40$), on 2D EA model with $N = 576$.
-The results are averaged over $10$ random instances of the Hamiltonian, and the error bars show the standard errors over the instances.
+Variational free energy of TwoBo compared to RNN with different numbers of memory units ($2, 4, 8, 16, 24, 32, 40$), on the 2D EA model with $N = 576$.
 This figure is reproduced from Fig.~S3 in the supplementary material of Ref.~\cite{biazzo2024sparse}.
 }
-\label{fig:compare_rnn}
+\label{fig:twobo-rnn-param}
 \end{figure}
+
+Lastly, we investigate the empirical scaling of the number of trainable parameters in TwoBo with the system size. As shown in \cref{fig:twobo-param}, TwoBo has polynomially fewer parameters than MADE on 2D and 3D grids. For the RRGs without a local geometry, however, TwoBo no longer has polynomially fewer parameters, but only fewer by a constant factor of approximately $2$. These results are consistent with the theoretical analysis in \cref{sec:twobo-sparse}.
+
+This advantage is more sharply demonstrated when we compare with RNN in the regime of numerous parameters. As shown in \cref{fig:twobo-rnn-param}, the TwoBo with few parameters gives lower variational free energy than the RNN with a comparable number of parameters, and even if we enlarge the RNN by orders of magnitude, the variational free energy does not systematically decrease. These results emphasize the importance of the lightweight architecture with the physical knowledge in TwoBo, which can be more efficient than scaling up a general neural network architecture with increasing computation.
+
+In conclusion, the TwoBo architecture incorporates the knowledge about the Boltzmann distribution and the sparse two-body interacting Hamiltonian into the neural network design, therefore achieves more accurate free energy estimation, faster training speed, and higher parameter efficiency compared to previous ARNN architectures. It opens a promising way to scale up the variational inference computation to larger systems, and extract more physically interpretable results from neural networks.
 
 \section{ARNN in MCMC importance sampling}
 \label{sec:arnn-mcmc}
