@@ -43,7 +43,12 @@ MaskedLin
 McGroundstate
 Monasson
 MQLib
+NCU
+NCUS
 NetKet
+NGU
+NGUS
+NIS
 NN
 observables
 PixelCNN

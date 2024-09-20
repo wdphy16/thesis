@@ -195,7 +195,7 @@ For each function $\rho_i$, there are $(N - i)$ input variables in general and a
 
 To demonstrate the performance of TwoBo, we conduct numerical experiments using the Edwards--Anderson (EA) model on 2D and 3D grids with PBC, as well as random regular graphs (RRG). As discussed in \cref{sec:ea}, the EA model is generally more difficult to solve than the simple Ising model in \cref{sec:made}, and the 3D EA model is particularly challenging from the perspective of computational complexity. Moreover, the RRG demonstrates the performance of TwoBo on systems without regular geometry. We use RRGs with degree $d = 3$, and sample them from the uniform distribution of all RRGs with the given $N$ and $d$ using the Steger--Wormald algorithm~\cite{steger1999generating}. Each reported result is averaged over $10$ random instances of the Hamiltonian, and the error bar shows the standard error over the instances.
 
-The results from TwoBo are compared with those from MADE. The MADE has only one layer, and it still has more trainable parameters than the TwoBo with the same system size. On the 2D grids, another comparison is made with the RNN architecture in~\cite{hibat2021variational}, which has outperformed several dense and convolutional ARNN architectures in the regime of numerous parameters. In this thesis, we mainly compare with it in the regime of few parameters, using only $4$ memory units and a comparable number of trainable parameters to TwoBo, while the comparison using more parameters will be shown in \cref{fig:compare_rnn}.
+The results from TwoBo are compared with those from MADE. The MADE has only one layer, and it still has more trainable parameters than the TwoBo with the same system size. On the 2D grids, another comparison is made with the RNN architecture in~\cite{hibat2021variational}, which has outperformed several dense and convolutional ARNN architectures in the regime of numerous parameters. In this thesis, we mainly compare with it in the regime of few parameters, using only $4$ memory units and a comparable number of trainable parameters to TwoBo, while the comparison using more parameters will be shown in \cref{fig:twobo-rnn-param}.
 
 An annealing procedure is performed to compute the free energies at different inverse temperatures $\beta \in (0, 3]$, and help the optimization converge to the desired global minimum at high $\beta$. We equally divide the range of $\beta$ into $N_\text{anneal} = 60$ annealing steps. At the first $\beta = 0.05$, we perform $N_\text{warm} = 500$ optimization steps as warm-up. After that, in each annealing step, we perform $N_\text{opt} = 200$ optimization steps while keeping $\beta$ unchanged. In the next annealing step, we continue to optimize the ansatz with a different value of $\beta$. All the architectures of TwoBo, MADE, and RNN are trained using this procedure.
 
@@ -287,4 +287,63 @@ In conclusion, the TwoBo architecture incorporates the knowledge about the Boltz
 
 \cite{wu2021unbiased}
 
+\begin{algorithm}[H]
+\caption[Procedure of neural cluster updates with symmetries (NCUS)]{
+A step of NCUS.
+}
+\label{alg:ncus}
+\begin{algorithmic}[1]
+\STATE Input the current configuration $\vs$
+\STATE Sample an integer $k \in \{1, \ldots, N\}$ from $P_\text{cluster}$
+\STATE Sample the last $k$ spins and propose the configuration $\vs'$
+\STATE Accept $\vs \gets \vs'$ with the probability $A(\vs \to \vs')$
+\STATE Translate $\vs$ by a random displacement
+\STATE Reflect $\vs$ along the $x$-axis, the $y$-axis and the diagonal, each with $50\%$ probability
+\STATE Flip all spins with $50\%$ probability
+\STATE Output $\vs$ as a sample in the Markov chain
+\end{algorithmic}
+\end{algorithm}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.7\linewidth]{ch5/ncus_proc.png}
+\caption[Procedure of neural cluster updates with symmetries (NCUS)]{
+Example of three steps of NCUS applied to a $4 \times 4$ spin model. The columns correspond to different lines in \cref{alg:ncus}. The last $k$ spins that can be flipped are highlighted in {\color[HTML]{0099DD} blue}. If a proposal is accepted, the spins actually flipped are shown in {\color[HTML]{DD0000} red}. For translations, the original borders of the lattice are shown in {\color[HTML]{00AA00} green}. For reflections, the plane of reflection is shown in {\color[HTML]{DDAA00} yellow}, and yellow borders around the lattice indicate a reflection along the $z$-axis (across the $x y$-plane).
+This figure is reproduced from Fig.~1 in Ref.~\cite{wu2021unbiased}.
+}
+\label{fig:ncus-proc}
+\end{figure}
+
 \subsection{Numerical results}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\linewidth]{ch5/ncus_ising_autocorr.pdf}
+\caption[NCUS results for Ising model]{
+(a) Integrated autocorrelation time $\tau$ as a function of temperature on the $16 \times 16$ Ising model. For neural importance sampling (NIS), we use the increased variance from the reweighing procedure as the effective autocorrelation time. The inset focuses on their behaviors near the critical point and uses the logarithmic scale on the $y$-axis. \\
+(b) Autocorrelation functions $r(t)$ on the $16 \times 16$ Ising model at $\beta = 0.44$. The inset uses the logarithmic scale on the $x$-axis to focus on their behaviors at small $t$.
+This figure is reproduced from Fig.~2 in Ref.~\cite{wu2021unbiased}.
+}
+\label{fig:ncus-ising-autocorr}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\linewidth]{ch5/ncus_fpm_autocorr.pdf}
+\caption[NCUS results for FPM]{
+(a) Integrated autocorrelation time $\tau$ as a function of temperature on the $32 \times 32$ frustrated plaquette model (FPM). For neural importance sampling (NIS), we use the increased variance from the reweighing procedure as the effective autocorrelation time. The inset focuses on their behaviors near the critical point and uses the logarithmic scale on the $y$-axis. \\
+(b) Autocorrelation functions $r(t)$ on the $32 \times 32$ FPM at $\beta = 0.2$. The inset uses the logarithmic scale on the $x$-axis to focus on their behaviors at small $t$.
+This figure is reproduced from Fig.~4 in Ref.~\cite{wu2021unbiased}.
+}
+\label{fig:ncus-fpm-autocorr}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\linewidth]{ch5/ncus_pk.pdf}
+\caption[Choices of the distribution $P_\text{cluster}(k)$ in NCUS]{
+Autocorrelation functions $r(t)$ by NCUS with various exponential and power distributions $P_\text{cluster}$, computed on the $16 \times 16$ Ising model. In general, the uniform distribution gives lower IAT than most other distributions we experimented.
+This figure is reproduced from Fig.~S1 in the supplemental material of Ref.~\cite{wu2021unbiased}.
+}
+\label{fig:ncus-pk}
+\end{figure}
