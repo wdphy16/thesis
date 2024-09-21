@@ -77,7 +77,7 @@ H(\vs) - H(\vs') = 2 s_i \left( \sum_{\text{$j$ that interacts with $i$}} J_{i j
 \end{equation}
 so the time to compute the acceptance probability, and therefore the total time of a sampling step to propose and accept a sample, only depends on the number of neighbors interacting with a site, rather than the whole system size. This advantage makes MCMC a feasible method to study large systems.
 
-After collecting many samples from the Markov chain, we estimate the observables using \cref{eq:monte-carlo}. Care should be taken when generating these samples, as we will discuss below.
+After collecting many samples from the Markov chain, we estimate the observables using \cref{eq:monte-carlo}. Care should be taken when generating these samples, as we will discuss in the following.
 
 \section{Autocorrelation time}
 \label{sec:iat}
@@ -103,7 +103,7 @@ where $\bbE_\text{MCMC}[O]$ has the same form as \cref{eq:monte-carlo}, but uses
 \begin{equation}
 C_O(t) = \lim_{M \to \infty} C_{O, M}(t).
 \end{equation}
-The correlated samples cause $C_O(t) \neq 0$ when $t > 0$. For example, \cref{fig:autocorr} shows the autocorrelation in energy $C_E(t)$ of the $10 \times 10$ Ising model. As the number of steps $t$ between two samples increases, the average autocorrelation between the two samples decays to zero. At the critical temperature $\beta_\text{c} = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$~\cite{onsager1944crystal}, the autocorrelation decays particularly slowly, and we can assume that a sample is approximately independent of the original one only after as many as $10^4$ steps, which renders the MCMC sampling inefficient.
+The correlated samples cause $C_O(t) \neq 0$ when $t > 0$. For example, \cref{fig:autocorr} shows the autocorrelation in energy $C_E(t)$ of the $10 \times 10$ Ising model. As the number of steps $t$ between two samples increases, the average autocorrelation between the two samples decays to zero. At the critical point $\beta_\text{c} = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$~\cite{onsager1944crystal}, the autocorrelation decays particularly slowly, and we can assume that a sample is approximately independent of the original one only after as many as $10^4$ steps, which renders the MCMC sampling inefficient.
 
 \begin{figure}[htb]
 \centering
@@ -145,16 +145,18 @@ The loss in sample diversity is reflected quantitatively in the variance of the 
 where the effective sample size
 \begin{equation}
 M_{\text{eff}\,\tau} = \frac{1}{2 \tau + 1} M
+\label{eq:eff-sample-size}
 \end{equation}
 is less than the original sample size $M$.
 
 \section{Critical slowing down}
+\label{sec:critical-slow}
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch3/ising_samples.pdf}
 \caption[Sample of Ising model at different temperatures]{
-A typical sample of the Ising model on the $100 \times 100$ square lattice at different inverse temperatures. The blue and the orange plaquettes denote spin up and down respectively. Around the critical temperature $\beta_\text{c} \approx 0.44$, the clusters of spins are particularly visible, which pose difficulty to MCMC with single-spin updates.
+A typical sample of the Ising model on the $100 \times 100$ square lattice at different inverse temperatures. The blue and the orange plaquettes denote spin up and down respectively. Around the critical point $\beta_\text{c} \approx 0.44$, the clusters of spins are particularly visible, which pose difficulty to MCMC with single-spin updates.
 }
 \label{fig:ising-samples}
 \end{figure}
@@ -224,6 +226,7 @@ given that $q(\vs)$ has a wider support than $p(\vs)$, i.e., $q(\vs) > 0$ for al
 where the effective sample size
 \begin{equation}
 M_{\text{eff}\,w} = \frac{\Big( \sum_{i = 1}^M w\left( \vs^{(i)} \right) \Big)^2}{\sum_{i = 1}^M w^2\left( \vs^{(i)} \right)}.
+\label{eq:eff-sample-size-w}
 \end{equation}
 The variance reaches its minimum when $q(\vs) = p(\vs)$, which is in accordance with the intuition that $q(\vs)$ should be as close to $p(\vs)$ as possible.
 
@@ -305,4 +308,6 @@ The panel (a) is reproduced from Fig.~5 in Ref.~\cite{wu2021unbiased}.
 \label{fig:fpm-hist-p}
 \end{figure}
 
-A particular consequence of mode collapse is the difficulty of MCMC sampling around first-order phase transitions of many-body systems. The first-order phase transition is characterized by a discontinuity in the energy. As an example, we investigate the transition between the ferrimagnetic (fM) and the paramagnetic (PM) phases in the 2D frustrated plaquette model (FPM) in \cref{sec:fpm}, with $N = L \times L$ spins. When we plot its distribution of energies in \cref{fig:fpm-hist-p}, we can see two peaks appearing around the transition temperature. As shown in the panel (a), the depth of the valley between the two peaks grows as the system size $L$ increases, which indicates an increasing energy barrier that blocks local updates. Compared to the peak on the left, the one on the right contains more excited states, but each has lower probability, so the areas of the two peaks are comparable. When the temperature increases, the low-energy peak shrinks while the high-energy one grows, as shown in the panel (b). The first-order phase transition appears when the two peaks happen to have the same area. In the thermodynamic limit, the probability distribution is exponentially concentrated at the largest peak, so a change of the largest peak causes a discontinuity in the mean energy. This two-peak distribution proposes challenge to MCMC with local updates, and cluster updates are a viable approach to this problem, as we will discuss in \cref{sec:ncus}.
+A particular consequence of mode collapse is the difficulty of MCMC sampling around first-order phase transitions of many-body systems. The first-order phase transition is characterized by a discontinuity in the energy. As an example, we investigate the transition between the ferrimagnetic (fM) and the paramagnetic (PM) phases in the 2D frustrated plaquette model (FPM) in \cref{sec:fpm}, with $N = L \times L$ spins. When we plot its distribution of energies in \cref{fig:fpm-hist-p}, we can see two peaks appearing around the transition temperature. As shown in the panel (a), the depth of the valley between the two peaks grows as the system size $L$ increases, which indicates an increasing energy barrier that blocks local updates. Compared to the peak on the left, the one on the right contains more excited states, but each has lower probability, so the areas of the two peaks are comparable. When the temperature increases, the low-energy peak shrinks while the high-energy one grows, as shown in the panel (b).
+
+The first-order phase transition appears when the two peaks happen to have the same area. In the thermodynamic limit, the probability distribution is exponentially concentrated at the largest peak, so a change of the largest peak causes a discontinuity in the mean energy. Around the phase transition temperature, it is difficult for the system to reach thermal equilibrium, and the system can stay in a metastable state, or can be described by a superposition of multiple classical states. This two-peak distribution proposes challenge to MCMC with local updates, and cluster updates are a viable approach to this problem, as we will discuss in \cref{sec:ncus}.

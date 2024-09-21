@@ -85,7 +85,7 @@ This figure is reproduced from Fig.~2 in Ref.~\cite{wu2019solving}.
 
 We first demonstrate the performance of ARNN on the well-studied ferromagnetic (FM) Ising model on the $10 \times 10$ square lattice with periodic boundary conditions (PBC), where the analytical result~\cite{onsager1944crystal} and the traditional methods of naive mean field (NMF) ansatz in \cref{sec:nmf} and Bethe ansatz in \cref{sec:bethe} are available for comparison. A dense ARNN and a convolutional ARNN are trained on the Boltzmann distribution of this Hamiltonian, whose hyperparameters, such as the number of layers, the number of channels, and the convolution kernel size are selected to produce the lowest variational free energies within a reasonable computation budget. The networks are trained from scratch at each inverse temperature $\beta = 0.1, 0.2, \ldots, 1$. \Cref{fig:arnn-ising}~(a) shows the results of free energy, where we can clearly see that the ARNNs produce superior results compared to the traditional ansatzes, whose relative errors are lower by orders of magnitude.
 
-In particular, the results from the convolutional ARNN are generally more accurate than those from the dense one with a similar number of parameters, thanks to the utilization of the translational symmetry and the locality of the physical system. This comparison justifies the use of convolutional layers in ARNN, even though the overall joint probability is not translational invariant. However, this advantage diminishes around the critical temperature $\beta_c = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$, where the correlation length of the physical system diverges until bounded by the system size, as discussed in \cref{sec:iat}. The convolutional neural network can capture these long-range correlations only if the size of its receptive field is at least comparable to the correlation length.
+In particular, the results from the convolutional ARNN are generally more accurate than those from the dense one with a similar number of parameters, thanks to the utilization of the translational symmetry and the locality of the physical system. This comparison justifies the use of convolutional layers in ARNN, even though the overall joint probability is not translational invariant. However, this advantage diminishes around the critical point $\beta_c = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$, where the correlation length of the physical system diverges until bounded by the system size, as discussed in \cref{sec:iat}. The convolutional neural network can capture these long-range correlations only if the size of its receptive field is at least comparable to the correlation length.
 
 \subsubsection{Triangular Ising model}
 
@@ -210,7 +210,7 @@ An annealing procedure is performed to compute the free energies at different in
 Variational free energy (left column) and minimum energy of sampled configurations (right column) at varying inverse temperature $\beta$, for the EA model on 2D grids (top row), 3D grids (middle row), and RRGs (bottom row) of different sizes.
 The performances of TwoBo, MADE, and RNN (only in 2D) architectures are compared.
 The variational free energy is shown as the relative difference from TwoBo at the same $\beta$, and the minimum energy is relative from the one found by TwoBo at $\beta = 3$.
-The $y$-axis uses logarithmic scale when the absolute value is greater than $10^{-4}$.
+The $y$-axis uses the logarithmic scale when the absolute value is greater than $10^{-4}$.
 This figure is reproduced from Fig.~2 in Ref.~\cite{biazzo2024sparse}.
 }
 \label{fig:twobo-ea}
@@ -239,7 +239,7 @@ This figure is reproduced from Fig.~3 in Ref.~\cite{biazzo2024sparse}.
 Variational free energy as a function of the annealing speed, at different inverse temperatures $\beta$, on the 2D EA model with $N = 576$.
 The annealing speed is controlled by the number of optimization steps $N_\text{opt} = 4, 8, 16, \ldots, 1024$ in each annealing step.
 The variational free energy is shown as the relative difference from TwoBo at the same $\beta$ with $N_\text{opt} = 1024$.
-The $y$-axis uses logarithmic scale when the value is greater than $10^{-4}$.
+The $y$-axis uses the logarithmic scale when the value is greater than $10^{-4}$.
 This figure is reproduced from Fig.~4 in Ref.~\cite{biazzo2024sparse}.
 }
 \label{fig:twobo-n-opt}
@@ -282,7 +282,7 @@ In conclusion, the TwoBo architecture incorporates the knowledge of the Boltzman
 
 In the previous sections, we have seen the advantages of ARNN over previous ansatzes in variational inference. Meanwhile, as discussed in \cref{sec:compare-mcmc}, when unbiased estimations of observables rather than an upper bound of the free energy is desired, we can also use ARNN with the importance sampling in \cref{eq:importance-sampling} and the MCMC importance sampling in \cref{eq:mcmc-importance}.
 
-Soon after Ref.~\cite{wu2019solving} had introduced ARNN in statistical physics problems, Ref.~\cite{nicoli2020asymptotically} has proposed to use ARNN in the importance sampling and the MCMC importance sampling. However, Ref.~\cite{ciarella2023machine} has questioned the efficiency of these sampling methods on physical systems with complicated probability landscapes in the random first-order transition (RFOT) universality class. Moreover, Ref.~\cite{bialas2023analysis} has noticed that a reliable analysis of the autocorrelation time in \cref{eq:iat} is largely overlooked in the studies of these sampling methods, which is crucial for measuring the efficiency of MCMC methods. Fortunately, as discussed in \cref{sec:mode-collapse}, cluster update methods and symmetry operations can help overcome the problem of mode collapse in first-order phase transitions, and reduce the autocorrelation time as well.
+Soon after Ref.~\cite{wu2019solving} introduced ARNN in statistical physics problems, Ref.~\cite{nicoli2020asymptotically} has proposed to use ARNN in the importance sampling and the MCMC importance sampling. However, Ref.~\cite{ciarella2023machine} has questioned the efficiency of these sampling methods on physical systems with complicated probability landscapes, such as the Potts model and the random graph coloring problem in the random first-order transition (RFOT) universality class. Moreover, Ref.~\cite{bialas2023analysis} has noticed that a reliable analysis of the autocorrelation time in \cref{eq:iat} is largely overlooked in the studies of these sampling methods, which is crucial for measuring the efficiency of MCMC methods. Fortunately, as discussed in \cref{sec:mode-collapse}, cluster update methods and symmetry operations can help overcome the problem of mode collapse in first-order phase transitions, while reducing the autocorrelation time as well.
 
 In the following, we present a sampling method proposed in Ref.~\cite{wu2021unbiased}, which constructs cluster updates using the AR property of the ansatz, and applies the symmetries of the physical system, to achieve the unbiased sampling with high efficiency even if the physical system exhibits a first-order phase transition.
 
@@ -291,12 +291,12 @@ In the following, we present a sampling method proposed in Ref.~\cite{wu2021unbi
 
 \begin{algorithm}[H]
 \caption[Neural cluster updates with symmetries (NCUS)]{
-A sampling step in the neural cluster updates with symmetries (NCUS) for a system on a square lattice with translation and reflection symmetries.
+A sampling step in the neural cluster updates with symmetries (NCUS) for a system of $N$ spins on a square lattice with translation, $D_4$ lattice reflection, and $\bbZ_2$ spin flipping symmetries.
 }
 \label{alg:ncus}
 \begin{algorithmic}[1]
 \STATE Input the current configuration $\vs$
-\STATE Sample an integer $k \in \{1, \ldots, N\}$ from the distribution $P_K$
+\STATE Sample an integer $k \in \{1, \ldots, N\}$ from the distribution $P_\text{cluster}(k)$
 \STATE Sample the last $k$ spins and propose the configuration $\vs'$
 \STATE Accept $\vs \gets \vs'$ with the probability in \cref{eq:ncus-a}
 \STATE Translate $\vs$ by a random displacement
@@ -321,45 +321,69 @@ This figure is reproduced from Fig.~1 in Ref.~\cite{wu2021unbiased}.
 \label{fig:ncus-proc}
 \end{figure}
 
-During the MCMC importance sampling procedure in \cref{eq:mcmc-importance}, we propose new configurations $\vs'$ from the ansatz $q(\vs)$. When the ansatz is factorized into the AR conditional distributions in \cref{eq:autoreg}, we can notice that it is possible not to generate all the spins in $\vs'$ from the beginning, but only the last $k$ spins. In this way, the acceptance in \cref{eq:mcmc-importance} becomes
+During the MCMC importance sampling procedure in \cref{eq:mcmc-importance}, we propose new configurations $\vs'$ from the ansatz $q(\vs)$. When the ansatz is factorized into the AR conditional distributions in \cref{eq:autoreg}, we can notice that it is possible not to generate all the $N$ spins from the beginning, but only the last $k$ spins. In this way, the acceptance in \cref{eq:mcmc-importance} becomes
 \begin{equation}
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs')}{p(\vs)} \prod_{i = N - k + 1}^N \frac{q_i(s_i \mid \vs_{< i})}{q_i(s'_i \mid \vs'_{< i})} \right),
 \label{eq:ncus-a}
 \end{equation}
-which is usually close to $1$ when $k$ is small. With suitable choices of $k$, we can enjoy the efficiency of cluster updates, which overcome both the inability of local updates to transition through energy barriers and the low acceptance probability of global updates.
+which is usually close to $1$ when $k$ is small. With suitable values of $k$, we can enjoy the efficiency of cluster updates, which overcome both the inability of local updates to transition through energy barriers and the low acceptance probability of global updates. We refer to the distribution of $k$ as $P_\text{cluster}(k)$, and it can be the uniform distribution over $\{1, \ldots, N\}$ without loss of generality. Comparisons between different choices of $P_\text{cluster}(k)$ will be presented in \cref{fig:ncus-pk}.
 
 Besides the cluster updates, we can also randomly apply elements in the symmetry group of the Hamiltonian to the samples in the Markov chain. These operations act as global updates that transition through local energy barriers, and they are never rejected because they conserve the energy and thus have an acceptance probability of $1$. Combining the cluster updates and symmetry operations, we refer to the resulting algorithm as neural cluster updates with symmetries (NCUS). This algorithm is described in \cref{alg:ncus} and visualized in \cref{fig:ncus-proc}.
 
 \subsection{Numerical results}
 
+\subsubsection{Ising model}
+
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/ncus_ising_autocorr.pdf}
 \caption[NCUS results of Ising model]{
-(a) Integrated autocorrelation time $\tau$ as a function of temperature on the $16 \times 16$ Ising model. For neural importance sampling (NIS), we use the increased variance from the reweighing procedure as the effective autocorrelation time. The inset focuses on their behaviors near the critical point and uses the logarithmic scale on the $y$-axis. \\
-(b) Autocorrelation functions $r(t)$ on the $16 \times 16$ Ising model at $\beta = 0.44$. The inset uses the logarithmic scale on the $x$-axis to focus on their behaviors at small $t$.
+(a) Autocorrelation time $\tau$ for the Ising model on the $16 \times 16$ square lattice, at varying inverse temperature $\beta$, given by different sampling methods.
+The inset focuses on their behaviors around the critical point and uses the logarithmic scale on the $y$-axis. \\
+(b) Normalized autocorrelation $r(t)$ at $\beta = 0.44$ around the critical point.
+The inset uses the logarithmic scale on the $x$-axis to focus on their behaviors at small $t$.
 This figure is reproduced from Fig.~2 in Ref.~\cite{wu2021unbiased}.
 }
 \label{fig:ncus-ising-autocorr}
 \end{figure}
 
+To demonstrate the performance of NCUS, we first conduct numerical experiments using the Ising model on the square lattice with PBC, which has translation, $D_4$ lattice reflection, and $\bbZ_2$ spin flipping symmetries. We compare NCUS with \cref{eq:importance-sampling}, referred to neural importance sampling (NIS) here, as well as \cref{eq:mcmc-importance}, referred to as neural global updates (NGU) here. As ablation studies, we also consider neural global updates with symmetries (NGUS) and neural cluster updates (NCU) without symmetries. In addition, the well-established Wolff cluster update algorithm~\cite{wolff1989collective} is taken for comparison.
+
+In all the neural sampling methods, we use a same neural network trained using the usual variational method. The network is a convolutional ARNN with approximately $4 \times 10^3$ parameters, which is much smaller compared to the networks used in \cref{sec:made}, as we now emphasize the efficient sampling and the correction to the non-ideally trained ansatz $q(\vs)$. After the sampling, the mean free energies given by all the methods are apparently close to each other, so we focus on analyzing the autocorrelation times of the free energy as defined in \cref{eq:iat}, which determine the error bars. For NIS, although it does not produce a Markov chain, we use the effective sample size in \cref{eq:eff-sample-size,eq:eff-sample-size-w} to define an effective autocorrelation time for comparison.
+
+As shown in \Cref{fig:ncus-ising-autocorr}~(a), around the critical point, NCUS produces autocorrelation times lower by orders of magnitude than the previous neural sampling methods, while the autocorrelation times from NGU and NIS are pathologically high. A closer look at the normalized autocorrelation functions in \Cref{fig:ncus-ising-autocorr}~(b) confirms these results, where the samples from NCUS quickly decorrelate in less than $10^3$ steps, while those from NGU cannot decorrelate after as many as $10^5$ steps. Moreover, the autocorrelation times from NCUS is comparable to those from the Wolff algorithm, even though the latter is specifically designed for the Ising model. These results illustrate the advantage of cluster updates and symmetry operations in alleviating the problem of critical slowing down, as discussed in \cref{sec:critical-slow}.
+
+\subsubsection{Frustrated plaquette model (FPM)}
+
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/ncus_fpm_autocorr.pdf}
 \caption[NCUS results of FPM]{
-(a) Integrated autocorrelation time $\tau$ as a function of temperature on the $32 \times 32$ frustrated plaquette model (FPM). For neural importance sampling (NIS), we use the increased variance from the reweighing procedure as the effective autocorrelation time. The inset focuses on their behaviors near the critical point and uses the logarithmic scale on the $y$-axis. \\
-(b) Autocorrelation functions $r(t)$ on the $32 \times 32$ FPM at $\beta = 0.2$. The inset uses the logarithmic scale on the $x$-axis to focus on their behaviors at small $t$.
+(a) Autocorrelation time $\tau$ for the frustrated plaquette model (FPM) on the $32 \times 32$ square lattice, at varying inverse temperature $\beta$, given by different sampling methods.
+The inset focuses on their behaviors around the critical point and uses the logarithmic scale on the $y$-axis. \\
+(b) Normalized autocorrelation $r(t)$ at $\beta = 0.2$ around the critical point.
+The inset uses the logarithmic scale on the $x$-axis to focus on their behaviors at small $t$.
 This figure is reproduced from Fig.~4 in Ref.~\cite{wu2021unbiased}.
 }
 \label{fig:ncus-fpm-autocorr}
 \end{figure}
 
+Next, we apply the sampling methods to the frustrated plaquette model (FPM) discussed in \cref{sec:fpm}, which is more difficult than the Ising model due to the first-order phase transition induced by the frustrated $J_3$ interactions and the plaquette interactions. Moreover, we increase the system size from $16 \times 16$ to $32 \times 32$. This time, the Wolff algorithm is no longer applicable as it is designed only for systems with two-body interactions. In contrast, the neural sampling methods are general enough to handle the plaquette interactions.
+
+As shown in \Cref{fig:ncus-fpm-autocorr}, the results have a similar trend to those for the Ising model around the critical point. The autocorrelation times from NCUS can be as high as $O(10^3)$, but it is still practical to obtain reliable estimations of the free energy with the error bars derived from them, and they are lower by orders of magnitude than the results from the previous neural sampling methods. These results provide evidence that cluster updates and symmetry operations help alleviate the problem of mode collapse with the presence of first-order phase transitions, as discussed in \cref{sec:mode-collapse}.
+
+\subsubsection{Choices of the distribution $P_\text{cluster}(k)$}
+
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/ncus_pk.pdf}
-\caption[Choices of the distribution $P_K(k)$ in NCUS]{
-Autocorrelation functions $r(t)$ by NCUS with various exponential and power distributions $P_K$, computed on the $16 \times 16$ Ising model. In general, the uniform distribution gives lower IAT than most other distributions we experimented.
+\caption[Choices of the distribution $P_\text{cluster}(k)$ in NCUS]{
+Normalized autocorrelation $r(t)$ given by NCUS on the $16 \times 16$ Ising model at inverse temperature $\beta = 0.44$, with different choices of $P_\text{cluster}(k)$ from exponential and power distributions.
 This figure is reproduced from Fig.~S1 in the supplemental material of Ref.~\cite{wu2021unbiased}.
 }
 \label{fig:ncus-pk}
 \end{figure}
+
+The efficiency of NCUS can depend on the distribution $P_\text{cluster}(k)$ of the number of spins to generate. In the above results, we have arbitrarily chosen the uniform distribution. The empirical comparisons between different choices of exponential distributions $P_\text{cluster}(k) \propto 1 / a^k$ and power distributions $P_\text{cluster}(k) \propto 1 / k^b$, where $a$ and $b$ are adjustable parameters, are shown in \cref{fig:ncus-pk} respectively. The uniform distribution gives comparable or lower autocorrelation time than all other distributions we have tested. Moreover, it also outperforms the more naive method of always using the same number, i.e., $P_\text{cluster}(k) = \delta(k - k')$ for all $k' \in \{1, \ldots, N\}$. It remains an open question to reveal the relation between the optimal $P_\text{cluster}(k)$ and the properties of the target distribution $p(\vs)$ as well as the ansatz $q(\vs)$, using theoretical analysis on the Markov chain transitions.
+
+In conclusion, the NCUS algorithm utilizes the cluster updates constructed by the AR property of the ansatz, as well as the symmetries of the physical system, to produce significantly lower autocorrelation time than the conventional global update method around the critical point, and more reliable estimation of the observable with lower error bar in consequence. We look forward to more research combining the strengths of the techniques presented in this section, including the neural networks as highly expressive heuristics for complicated multivariate distributions, autoregressive models with exact sampling and normalized probability evaluation, physical properties such as symmetries and sparsity incorporated into network architectures, and cluster updates that alleviate the problems of critical slowing down and mode collapse, which will eventually lead to solutions for physical systems with unprecedented size and complexity.
