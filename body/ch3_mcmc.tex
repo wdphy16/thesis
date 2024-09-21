@@ -1,6 +1,6 @@
 \chapter{Markov chain Monte Carlo (MCMC)}
 
-As seen from the previous part, observables of many-body systems embody a rich variety of physical phenomena emerged from statistics of microscopic configurations. Their exponentially large configuration spaces prohibit exact enumerations, and motivate us to use numerical approximation methods in the studies of their properties. In this part, we first review the traditional method of Markov chain Monte Carlo (MCMC) and the variational method for classical systems, list some commonly used ansatzes to approximate the Boltzmann distribution, and discuss their limitations. Then we introduce the autoregressive models with the advantage of exact sampling, and combine the strengths of the exact sampling and the Markov chain sampling to remove the bias in the variational method.
+As seen from the previous part, many-body systems exhibit a rich variety of physical phenomena emerged from statistics of microscopic configurations. Their exponentially large configuration spaces prohibit us from evaluating observables by exact enumerations, and motivate us to use numerical approximation methods in the studies of their properties. In this part, we focus on such techniques for classical systems, which are relatively simpler than quantum ones. We first review the traditional method of Markov chain Monte Carlo (MCMC) and the variational method, list some commonly used ansatzes to approximate the Boltzmann distribution, and discuss their limitations. Then we introduce the autoregressive models with the advantage of exact sampling, and combine the strengths of the exact sampling and the Markov chain sampling to remove the bias in the variational method.
 
 \section{Monte Carlo method}
 
@@ -51,7 +51,7 @@ Discrete Bernoulli distribution from continuous uniform distribution.
 
 \section{Markov chain sampling}
 
-In the case of Boltzmann distributions for many-body systems with complicated energy landscapes, an analytical transformation for exact sampling is generally impossible to find, and we can only resort to indirect methods for sampling these distributions. A common method is to construct a Markov chain of samples, whose equilibrium distribution converges to the target one, therefore this sampling method is known as Markov chain Monte Carlo (MCMC)~\cite{gelfand1990sampling, robert2020markov}. For spin systems, such a Markov chain is usually constructed by the Metropolis--Hastings algorithm~\cite{hastings1970monte}. In each sampling step, we propose to update the current configuration $\vs$ to a new one $\vs'$ with the proposal distribution $g(\vs' \mid \vs)$, where $\sum_{\vs'} g(\vs' \mid \vs) = 1$ for all $\vs$. Then we accept $\vs'$ to become the current configuration by an acceptance probability defined by
+In the case of Boltzmann distributions for many-body systems with complicated energy landscapes, an analytical transformation for exact sampling is generally impossible to find, and we can only resort to indirect methods for sampling these distributions. A common method is to construct a Markov chain of samples, whose equilibrium distribution converges to the target one, therefore this sampling method is known as Markov chain Monte Carlo (MCMC)~\cite{gelfand1990sampling, robert2020markov}. For spin systems, such a Markov chain is usually constructed by the Metropolis--Hastings algorithm~\cite{hastings1970monte}. In each sampling step, we propose to update the current configuration $\vs$ to a new one $\vs'$ with the proposal distribution $g(\vs' \mid \vs)$, where $\sum_{\vs'} g(\vs' \mid \vs) = 1$ for all $\vs$. Then we accept $\vs'$ to become the current configuration by an acceptance probability\footnote{The acceptance probability depends on the configurations $\vs$ and $\vs'$, not to be confused with the acceptance rate defined over the whole Markov chain.} defined by
 \begin{equation}
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs') g(\vs \mid \vs')}{p(\vs) g(\vs' \mid \vs)} \right).
 \label{eq:metropolis}
@@ -65,7 +65,7 @@ If we want to sample the target distribution using a single Markov chain, i.e., 
 \begin{equation}
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs')}{p(\vs)} \right).
 \end{equation}
-More advanced choices of $g(\vs' \mid \vs)$ will be discussed in \cref{sec:importance-sampling}.
+More advanced choices of $g(\vs' \mid \vs)$ will be discussed in \cref{sec:more-sampling}.
 
 When $p(\vs)$ is the Boltzmann distribution in \cref{eq:boltzmann}, the acceptance probability further simplifies to
 \begin{equation}
@@ -117,11 +117,11 @@ Autocorrelation in energy $C_E(t)$ of the Ising model on the $10 \times 10$ squa
 \subsection{Integrated autocorrelation time}
 
 The integrated autocorrelation time~\cite{ambegaokar2010estimating, goodman2010ensemble}, or ``autocorrelation time'' for short, is a metric for MCMC to assess the loss in sample diversity due to autocorrelation, defined by
-\begin{equation}
-\tau = \frac{1}{C_O(0)} \sum_{t = 1}^\infty C_O(t).
-\label{eq:iat}
-\end{equation}
-It depends on the complexity of the target distribution, and the method to propose new configurations. It is also known as the relaxation time in analytical studies of the spin dynamics. When estimating it in practice, $C_O(t)$ is replaced by $C_{O, M}(t)$ with a sufficiently large chain length $M$, and we need to verify $M \gg \tau$ after obtaining $\tau$. The summation $\sum_{t = 1}^\infty$ is also replaced by a finite summation $\sum_{t = 1}^{t_\text{cutoff}}$, where $t_\text{cutoff}$ is the first step when $C_{O, M}(t)$ crosses zero~\cite{wu2021unbiased}. It can be efficiently computed using fast Fourier transform (FFT) by the Wiener--Khinchin theorem~\cite{wiener1930generalized}. Other methods to estimate $\tau$ include binning analysis~\cite{wallerberger2018efficient}, and fitting the exponential decay of $C_O(t)$~\cite{bialas2023analysis}. These methods should produce consistent results when the chain length $M$ is sufficiently large.
+\begin{align}
+\tau = \sum_{t = 1}^\infty r_O(t), \label{eq:iat} \\
+r_O(t) = \frac{C_O(t)}{C_O(0)}, \label{eq:rt}
+\end{align}
+where $r_O(t)$ is the normalized autocorrelation. The value of $\tau$ depends on the complexity of the target distribution, and the method to propose new configurations. It is also known as the relaxation time in analytical studies of the spin dynamics. When estimating it in practice, $C_O(t)$ is replaced by $C_{O, M}(t)$ with a sufficiently large chain length $M$, and we need to verify $M \gg \tau$ after obtaining $\tau$. The summation $\sum_{t = 1}^\infty$ is also replaced by a finite summation $\sum_{t = 1}^{t_\text{cutoff}}$, where $t_\text{cutoff}$ is the first step when $C_{O, M}(t)$ crosses zero~\cite{wu2021unbiased}. It can be efficiently computed using fast Fourier transform (FFT) by the Wiener--Khinchin theorem~\cite{wiener1930generalized}. Other methods to estimate $\tau$ include binning analysis~\cite{wallerberger2018efficient}, and fitting the exponential decay of $C_O(t)$~\cite{bialas2023analysis}. These methods should produce consistent results when the chain length $M$ is sufficiently large.
 
 \begin{figure}[htb]
 \centering
@@ -134,7 +134,7 @@ The probability density function (PDF) of the distribution is estimated from the
 \label{fig:energy-hist}
 \end{figure}
 
-Intuitively, the autocorrelation time takes two factors into account that affect the sample diversity: the correlation between the proposed configuration and the current one, and the acceptance probability. For single-spin updates, the successive samples are almost fully correlated, which leads to high autocorrelation in the observable values. On the other extreme, if we do global updates, i.e., randomly generate a proposed configuration $\vs'$ from the uniform distribution of all configurations in each sampling step, then it is fully uncorrelated with the current one. However, the energy $H(\vs')$ from the uniform distribution is almost always much higher than the current one from the target distribution, as shown in \cref{fig:energy-hist}, which makes the acceptance probability exponentially low, and the collected samples are still almost fully correlated. Between the two extremes of single-spin updates and global updates, a variety of cluster updates have been proposed to balance these two factors, which we will discuss in \cref{sec:importance-sampling}.
+Intuitively, the autocorrelation time takes two factors into account that affect the sample diversity: the correlation between the proposed configuration and the current one, and the acceptance probability. For single-spin updates, the successive samples are almost fully correlated, which leads to high autocorrelation in the observable values. On the other extreme, if we do global updates, i.e., randomly generate a proposed configuration $\vs'$ from the uniform distribution of all configurations in each sampling step, then it is fully uncorrelated with the current one. However, the energy $H(\vs')$ from the uniform distribution is almost always much higher than the current one from the target distribution, as shown in \cref{fig:energy-hist}, which makes the acceptance probability exponentially low, and the collected samples are still almost fully correlated. Between the two extremes of single-spin updates and global updates, a variety of cluster updates have been proposed to balance these two factors, which we will discuss in \cref{sec:cluster-update}.
 
 \subsection{Effective sample size}
 
@@ -205,15 +205,18 @@ R \approx \sqrt{1 + \frac{M}{M_\text{eff}}}.
 \end{equation}
 If we have enough random Markov chains from different initial configurations, which cover all regions of interest in the configuration space, and converge to similar distributions with mean observable values close to each other, then we can assume that the Markov chains have reached equilibrium. It was originally proposed in Ref.~\cite{gelman1992inference} to use a threshold $R < \delta$, and a common choice is $\delta = 1.1$. According to Ref.~\cite{vats2021revisiting}, practical choices of $\delta$ ranges from $1.003$ to $1.3$, and a more stable estimation of the true variance can be obtained from batch-wise variances in the chains.
 
-\section{Importance sampling and cluster updates}
+\section{Other sampling methods}
+\label{sec:more-sampling}
+
+\subsection{Importance sampling}
 \label{sec:importance-sampling}
 
-Apart from exactly sampling the target distribution $p(\vs)$, and the MCMC sampling, there are other sampling methods to estimate the observable in \cref{eq:cl-obs}. In principle, we can generate samples $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ from any distribution $q(\vs)$, and estimate the observable by
+Apart from the exact sampling and the MCMC sampling, there are other sampling methods to estimate the observable in \cref{eq:cl-obs}. In principle, we can generate samples $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ from any distribution $q(\vs)$, then estimate the observable by
 \begin{align}
 \bbE_\text{imp}[O] &= \frac{\sum_{i = 1}^M w\left( \vs^{(i)} \right) O\left( \vs^{(i)} \right)}{\sum_{i = 1}^M w\left( \vs^{(i)} \right)}, \label{eq:importance-sampling} \\
 w\left( \vs^{(i)} \right) &= \frac{p\left( \vs^{(i)} \right)}{q\left(\vs^{(i)} \right)},
 \end{align}
-given that $q(\vs)$ has a wider support than $p(\vs)$, i.e., $q(\vs) > 0$ for all $\vs$ such that $p(\vs) > 0$. This method is called importance sampling in statistics~\cite{kloek1978bayesian, bugallo2017adaptive}, and the distribution $q(\vs)$ is called an ansatz\footnote{The word ``ansatz'' is borrowed from German. Its plural form is ``Ansätze'' in German, but the adapted form ``ansatzes'' is also used in English literature.} in the context of statistical physics. The ansatz should be close to $p(\vs)$, and easier to sample from than $p(\vs)$. Some choices of the ansatz for importance sampling will be discussed in \cref{sec:nmf}. The variance of this estimator is
+given that $q(\vs)$ has a wider support than $p(\vs)$, i.e., $q(\vs) > 0$ for all $\vs$ such that $p(\vs) > 0$. The probabilities $p(\vs)$ and $q(\vs)$ can be unnormalized, as an overall coefficient in $w(\vs)$ will cancel out in the numerator and the denominator of $\bbE_\text{imp}[O]$. This method is called importance sampling in statistics~\cite{kloek1978bayesian, bugallo2017adaptive}, and the distribution $q(\vs)$ is called an ansatz\footnote{The word ``ansatz'' is borrowed from German. Its plural form is ``Ansätze'' in German, but the adapted form ``ansatzes'' is also used in English literature.} in the context of statistical physics. The ansatz should be close to $p(\vs)$, and easier to sample from than $p(\vs)$. Some choices of the ansatz for importance sampling will be discussed in \cref{sec:nmf}. The variance of this estimator is
 \begin{equation}
 \Var\big[ \bbE_\text{imp}[O] \big] = \frac{1}{M_{\text{eff}\,w}} \Var[\bar{O}],
 \label{eq:importance-sampling-var}
@@ -222,17 +225,24 @@ where the effective sample size
 \begin{equation}
 M_{\text{eff}\,w} = \frac{\Big( \sum_{i = 1}^M w\left( \vs^{(i)} \right) \Big)^2}{\sum_{i = 1}^M w^2\left( \vs^{(i)} \right)}.
 \end{equation}
-The variance reaches its minimum when $q(\vs) = p(\vs)$, so we need to choose a $q(\vs)$ that is as close to $p(\vs)$ as possible.
+The variance reaches its minimum when $q(\vs) = p(\vs)$, which is in accordance with the intuition that $q(\vs)$ should be as close to $p(\vs)$ as possible.
 
-However, \cref{eq:importance-sampling} generally requires to evaluate the normalized probability $p(\vs)$, which is intractable for many-body systems. A more practical method is to use importance sampling with the Metropolis--Hastings algorithm in \cref{eq:metropolis}~\cite{liesenfeld2008improving, schuster2020markov}, which we refer to as MCMC importance sampling. The proposed configuration is generated from $q(\vs')$ and is independent of the current configuration $\vs$, i.e., the proposal distribution $g(\vs' \mid \vs) = q(\vs')$. Then the acceptance probability becomes
+\subsection{MCMC importance sampling}
+
+Besides reweighing the samples from $q(\vs)$ using the target distribution $p(\vs)$, we can also use the Metropolis--Hastings algorithm in \cref{eq:metropolis} to reject the samples, which we refer to as MCMC importance sampling~\cite{liesenfeld2008improving, schuster2020markov}. In each sampling step, we propose a new configuration $\vs'$ from the distribution $q(\vs')$, which is independent of the current configuration $\vs$, i.e., the proposal distribution $g(\vs' \mid \vs) = q(\vs')$. Then the acceptance probability becomes
 \begin{equation}
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs') q(\vs)}{p(\vs) q(\vs')} \right),
 \label{eq:mcmc-importance}
 \end{equation}
-which is close to $1$ if $q(\vs)$ is close to $p(\vs)$. Moreover, this method also reduces the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to the overall reduction of the autocorrelation time. There exist more advanced methods to construct the proposal distribution $g(\vs' \mid \vs)$ depending on the current configuration $\vs$, such as the Langevin Monte Carlo~\cite{rossky1978brownian} and the Hamiltonian Monte Carlo~\cite{duane1987hybrid}.
+which is close to $1$ if $q(\vs)$ is close to $p(\vs)$. Moreover, this method also reduces the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to the overall reduction of the autocorrelation time. An empirical comparison of the importance sampling and the MCMC importance sampling will be presented in \cref{sec:ncus}. More advanced methods have been proposed to construct the proposal distribution $g(\vs' \mid \vs)$ depending on the current configuration $\vs$, such as the Langevin Monte Carlo~\cite{rossky1978brownian} and the Hamiltonian Monte Carlo~\cite{duane1987hybrid}.
+
+\subsection{Cluster update}
+\label{sec:cluster-update}
+
+A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling. They have originally arisen from studies of the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for Ising models with two-body interactions. In each sampling step, it constructs and flips a cluster of spins according to \cref{alg:wolff}. The resulting proposal probability satisfies $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, so the acceptance probability is always $1$, which makes the Wolff cluster update far more efficient than the single-spin update when it is applicable.
 
 \begin{algorithm}[H]
-\caption[Wolff cluster update algorithm]{
+\caption[Wolff cluster update]{
 Wolff cluster update algorithm to construct and flip a cluster of spins, in the MCMC sampling of the Boltzmann distribution of Ising models with two-body interactions.
 $\calC$ is the cluster, $\calB$ is a set of spins on the boundary of the cluster, $\beta$ is the inverse temperature, $\partial i$ denotes the neighbors of the site $i$, and \texttt{rand()} generates a random number from the uniform distribution over $[0, 1)$.
 }
@@ -255,8 +265,6 @@ $\calC$ is the cluster, $\calB$ is a set of spins on the boundary of the cluster
 \STATE Output the new configuration $\vs' \gets \vs$
 \end{algorithmic}
 \end{algorithm}
-
-A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling. They have originally arisen from studies of the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for Ising models with two-body interactions. In each sampling step, it constructs and flips a cluster of spins according to \cref{alg:wolff}. The resulting proposal probability satisfies $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, so the acceptance probability is always $1$, which makes the Wolff cluster update far more efficient than the single-spin update when it is applicable.
 
 \dwcomment{Maybe discuss parallel tempering if there is spare time and space, but it's not used anywhere else in this thesis}
 
@@ -282,7 +290,7 @@ Intuitively, a mode is a peak of the target distribution in the configuration sp
 
 The mode collapse in the simple case above can be eliminated by applying the spin flipping symmetry to the generated samples. Other symmetries of the Hamiltonian, such as translations, rotations, and reflections, are also useful to alleviate the mode collapse and improve the accuracy of the estimated observables. Cluster updates are another approach to alleviate this problem, as they can propose large updates to the configuration to transition through the energy barriers that block local updates. The problem becomes more challenging in frustrated models, where the number of degenerate ground states can be exponentially large, and cannot be eliminated by a polynomially large symmetry group~\cite{wannier1950antiferromagnetism, mambrini1999residual, vanderstraeten2018residual}.
 
-The effect of mode collapse is also demonstrated in the context of importance sampling in \cref{eq:importance-sampling}. Assuming the actual distribution of samples $q(\vs)$ only covers a single mode, and is exponentially suppressed in the uncovered modes, where $p(\vs) > 0$ but $q(\vs) \to 0$. Then we have pathologically high $w(\vs)$ in the uncovered modes, which cause the variance in \cref{eq:importance-sampling-var} to diverge. Such configurations are identified as the exponentially suppressed configurations (ESC) in Ref.~\cite{wu2021unbiased}. Even if an estimated observable is still close to the true value in a single mode, the diverging variance indicates that such estimation is unreliable.
+The effect of mode collapse is also demonstrated in the context of importance sampling in \cref{eq:importance-sampling}. Assuming the actual distribution of samples $q(\vs)$ only covers a single mode, and is exponentially suppressed in the uncovered modes, where $p(\vs) > 0$ but $q(\vs) \to 0$. Then we have pathologically high $w(\vs)$ in the uncovered modes, which cause the variance in \cref{eq:importance-sampling-var} to diverge. These configurations are identified as the exponentially suppressed configurations (ESC) in Ref.~\cite{wu2021unbiased}. Even if an estimated observable is still close to the true value in a single mode, the diverging variance indicates that such estimation is unreliable.
 
 \begin{figure}[htb]
 \centering

@@ -59,6 +59,7 @@ pseudorandom
 ReLU
 reparameterization
 reparameterize
+RFOT
 RG
 RRGs
 SciPost
@@ -70,6 +71,7 @@ Stoquasticity
 tensorial
 TODO
 TwoBo
+unnormalized
 VarBench
 WaveNet
 Wormald

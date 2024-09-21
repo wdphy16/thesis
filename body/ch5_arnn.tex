@@ -85,7 +85,7 @@ This figure is reproduced from Fig.~2 in Ref.~\cite{wu2019solving}.
 
 We first demonstrate the performance of ARNN on the well-studied ferromagnetic (FM) Ising model on the $10 \times 10$ square lattice with periodic boundary conditions (PBC), where the analytical result~\cite{onsager1944crystal} and the traditional methods of naive mean field (NMF) ansatz in \cref{sec:nmf} and Bethe ansatz in \cref{sec:bethe} are available for comparison. A dense ARNN and a convolutional ARNN are trained on the Boltzmann distribution of this Hamiltonian, whose hyperparameters, such as the number of layers, the number of channels, and the convolution kernel size are selected to produce the lowest variational free energies within a reasonable computation budget. The networks are trained from scratch at each inverse temperature $\beta = 0.1, 0.2, \ldots, 1$. \Cref{fig:arnn-ising}~(a) shows the results of free energy, where we can clearly see that the ARNNs produce superior results compared to the traditional ansatzes, whose relative errors are lower by orders of magnitude.
 
-In particular, the results from the convolutional ARNN are generally more accurate than those from the dense one with a similar number of parameters, thanks to the utilization of the translational symmetry and the locality of the physical system. This comparison justifies the use of convolutional layers in ARNN, even though the overall joint probability is not translational invariant. However, this advantage diminishes around the critical temperature $\beta_c = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$, where the correlation length of the physical system diverges until bounded by the system size, as discussed in \cref{sec:iat}. The convolutional neural network can capture such long-range correlations only if the size of its receptive field is at least comparable to the correlation length.
+In particular, the results from the convolutional ARNN are generally more accurate than those from the dense one with a similar number of parameters, thanks to the utilization of the translational symmetry and the locality of the physical system. This comparison justifies the use of convolutional layers in ARNN, even though the overall joint probability is not translational invariant. However, this advantage diminishes around the critical temperature $\beta_c = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$, where the correlation length of the physical system diverges until bounded by the system size, as discussed in \cref{sec:iat}. The convolutional neural network can capture these long-range correlations only if the size of its receptive field is at least comparable to the correlation length.
 
 \subsubsection{Triangular Ising model}
 
@@ -147,7 +147,24 @@ Apart from training a new network with each system size and temperature, it has 
 
 \section{Sparse two-body ARNN (TwoBo)}
 
-In the previous section, we have seen that the simple ARNN with dense architecture approximates many-body systems to much higher accuracy than traditional ansatzes, but also introduces much more trainable parameters and requires longer computation time. The convolutional ARNN reaches even higher accuracy with the same amount of parameters, as it utilizes the translational symmetry and the locality of the physical system. In this section, we continue to seek for a more sophisticated ARNN architecture that further embodies knowledge of the physical system, particularly the sparsity, to reduce the number of trainable parameters and the computation time without losing the expressiveness. An approach has been proposed in Ref.~\cite{pan2021solving} to convert any many-body system on a sparse graph into an equivalent system on a smaller dense graph using the feedback vertex set. We take a different approach, based on the properties of the Boltzmann distribution.
+In the previous section, we have seen that the simple ARNN with dense architecture approximates many-body systems to much higher accuracy than traditional ansatzes, but also introduces much more trainable parameters and requires longer computation time. The convolutional ARNN reaches even higher accuracy with the same amount of parameters, as it utilizes the translational symmetry and the locality of the physical system. In this section, we continue to seek for a more sophisticated ARNN architecture that further embodies knowledge of the physical system, particularly the sparsity, to reduce the number of trainable parameters and the computation time without losing the expressiveness.
+
+An approach has been proposed in Ref.~\cite{pan2021solving} to convert any many-body system on a sparse graph into an equivalent system on a smaller dense graph using the feedback vertex set. Meanwhile, it has been noticed in Ref.~\cite{pr2021analysis} that the dense ARNN architecture involves a lot of redundant computation that can be eliminated given the physical properties of the Boltzmann distribution and the locally interacting Hamiltonian. In the following, we present a different approach proposed in Ref.~\cite{biazzo2024sparse}, which utilizes these physical properties to improve the efficiency of ARNN.
+
+\subsection{TwoBo architecture from Boltzmann distribution}
+
+We start from directly factorizing the many-body Boltzmann distribution $p_\text{B}(\vs)$ into AR conditional distributions in \cref{eq:autoreg}:
+\begin{equation}
+p_{\text{B} i}(s_i \mid \vs_{< i})
+= \frac{\sum_{\vs_{> i}} p_\text{B}(\vs)}{\sum_{\vs_{\ge i}} p_\text{B}(\vs)}
+= \frac{\sum_{\vs_{> i}} \rme^{-\beta H(\vs)}}{\sum_{\vs_{\ge i}} \rme^{-\beta H(\vs)}},
+\end{equation}
+and simplifying the result. When the Hamiltonian has only two-body interactions in \cref{eq:cl-ising-general}, it has been derived in Ref.~\cite{biazzo2024sparse} that the conditional probability takes the form:
+\begin{align}
+p_{\text{B} i}(s_i = +1 \mid \vs_{<i}) &= S\left( 2 \beta \xi_{i i} + \rho_{\text{B} i}\left( \{\xi_{i l} \mid l > i\} \right) \right), \label{eq:twobo} \\
+\xi_{i l} &= \sum_{k < i} J_{k l} s_k, \label{eq:twobo-xi}
+\end{align}
+in the notations of this thesis, and omitting the external fields for simplicity. Here $S$ is the sigmoid function in \cref{eq:sigmoid}, and $\rho_{\text{B} i}$ is a function depending on $\mJ$ and $\beta$. The function $\rho_{\text{B} i}$ is different for each index $i$, and it only takes the intermediate variables $\xi_{i l}$ with $l > i$ as the inputs. Although the exact evaluation of $\rho_{\text{B} i}$ can take exponential time, it has been shown in Ref.~\cite{biazzo2023autoregressive} that $\rho_{\text{B} i}$ can be simplified for specific physical systems, such as an analytical expression for the Curie--Weiss model and a replica symmetric breaking (RSB) approximation for the SK model.
 
 \begin{figure}[htb]
 \centering
@@ -167,21 +184,6 @@ This figure is reproduced from Fig.~1 in Ref.~\cite{biazzo2024sparse}.
 \label{fig:twobo-arch-grid}
 \end{figure}
 
-\subsection{TwoBo architecture from Boltzmann distribution}
-
-We start from directly factorizing the many-body Boltzmann distribution $p_\text{B}(\vs)$ into AR conditional distributions in \cref{eq:autoreg}:
-\begin{equation}
-p_{\text{B} i}(s_i \mid \vs_{< i})
-= \frac{\sum_{\vs_{> i}} p_\text{B}(\vs)}{\sum_{\vs_{\ge i}} p_\text{B}(\vs)}
-= \frac{\sum_{\vs_{> i}} \rme^{-\beta H(\vs)}}{\sum_{\vs_{\ge i}} \rme^{-\beta H(\vs)}},
-\end{equation}
-and simplify the resulting expression. When the Hamiltonian has only two-body interactions in \cref{eq:cl-ising-general}, it has been derived in Ref.~\cite{biazzo2024sparse} that the conditional probability takes the form:
-\begin{align}
-p_{\text{B} i}(s_i = +1 \mid \vs_{<i}) &= S\left( 2 \beta \xi_{i i} + \rho_{\text{B} i}\left( \{\xi_{i l} \mid l > i\} \right) \right), \label{eq:twobo} \\
-\xi_{i l} &= \sum_{k < i} J_{k l} s_k, \label{eq:twobo-xi}
-\end{align}
-in the notations of this thesis, and omitting the external fields for simplicity. Here $S$ is the sigmoid function in \cref{eq:sigmoid}, and $\rho_{\text{B} i}$ is a function depending on $\mJ$ and $\beta$. The function $\rho_{\text{B} i}$ is different for each index $i$, and it only takes the intermediate variables $\xi_{i l}$ with $l > i$ as the inputs. Although the exact evaluation of $\rho_{\text{B} i}$ can take exponential time, it has been shown in Ref.~\cite{biazzo2023autoregressive} that it can be simplified for specific physical systems, such as an analytical expression for the Curie--Weiss model and a replica symmetric breaking (RSB) approximation for the SK model.
-
 For the purpose of this thesis, we approximate $\rho_{\text{B} i}$ using a neural network $\rho_i$ with trainable parameters, and we have surprisingly found that using a single dense layer is enough to obtain results with satisfactory accuracies in our numerical experiments. Also, we interpret the linear transformation from the input spins $s_i$ to the intermediate variables $\xi_{i l}$ in \cref{eq:twobo-xi} as another linear layer without bias, whose weights are directly taken from $\mJ$ and not trained. Therefore, \cref{eq:twobo} becomes an ARNN ansatz $q_i(s_i \mid \vs_{< i})$ as shown in \cref{fig:twobo-arch-grid}~(a). This architecture is named TwoBo, because the authors were tired of the ever-growing lengths of acronyms.
 
 \subsection{Sparsity of intermediate variables}
@@ -189,13 +191,13 @@ For the purpose of this thesis, we approximate $\rho_{\text{B} i}$ using a neura
 
 The incorporation of the interaction matrix $\mJ$ into the parameters of TwoBo leads to the opportunity of reducing the computation time and the number of trainable parameters using the sparsity of the physical system. In general, the first layer in \cref{eq:twobo-xi} can be evaluated by a matrix-vector multiplication $\mJ \vs$ while storing cumulative sums, which takes $O(N^2)$ time, where $N$ is the number of spins. When the physical system is sparse and the number of non-zero entries in $\mJ$ only scales by $O(N)$, the evaluation takes only $O(N)$ time as well.
 
-For each function $\rho_i$, there are $(N - i)$ input variables in general and a scalar output, which introduces $O(N)$ parameters and $O(N)$ computation time when parameterized by a single dense layer. Fortunately, when the physical system has a local geometry, many of the input variables are ensured to be zero. For example, on a 2D grid with $N = L^2$ spins as shown in \cref{fig:twobo-arch-grid}~(b), each variable $\xi_{i l}$ is non-zero only when $i < l < i + L$, thus the number of input variables to $\rho_i$, the number of parameters in it, and the time to evaluate it are all reduced from $O(L^2)$ to $O(L)$. Considering all the functions $\{\rho_i \mid 1 \le i \le N\}$, they take $O(L N) = O(L^3)$ time to evaluate in total, which dominates over the $O(N)$ time of the first layer. They also have $O(L^3)$ parameters in total. Therefore, the time to evaluate the TwoBo ansatz and the number of trainable parameters in it both scale by $O(L^3)$, which is polynomially lower than $O(L^4)$ of the dense ARNN (MADE) in \cref{sec:made}. Similarly, the time and the space are reduced from $O(L^6)$ to $O(L^5)$ on 3D grids.
+For each function $\rho_i$, there are $(N - i)$ input variables in general and a scalar output, which introduces $O(N)$ parameters and $O(N)$ computation time when parameterized by a single dense layer. Fortunately, when the physical system has a local geometry, many of the input variables are ensured to be zero. For example, on a 2D grid with $N = L^2$ spins as shown in \cref{fig:twobo-arch-grid}~(b), each variable $\xi_{i l}$ is non-zero only when $i < l < i + L$, thus the number of input variables to $\rho_i$, the number of parameters in it, and the time to evaluate it are all reduced from $O(L^2)$ to $O(L)$. Considering all the functions $\{\rho_i \mid 1 \le i \le N\}$, they take $O(L N) = O(L^3)$ time to evaluate in total, which dominates over the $O(N)$ time of the first layer. Those functions also have $O(L^3)$ parameters in total. Therefore, the time to evaluate the TwoBo ansatz and the number of trainable parameters in it both scale by $O(L^3)$, which is polynomially lower than $O(L^4)$ of the dense ARNN (MADE) in \cref{sec:made}. Similarly, the time and the space are reduced from $O(L^6)$ to $O(L^5)$ on 3D grids.
 
 \subsection{Numerical results}
 
 To demonstrate the performance of TwoBo, we conduct numerical experiments using the Edwards--Anderson (EA) model on 2D and 3D grids with PBC, as well as random regular graphs (RRG). As discussed in \cref{sec:ea}, the EA model is generally more difficult to solve than the simple Ising model in \cref{sec:made}, and the 3D EA model is particularly challenging from the perspective of computational complexity. Moreover, the RRG demonstrates the performance of TwoBo on systems without regular geometry. We use RRGs with degree $d = 3$, and sample them from the uniform distribution of all RRGs with the given $N$ and $d$ using the Steger--Wormald algorithm~\cite{steger1999generating}. Each reported result is averaged over $10$ random instances of the Hamiltonian, and the error bar shows the standard error over the instances.
 
-The results from TwoBo are compared with those from MADE. The MADE has only one layer, and it still has more trainable parameters than the TwoBo with the same system size. On the 2D grids, another comparison is made with the RNN architecture in~\cite{hibat2021variational}, which has outperformed several dense and convolutional ARNN architectures in the regime of numerous parameters. In this thesis, we mainly compare with it in the regime of few parameters, using only $4$ memory units and a comparable number of trainable parameters to TwoBo, while the comparison using more parameters will be shown in \cref{fig:twobo-rnn-param}.
+The results from TwoBo are compared with those from MADE. We use the MADE with only one layer, and it still has more trainable parameters than the TwoBo with the same system size. On the 2D grids, another comparison is made with the RNN architecture in~\cite{hibat2021variational}, which has outperformed several dense and convolutional ARNN architectures in the regime of numerous parameters. In this thesis, we mainly compare with it in the regime of few parameters, using only $4$ memory units and a comparable number of trainable parameters to TwoBo, while the comparison using more parameters will be shown in \cref{fig:twobo-rnn-param}.
 
 An annealing procedure is performed to compute the free energies at different inverse temperatures $\beta \in (0, 3]$, and help the optimization converge to the desired global minimum at high $\beta$. We equally divide the range of $\beta$ into $N_\text{anneal} = 60$ annealing steps. At the first $\beta = 0.05$, we perform $N_\text{warm} = 500$ optimization steps as warm-up. After that, in each annealing step, we perform $N_\text{opt} = 200$ optimization steps while keeping $\beta$ unchanged. In the next annealing step, we continue to optimize the ansatz with a different value of $\beta$. All the architectures of TwoBo, MADE, and RNN are trained using this procedure.
 
@@ -214,9 +216,9 @@ This figure is reproduced from Fig.~2 in Ref.~\cite{biazzo2024sparse}.
 \label{fig:twobo-ea}
 \end{figure}
 
-As shown in the left column of \cref{fig:twobo-ea}, TwoBo gives lower variational free energy than MADE and RNN with comparable numbers of trainable parameters, on almost all tested geometries, system sizes, and temperatures, except in the simple cases of low $\beta$. This demonstrates the accuracy of TwoBo in approximating the Boltzmann distribution, even with disordered and frustrated Hamiltonians. This advantage becomes more significant at large system sizes.
+As shown in the left column of \cref{fig:twobo-ea}, TwoBo gives lower variational free energy than MADE and RNN with comparable numbers of trainable parameters, on almost all tested geometries, system sizes, and temperatures, except in the simple cases of low $\beta$. This demonstrates the accuracy of TwoBo in approximating the Boltzmann distribution, even with disordered and frustrated Hamiltonians. This advantage becomes more significant as the system sizes increases.
 
-The right column of \cref{fig:twobo-ea} shows the minimum energy found by the ansatzes in the annealing procedure, which is of more interest in combinatorial optimization problems. TwoBo is also able to find lower energies than MADE and RNN, especially at large system sizes. In addition to variational methods, we also use exact solvers in McGroundstate~\cite{charfreitag2022mcsparse} and heuristic solvers in MQLib~\cite{dunning2018what} to solve the same systems. TwoBo gives equal or lower energies within comparable computation time in all tested cases, which provides evidence that the sophisticated heuristics of neural networks can outperform traditional methods.
+The right column of \cref{fig:twobo-ea} shows the minimum energy found by the ansatzes in the annealing procedure, which is of more interest in combinatorial optimization problems. TwoBo is also able to find lower energies than MADE and RNN, especially at large system sizes. In addition to variational methods, we also use exact solvers in McGroundstate~\cite{charfreitag2022mcsparse} and heuristic solvers in MQLib~\cite{dunning2018what} to solve the same systems. Compared to these solvers, TwoBo gives equal or lower energies with comparable computation time in all tested cases, which provides evidence that the sophisticated heuristics of neural networks outperform traditional methods in such optimization problems with many variables and complicated interactions.
 
 \subsubsection{Convergence of training}
 
@@ -245,7 +247,7 @@ This figure is reproduced from Fig.~4 in Ref.~\cite{biazzo2024sparse}.
 
 Besides the accuracy after training, TwoBo also has the advantage of fast convergence during training. As shown in \cref{fig:twobo-converge}, in each annealing step with a fixed $\beta$, TwoBo always starts from a lower variational energy, and reaches convergence in fewer optimization steps. This advantage can be attributed to the incorporation of the interactions $\mJ$ in the parameters, which makes the initialization of the ansatz $q(\vs)$ physically feasible, i.e., closer to the target distribution $p_\text{B}(\vs)$ than a neural network with only random initialization.
 
-This fast convergence also allows us to reduce the total computation time of the annealing procedure using a higher annealing speed. The annealing speed is controlled by the number of optimization steps $N_\text{opt}$ in each annealing step. As shown in \cref{fig:twobo-n-opt}, the variational free energy systematically decreases as $N_\text{opt}$ increases, presumably in a power law. In particular, TwoBo reaches the same variational free energy with almost an order of magnitude smaller $N_\text{opt}$ than MADE and RNN, which demonstrates its high efficiency in training.
+This fast convergence also allows us to reduce the total computation time of the annealing procedure using a higher annealing speed. The annealing speed is controlled by the number of optimization steps $N_\text{opt}$ in each annealing step. As shown in \cref{fig:twobo-n-opt}, the variational free energy systematically decreases as $N_\text{opt}$ increases, presumably in a power law. In particular, TwoBo reaches the same variational free energy with almost an order of magnitude smaller $N_\text{opt}$ than MADE and RNN, which demonstrates its high efficiency in training. Therefore, we use only $N_\text{opt} = 200$ to achieve satisfactory results in \cref{fig:twobo-ea}, and each training can finish in an hour on a high-end GPU.
 
 \subsubsection{Parameter efficiency}
 
@@ -269,57 +271,71 @@ This figure is reproduced from Fig.~S3 in the supplementary material of Ref.~\ci
 \label{fig:twobo-rnn-param}
 \end{figure}
 
-Lastly, we investigate the empirical scaling of the number of trainable parameters in TwoBo with the system size. As shown in \cref{fig:twobo-param}, TwoBo has polynomially fewer parameters than MADE on 2D and 3D grids. For the RRGs without a local geometry, however, TwoBo no longer has polynomially fewer parameters, but only fewer by a constant factor of approximately $2$. These results are consistent with the theoretical analysis in \cref{sec:twobo-sparse}.
+Lastly, we investigate the empirical scaling of the number of trainable parameters in TwoBo with the system size. As shown in \cref{fig:twobo-param}, TwoBo has polynomially fewer parameters than MADE on 2D and 3D grids. For the RRGs without a local geometry, however, TwoBo no longer has polynomially fewer parameters, but only fewer by a constant coefficient of approximately $2$. These results are consistent with the theoretical analysis in \cref{sec:twobo-sparse}.
 
 This advantage is more sharply demonstrated when we compare with RNN in the regime of numerous parameters. As shown in \cref{fig:twobo-rnn-param}, the TwoBo with few parameters gives lower variational free energy than the RNN with a comparable number of parameters, and even if we enlarge the RNN by orders of magnitude, the variational free energy does not systematically decrease. These results emphasize the importance of the lightweight architecture with the physical knowledge in TwoBo, which can be more efficient than scaling up a general neural network architecture with increasing computation.
 
-In conclusion, the TwoBo architecture incorporates the knowledge about the Boltzmann distribution and the sparse two-body interacting Hamiltonian into the neural network design, therefore achieves more accurate free energy estimation, faster training speed, and higher parameter efficiency compared to previous ARNN architectures. It opens a promising way to scale up the variational inference computation to larger systems, and extract more physically interpretable results from neural networks.
+In conclusion, the TwoBo architecture incorporates the knowledge of the Boltzmann distribution and the sparse two-body interacting Hamiltonian into the neural network design, therefore achieves more accurate free energy estimation, faster training speed, and polynomially higher parameter efficiency compared to previous ARNN architectures. It opens a promising way to scale up the variational inference computation to larger systems, and extract more physically interpretable results from neural networks.
 
-\section{ARNN in MCMC importance sampling}
+\section{ARNN in importance sampling}
 \label{sec:arnn-mcmc}
 
-\cite{nicoli2020asymptotically}
+In the previous sections, we have seen the advantages of ARNN over previous ansatzes in variational inference. Meanwhile, as discussed in \cref{sec:compare-mcmc}, when unbiased estimations of observables rather than an upper bound of the free energy is desired, we can also use ARNN with the importance sampling in \cref{eq:importance-sampling} and the MCMC importance sampling in \cref{eq:mcmc-importance}.
 
-\cite{ciarella2023machine}
+Soon after Ref.~\cite{wu2019solving} had introduced ARNN in statistical physics problems, Ref.~\cite{nicoli2020asymptotically} has proposed to use ARNN in the importance sampling and the MCMC importance sampling. However, Ref.~\cite{ciarella2023machine} has questioned the efficiency of these sampling methods on physical systems with complicated probability landscapes in the random first-order transition (RFOT) universality class. Moreover, Ref.~\cite{bialas2023analysis} has noticed that a reliable analysis of the autocorrelation time in \cref{eq:iat} is largely overlooked in the studies of these sampling methods, which is crucial for measuring the efficiency of MCMC methods. Fortunately, as discussed in \cref{sec:mode-collapse}, cluster update methods and symmetry operations can help overcome the problem of mode collapse in first-order phase transitions, and reduce the autocorrelation time as well.
 
-\subsection{Neural cluster updates}
+In the following, we present a sampling method proposed in Ref.~\cite{wu2021unbiased}, which constructs cluster updates using the AR property of the ansatz, and applies the symmetries of the physical system, to achieve the unbiased sampling with high efficiency even if the physical system exhibits a first-order phase transition.
+
+\subsection{Neural cluster updates with symmetries (NCUS)}
 \label{sec:ncus}
 
-\cite{wu2021unbiased}
-
 \begin{algorithm}[H]
-\caption[Procedure of neural cluster updates with symmetries (NCUS)]{
-A step of NCUS.
+\caption[Neural cluster updates with symmetries (NCUS)]{
+A sampling step in the neural cluster updates with symmetries (NCUS) for a system on a square lattice with translation and reflection symmetries.
 }
 \label{alg:ncus}
 \begin{algorithmic}[1]
 \STATE Input the current configuration $\vs$
-\STATE Sample an integer $k \in \{1, \ldots, N\}$ from $P_\text{cluster}$
+\STATE Sample an integer $k \in \{1, \ldots, N\}$ from the distribution $P_K$
 \STATE Sample the last $k$ spins and propose the configuration $\vs'$
-\STATE Accept $\vs \gets \vs'$ with the probability $A(\vs \to \vs')$
+\STATE Accept $\vs \gets \vs'$ with the probability in \cref{eq:ncus-a}
 \STATE Translate $\vs$ by a random displacement
-\STATE Reflect $\vs$ along the $x$-axis, the $y$-axis and the diagonal, each with $50\%$ probability
-\STATE Flip all spins with $50\%$ probability
+\STATE Reflect $\vs$ along the $x$-axis, the $y$-axis, and the diagonal, each with $50\%$ probability
+\STATE Reflect $\vs$ along the $z$-axis (flip all spins) with $50\%$ probability
 \STATE Output $\vs$ as a sample in the Markov chain
 \end{algorithmic}
 \end{algorithm}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.7\linewidth]{ch5/ncus_proc.png}
+\includegraphics[width=0.6\linewidth]{ch5/ncus_proc.png}
 \caption[Procedure of neural cluster updates with symmetries (NCUS)]{
-Example of three steps of NCUS applied to a $4 \times 4$ spin model. The columns correspond to different lines in \cref{alg:ncus}. The last $k$ spins that can be flipped are highlighted in {\color[HTML]{0099DD} blue}. If a proposal is accepted, the spins actually flipped are shown in {\color[HTML]{DD0000} red}. For translations, the original borders of the lattice are shown in {\color[HTML]{00AA00} green}. For reflections, the plane of reflection is shown in {\color[HTML]{DDAA00} yellow}, and yellow borders around the lattice indicate a reflection along the $z$-axis (across the $x y$-plane).
+Example of three steps of NCUS applied to a system on the $4 \times 4$ square lattice. The operations in several lines of \cref{alg:ncus} are visualized by colors.
+In line $2$, the last $k$ spins chosen are highlighted in {\color[HTML]{1f77b4} blue}.
+In line $3$, some of them are flipped in the proposal.
+Then in line $4$, if the proposal is actually accepted, the flipped spins are shown in {\color[HTML]{d62728} red}.
+In line $5$, the original borders of the lattice before the translation are shown in {\color[HTML]{2ca02c} green}.
+In line $6$, the plane of reflection is shown in {\color[HTML]{bcbd22} yellow}, and a reflection along the $z$-axis (across the $x y$-plane) is indicated by yellow borders around the lattice.
 This figure is reproduced from Fig.~1 in Ref.~\cite{wu2021unbiased}.
 }
 \label{fig:ncus-proc}
 \end{figure}
+
+During the MCMC importance sampling procedure in \cref{eq:mcmc-importance}, we propose new configurations $\vs'$ from the ansatz $q(\vs)$. When the ansatz is factorized into the AR conditional distributions in \cref{eq:autoreg}, we can notice that it is possible not to generate all the spins in $\vs'$ from the beginning, but only the last $k$ spins. In this way, the acceptance in \cref{eq:mcmc-importance} becomes
+\begin{equation}
+A(\vs \to \vs') = \min\left( 1, \frac{p(\vs')}{p(\vs)} \prod_{i = N - k + 1}^N \frac{q_i(s_i \mid \vs_{< i})}{q_i(s'_i \mid \vs'_{< i})} \right),
+\label{eq:ncus-a}
+\end{equation}
+which is usually close to $1$ when $k$ is small. With suitable choices of $k$, we can enjoy the efficiency of cluster updates, which overcome both the inability of local updates to transition through energy barriers and the low acceptance probability of global updates.
+
+Besides the cluster updates, we can also randomly apply elements in the symmetry group of the Hamiltonian to the samples in the Markov chain. These operations act as global updates that transition through local energy barriers, and they are never rejected because they conserve the energy and thus have an acceptance probability of $1$. Combining the cluster updates and symmetry operations, we refer to the resulting algorithm as neural cluster updates with symmetries (NCUS). This algorithm is described in \cref{alg:ncus} and visualized in \cref{fig:ncus-proc}.
 
 \subsection{Numerical results}
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/ncus_ising_autocorr.pdf}
-\caption[NCUS results for Ising model]{
+\caption[NCUS results of Ising model]{
 (a) Integrated autocorrelation time $\tau$ as a function of temperature on the $16 \times 16$ Ising model. For neural importance sampling (NIS), we use the increased variance from the reweighing procedure as the effective autocorrelation time. The inset focuses on their behaviors near the critical point and uses the logarithmic scale on the $y$-axis. \\
 (b) Autocorrelation functions $r(t)$ on the $16 \times 16$ Ising model at $\beta = 0.44$. The inset uses the logarithmic scale on the $x$-axis to focus on their behaviors at small $t$.
 This figure is reproduced from Fig.~2 in Ref.~\cite{wu2021unbiased}.
@@ -330,7 +346,7 @@ This figure is reproduced from Fig.~2 in Ref.~\cite{wu2021unbiased}.
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/ncus_fpm_autocorr.pdf}
-\caption[NCUS results for FPM]{
+\caption[NCUS results of FPM]{
 (a) Integrated autocorrelation time $\tau$ as a function of temperature on the $32 \times 32$ frustrated plaquette model (FPM). For neural importance sampling (NIS), we use the increased variance from the reweighing procedure as the effective autocorrelation time. The inset focuses on their behaviors near the critical point and uses the logarithmic scale on the $y$-axis. \\
 (b) Autocorrelation functions $r(t)$ on the $32 \times 32$ FPM at $\beta = 0.2$. The inset uses the logarithmic scale on the $x$-axis to focus on their behaviors at small $t$.
 This figure is reproduced from Fig.~4 in Ref.~\cite{wu2021unbiased}.
@@ -341,8 +357,8 @@ This figure is reproduced from Fig.~4 in Ref.~\cite{wu2021unbiased}.
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/ncus_pk.pdf}
-\caption[Choices of the distribution $P_\text{cluster}(k)$ in NCUS]{
-Autocorrelation functions $r(t)$ by NCUS with various exponential and power distributions $P_\text{cluster}$, computed on the $16 \times 16$ Ising model. In general, the uniform distribution gives lower IAT than most other distributions we experimented.
+\caption[Choices of the distribution $P_K(k)$ in NCUS]{
+Autocorrelation functions $r(t)$ by NCUS with various exponential and power distributions $P_K$, computed on the $16 \times 16$ Ising model. In general, the uniform distribution gives lower IAT than most other distributions we experimented.
 This figure is reproduced from Fig.~S1 in the supplemental material of Ref.~\cite{wu2021unbiased}.
 }
 \label{fig:ncus-pk}
