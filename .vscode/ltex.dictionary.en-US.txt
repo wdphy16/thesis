@@ -8,6 +8,7 @@ Autocorrelation
 autocorrelation
 autoencoder
 autoregressively
+backpropagation
 Bogolubov
 Broyden
 Debiasing
@@ -15,6 +16,7 @@ debiasing
 decorrelate
 diagonalize
 eigenstate
+eigenstates
 entropies
 equivariance
 equivariant
@@ -32,6 +34,7 @@ Ising
 Khinchin
 Kullback
 L-BFGS
+Lanczos
 Langevin
 Leibler
 Levenberg

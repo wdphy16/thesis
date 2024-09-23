@@ -1,0 +1,66 @@
+\chapter{Unbiased evaluation of ground state}
+
+The previous part have let us seen exact sampling methods, particularly autoregressive neural networks (ARNN), achieve higher accuracy and efficiency in approximating classical many-body systems. In this part, we move on to investigate quantum systems, which are known to be more intricate than their classical counterparts. Even though we only focus on their ground states, rather than finite-temperature ensembles or dynamics, they involve peculiar issues that do not exist in the classical world, such as sign structures and entanglements in wave functions. We first review the traditional methods of exact diagonalization (ED), quantum Monte Carlo (QMC), variational Monte Carlo (VMC), and tensor networks. They not only share some common issues with Markov chain Monte Carlo (MCMC) and variational methods discussed in the previous part, but are also affected by the peculiar issues in quantum systems. Then we introduce a variational ansatz named tensor-RNN, which combines the strengths of tensor networks and recurrent neural networks (RNN) to shed new light on both the analytical and the numerical aspects of quantum systems. Moreover, we discuss the results from VarBench, an extensive project to benchmark the performances of variational methods on quantum many-body systems, which witnesses the recent development in the field, including exact sampling methods. Lastly, we present NetKet, a software package that we have developed to ease the implementation of all the computational techniques aforementioned, with attention on the integration of exact sampling in it.
+
+\section{Imaginary time evolution (ITE)}
+
+The ground state vector $\ket{\psi_0}$ provides the most complete information of a quantum many-body system at ground state, which allows obtaining all its properties. We start from a straightforward analytical method to evaluate $\ket{\psi_0}$, using the basic properties of eigenstates. We apply the exponential of the system's Hamiltonian $\hat{H}$, with a scaling parameter $\tau$, on an arbitrary initial state $\ket{\psi_\text{init}}$, and obtain
+\begin{equation}
+\ket{\psi_\tau} = \rme^{-\tau \hat{H}} \ket{\psi_\text{init}},
+\label{eq:ite-psi-tau}
+\end{equation}
+where we temporarily ignore the normalization of the states. Because of the orthogonality and the completeness of the eigenstates, the initial state can be decomposed into a linear combination of them:
+\begin{equation}
+\ket{\psi_\text{init}} = \sum_i c_i \ket{\psi_i},
+\end{equation}
+where $\ket{\psi_i}$ is the $i$-th lowest eigenstate, and $c_i$ is the corresponding coefficient that can be determined by projection. Under the action of the Hamiltonian, each eigenstate is scaled by its energy $E_i$:
+\begin{equation}
+\hat{H} \ket{\psi_i} = E_i \ket{\psi_i}.
+\end{equation}
+The exponential of an operator is defined by the Taylor expansion:
+\begin{equation}
+\rme^{-\tau \hat{H}} = \sum_{j = 0}^\infty \frac{1}{j!} (-\tau \hat{H})^j,
+\label{eq:ite-taylor}
+\end{equation}
+assuming it converges. Therefore, \cref{eq:ite-psi-tau} becomes
+\begin{equation}
+\ket{\psi_\tau} = \sum_i c_i \rme^{-\tau E_i} \ket{\psi_i}.
+\end{equation}
+In the limit $\tau \to \infty$, as the exponential $\rme^{-\tau E_0}$ grows faster than all other terms, the resulting state $\ket{\psi_\tau}$ is dominated by the ground state $\ket{\psi_0}$. This is true regardless of the coefficients $c_i$, as long as $c_0 \neq 0$, i.e., the initial state is not orthogonal to the ground state, which is usually fulfilled if the initial state is randomly chosen. In the case of degenerate ground states, this method produces an arbitrary one among them, depending on the choice of the initial state. Recovering the normalization, we have
+\begin{equation}
+\ket{\psi_0} = \lim_{\tau \to \infty} \frac{\ket{\psi_\tau}}{\sqrt{\ip{\psi_\tau}}}.
+\end{equation}
+This method is known as imaginary time evolution (ITE)~\cite{goldberg1967integration}, because it has a similar form to the conventional notation of time evolution under the Schrödinger equation:
+\begin{equation}
+\ket{\psi(t)} = \rme^{-\rmi \hat{H} t} \ket{\psi_\text{init}},
+\end{equation}
+which becomes \cref{eq:ite-psi-tau} if we let the time be an imaginary number: $t = -\rmi \tau$.
+
+\section{Exact diagonalization (ED)}
+
+When numerically implementing ITE, we discretize the limit $\tau \to \infty$ into an iterative scheme, and do the normalization in each iteration to ensure numerical stability:
+\begin{align}
+\ket{\psi'_k} &= \rme^{-\Delta \tau \hat{H}} \ket{\psi_k}, \\
+\ket{\psi_{k + 1}} &= \frac{\ket{\psi'_k}}{\sqrt{\ip{\psi'_k}}}.
+\end{align}
+Meanwhile, we can only keep the first order in the Taylor expansion of $\rme^{-\Delta \tau \hat{H}}$, therefore \cref{eq:ite-taylor} becomes
+\begin{equation}
+\rme^{-\Delta \tau \hat{H}} \approx 1 - \Delta \tau \hat{H}.
+\end{equation}
+Given that the time step $\Delta \tau$ is small enough and the number of iterations $k$ is large enough, $\ket{\psi_k}$ converges to the desired $\ket{\psi_0}$. This method is known as the power iteration~\cite{mises1929praktische}. It falls in a broader family of iterative methods to compute the lowest one or few eigenvalues and eigenvectors of a matrix, where the Lanczos algorithm~\cite{lanczos1950iteration} is particularly well-known, following various algorithmic improvements and software implementations~\cite{knyazev2001toward, stathopoulos2010primme}.
+
+In the context of quantum physics, this kind of methods are referred to as exact diagonalization (ED)~\cite{weisse2008exact}, because they do not involve any approximation or stochastic estimation in the obtained states. However, as discussed in \cref{sec:qu-sys}, we can only perform ED on small systems due to the exponentially high dimensions of Hilbert spaces. As of this writing, the largest ED computation has been performed on $50$ spin-$1/2$ particles, which utilizes the symmetries of the physical system, as well as sophisticated parallelization and storage strategies on the supercomputer~\cite{wietek2018sublattice}. In spite of its exponential computational complexity, ED is still a necessary method to provide initial insights at small system sizes when investigating an unfamiliar quantum model, and serves as a baseline to test the correctness of more advanced computational techniques.
+
+\section{Quantum Monte Carlo (QMC)}
+
+\section{Sign problem}
+
+\chapter{Variational Monte Carlo (VMC)}
+
+\chapter{Tensor networks}
+
+\chapter{Tensor-RNN: bridge between tensor networks and neural networks}
+
+\chapter{VarBench: variational benchmarks for quantum many-body systems}
+
+\chapter{NetKet: machine learning toolbox for quantum many-body systems}

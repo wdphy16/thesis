@@ -3,6 +3,7 @@
 \todo{For now only some notations are written down}
 
 \section{Classical systems}
+\label{sec:cl-sys}
 
 In this thesis, we mainly focus on systems consisting of spin-$\frac{1}{2}$ particles, and most results are generalizable to higher spins, fermions, and bosons. The systems are time-independent.
 
@@ -129,6 +130,7 @@ This figure is reproduced from Fig.~3~(a) in Ref.~\cite{wu2021unbiased}.
 \end{figure}
 
 \section{Quantum systems}
+\label{sec:qu-sys}
 
 In the quantum case, we start from studying the ground state, or zero temperature properties of a system. The quantum state $\ket{\psi}$ of the system can be represented in the computational basis by
 \begin{equation}
@@ -136,7 +138,7 @@ In the quantum case, we start from studying the ground state, or zero temperatur
 \end{equation}
 where $\vs$ is a vector of $N$ classical spin values, which is a possible outcome if we measure the quantum system along a chosen $z$ direction. The basis states $\{\ket{\vs}\}$ satisfy the orthonormal relation $\ip{\vs}{\vs'} = \delta_{\vs, \vs'}$, so we can project the state $\ket{\psi}$ onto a basis state $\ket{\vs}$ and obtain the corresponding wave function value $\psi(\vs) = \ip{\vs}{\psi}$, which is a complex number in general. Therefore, the state $\ket{\psi}$ is a complex vector in the Hilbert space of $2^N$ dimensions. Moreover, it needs to satisfy the normalization condition $\ip{\psi}{\psi} = \sum_{\vs} |\psi(\vs)|^2 = 1$.
 
-When the system is at the ground state, it is characterized by the Hamiltonian operator $\hat{H}$:
+When the system is at the ground state, it is determined by the Hamiltonian operator $\hat{H}$ describing the system:
 \begin{equation}
 \ket{\psi_0} = \arg\min_{\ket{\psi}} \mel{\psi}{\hat{H}}{\psi}.
 \label{eq:gs}
