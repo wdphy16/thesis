@@ -1,12 +1,13 @@
 \chapter{Variational method}
+\label{ch:cl-var}
 
-The MCMC method in the previous chapter is widely used to compute various observables of many-body systems. However, a limitation is that it is agnostic of the partition function $Z$ in \cref{eq:boltzmann}, therefore it cannot compute quantities that require $Z$ or the normalized probability $p_\text{B}(\vs)$, including the free energy and the entropy. Variants of MCMC have been proposed to compute $Z$, such as the Wang--Landau algorithm~\cite{wang2001efficient, landau2021guide5}. Nevertheless, they involve other issues such as the discretization of energy histogram~\cite{belardinelli2007wang}, which limit their applicable scenarios.
+The MCMC method in the previous chapter is widely used to compute various observables of many-body systems. However, a limitation is that it is agnostic of the partition function $Z$ in \cref{eq:boltzmann}, therefore it cannot compute quantities that require $Z$ or the normalized probability $p_\text{B}(\vs)$, including the free energy and the entropy. Variants of MCMC have been proposed to compute $Z$, such as the Wang--Landau algorithm~\cite{wang2001efficient, landau2021guide5}. Nevertheless, they involve other issues such as the discretization of energy histogram~\cite{belardinelli2007wang}, which limit their applicable scenarios as well.
 
 A different approach is to track the probability distribution in the framework of variational approximation and statistical inference~\cite{jordan1999introduction, mackay2003information}, which also has deep roots in statistical physics, traced back to mean-field theories~\cite{chaikin1995principles4, zdeborova2016statistical}. We define a trial distribution $q(\vs)$, or the ``ansatz'' in the context of statistical physics, to approximate the target distribution $p(\vs)$. The form of the ansatz is chosen such that the normalized probability $q(\vs)$ can be efficiently computed given a configuration $\vs$, and the distribution can be easier to sample from than $p(\vs)$, or even be analytically summed over in \cref{eq:cl-obs}. Some choices of the ansatz for variational inference will be discussed in \cref{sec:nmf}.
 
 \section{Variational free energy}
 
-To make a good approximation, we want $q(\vs)$ to be as close to $p(\vs)$ as possible. A natural metric of the distance between two distributions is the Kullback--Leibler (KL) divergence~\cite{kullback1951information}:
+To make a good approximation, we want the ansatz $q(\vs)$ to be as close to the target $p(\vs)$ as possible. A natural metric of the distance between two distributions is the Kullback--Leibler (KL) divergence~\cite{kullback1951information}:
 \begin{equation}
 D_\text{KL}(q \mid\mid p) = \sum_\vs q(\vs) \ln \frac{q(\vs)}{p(\vs)}.
 \end{equation}
@@ -18,18 +19,18 @@ D_\text{KL}(q \mid\mid p_\text{B}) &= \sum_\vs q(\vs) \left( \ln q(\vs) - \ln \f
 \end{align}
 where $F = -\frac{1}{\beta} \ln Z$ is the true free energy, and we define the variational free energy
 \begin{equation}
-F_q = \sum_\vs q(\vs) F_{q\,\text{loc}}(\vs),
+F_q = \sum_\vs q(\vs) F_\text{loc}(\vs),
 \label{eq:fq}
 \end{equation}
 and the local free energy
 \begin{equation}
-F_{q\,\text{loc}}(\vs) = \frac{1}{\beta} \ln q(\vs) + H(\vs).
+F_\text{loc}(\vs) = \frac{1}{\beta} \ln q(\vs) + H(\vs).
 \label{eq:fq-loc}
 \end{equation}
 
 Similar to how we have approximated \cref{eq:cl-obs} by \cref{eq:monte-carlo}, the variational free energy in \cref{eq:fq} is also a weighted sum over the distribution $q(\vs)$ with exponentially many terms, and we can estimate it by Monte Carlo sampling:
 \begin{equation}
-\bbE_\text{MC}[F_q] = \frac{1}{M} \sum_{i = 1}^M F_{q\,\text{loc}}\left( \vs^{(i)} \right), \quad
+\bbE_\text{MC}[F_q] = \frac{1}{M} \sum_{i = 1}^M F_\text{loc}\left( \vs^{(i)} \right), \quad
 \vs^{(i)} \sim q.
 \label{eq:fq-monte-carlo}
 \end{equation}
@@ -48,13 +49,13 @@ As $F_q$ is generally a multivariate nonlinear function of $\theta$, its optimiz
 \end{equation}
 where $\nabla F_q = \left.\frac{\partial F_q}{\partial \theta}\right|_{\theta = \theta_t}$ is the gradient vector of the target function, and $\gamma$ is a small positive number called the learning rate. A common challenge in GD is to choose an appropriate magnitude of $\gamma$, such that the optimization is neither unstable nor too slow to converge~\cite{boyd2004convex}. Another challenge is to converge to the global minimum of the target function, rather than to be trapped by local minima and saddle points. It is particularly important in physical problems to accurately find the global minimum. In contrast to typical machine learning problems, such as computer vision where one only seeks for a ``good-looking'' solution that simulates the inaccurate nature of human vision, in physics there is great interest in obtaining quantitative properties to high accuracies. It is even more crucial to identify qualitative properties about the global minimum, such as symmetries of the ground state. This demand poses unique challenges to the optimization algorithms we use~\cite{chen2023efficient, michaud2023precision}.
 
-When estimating the gradient in \cref{eq:gd}, we usually generate a set of random samples $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ in each sampling step, rather than sum over the exponentially large space of configurations. This practice is known as the stochastic gradient descent (SGD)~\cite{robbins1951stochastic, bottou1998online}, and the sample size $M$ is also known as the ``batch'' size in machine learning. In the continuous-time limit, SGD is equivalent to the exact gradient flow with an additional Brownian noise, and the magnitude of the noise depends on the variance of the estimator~\cite{hu2017diffusion}. This noise helps the optimizer escape from local minima and saddle points, given an appropriate ratio of the learning rate to the batch size, which may explain the successful application of SGD in many non-convex problems.
+When estimating the gradient in \cref{eq:gd}, we usually generate a set of random samples $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ in each sampling step, rather than sum over the exponentially large space of configurations. This practice is known as the stochastic gradient descent (SGD)~\cite{robbins1951stochastic, bottou1998online}, and the sample size $M$ is also known as the ``batch'' size in machine learning. In the continuous-time limit, SGD is equivalent to the exact gradient flow with an additional Brownian noise~\cite{hu2017diffusion}, and the variance of the noise scales by $O\left( \frac{1}{M} \right)$. This Brownian motion is also equivalent to a simulated annealing, whose equilibrium distribution is a Boltzmann distribution in the space of the parameter $\theta$\footnote{Not to be confused with the physical Boltzmann distribution in the space of the configurations $\vs$.} In other words, the noise helps the optimizer escape from local minima and saddle points, given an appropriate ratio of the learning rate to the batch size, which explains the successful application of SGD in many non-convex problems.
 
 Many advanced variants of SGD have been proposed in the recent trend of machine learning~\cite{kashyap2022survey}. The Adam optimizer~\cite{kingma2014adam} has become the most popular among them. It estimates the appropriate learning rate for each parameter by the second moment of the gradient, which largely reduces the manual labor to tune the learning rate, in addition to using the first moment to improve the convergence. Numerous experiments have demonstrated its broad applicability to machine learning problems, although its convergence properties are still debatable in physical problems that require high accuracy.
 
 \subsection{Second-order optimizers}
 
-We refer to GD as a first-order optimizer\footnote{The order of the convergence speed is related to the order in the definition of the optimizer, but not always equivalent.}, because it approximates the target function with only the first-order term in the Taylor expansion, which is the gradient. There are also various second-order optimizers that approximate the target function with a quadratic function, and utilize information about the Hessian matrix to precondition the gradient, i.e., to modify the direction and the magnitude of the gradient in order to reduce the condition number of the optimization problem and accelerate the convergence. The second-order optimizers date back to the Newton's method, which updates $\theta$ by
+We refer to GD as a first-order optimizer\footnote{Not to be confused with the order of the convergence speed, which is related to the order in the definition of the optimizer, but not always equivalent.}, because it approximates the target function with only the first-order term in the Taylor expansion, which is the gradient. There are also various second-order optimizers that approximate the target function with a quadratic function, and utilize information about the Hessian matrix to precondition the gradient, i.e., to modify the direction and the magnitude of the gradient in order to reduce the condition number of the optimization problem and accelerate the convergence. The second-order optimizers date back to the Newton's method, which updates $\theta$ by
 \begin{equation}
 \theta_{t + 1} \gets \theta_t - \gamma \mH^{-1} \nabla F_q,
 \label{eq:newton}
@@ -72,8 +73,8 @@ which is a generalized Hessian matrix defined in the function space where the KL
 The gradient $\nabla F_q$ in \cref{eq:gd} is derived by automatic differentiation (AD)~\cite{baydin2018automatic} in modern software\footnote{Specifically, the technique to derive the gradient of a scalar target function w.r.t.\ many parameters is named backpropagation, or reverse mode AD.}, which can be more accurate and efficient than traditional methods of finite difference, and more error-prone than manually deriving and implementing the gradient. Care should be taken that \cref{eq:fq} involves the distribution $q(\vs)$, which is a function of $\theta$, but this term no longer exists after replacing \cref{eq:fq} by \cref{eq:fq-monte-carlo}, and we cannot take the gradient of this term in the usual way after sampling the configurations in \cref{eq:fq-monte-carlo}. Therefore, we rewrite the gradient of \cref{eq:fq} as
 \begin{align}
 \frac{\partial F_q}{\partial \theta}
-&= \sum_\vs \left( \frac{\partial q(\vs)}{\partial \theta} F_{q\,\text{loc}}(\vs) + q(\vs) \frac{\partial F_{q\,\text{loc}}(\vs)}{\partial \theta} \right) \\
-&= \sum_\vs \left( q(\vs) \frac{\partial \ln q(\vs)}{\partial \theta} F_{q\,\text{loc}}(\vs) + q(\vs) \frac{1}{\beta} \frac{\partial \ln q(\vs)}{\partial \theta} \right).
+&= \sum_\vs \left( \frac{\partial q(\vs)}{\partial \theta} F_\text{loc}(\vs) + q(\vs) \frac{\partial F_\text{loc}(\vs)}{\partial \theta} \right) \\
+&= \sum_\vs \left( q(\vs) \frac{\partial \ln q(\vs)}{\partial \theta} F_\text{loc}(\vs) + q(\vs) \frac{1}{\beta} \frac{\partial \ln q(\vs)}{\partial \theta} \right).
 \label{eq:fq-grad-2-terms}
 \end{align}
 The second term of \cref{eq:fq-grad-2-terms} becomes
@@ -85,25 +86,26 @@ The second term of \cref{eq:fq-grad-2-terms} becomes
 As we have the normalization $\sum_\vs q(\vs) = 1$, this term is always zero. The remaining first term of \cref{eq:fq-grad-2-terms} can be again estimated by Monte Carlo sampling:
 \begin{equation}
 \bbE_\text{MC}\left[ \frac{\partial F_q}{\partial \theta} \right]
-= \frac{1}{M} \sum_{i = 1}^M F_{q\,\text{loc}}\left( \vs^{(i)} \right) \frac{\partial \ln q\left( \vs^{(i)} \right)}{\partial \theta}, \quad
+= \frac{1}{M} \sum_{i = 1}^M F_\text{loc}\left( \vs^{(i)} \right) \frac{\partial \ln q\left( \vs^{(i)} \right)}{\partial \theta}, \quad
 \vs^{(i)} \sim q.
 \label{eq:fq-grad}
 \end{equation}
 This method is called the REINFORCE gradient~\cite{williams1992simple} or the policy gradient~\cite{sutton1999policy} in the context of machine learning, and the gradient of the log-probability $\frac{\partial \ln q(\vs)}{\partial \theta}$ is called the score function~\cite{fisher1935detection, hyvarinen2005estimation, mohamed2020monte}. This kind of differentiation through discrete variables and stochastic sampling of distributions is a recent interest in AD frameworks~\cite{krieken2021storchastic, arya2022automatic, catumba2023stochastic}.
 
-Moreover, a common practice is to subtract a ``baseline'' term $\tilde{F}$ from the above gradient estimator~\cite{wu2019solving}:
-\begin{equation}
+Moreover, a common practice is to shift the terms in the above gradient estimator to have zero means:
+\begin{align}
 \bbE_\text{MC}\left[ \frac{\partial F_q}{\partial \theta} \right]
-= \frac{1}{M} \sum_{i = 1}^M \left( F_{q\,\text{loc}}\left( \vs^{(i)} \right) - \tilde{F} \right) \frac{\partial \ln q\left( \vs^{(i)} \right)}{\partial \theta}, \quad
-\vs^{(i)} \sim q,
-\label{eq:fq-grad-baseline}
-\end{equation}
-where $\tilde{F} = \bbE_\text{MC}[F_q]$, but in \cref{eq:fq-grad-baseline} we do not take the gradient of $\tilde{F}$ w.r.t.\ $\theta$. Although $\tilde{F}$ does not affect the expectation of the estimator, it reduces the variance of the estimator in many practical cases, and thus improves the convergence of SGD. This technique falls in a broader family of control variate methods to reduce variances~\cite{ranganath2014black}.
+&= \frac{1}{M} \sum_{i = 1}^M \left( F_\text{loc}\left( \vs^{(i)} \right) - \tilde{F} \right) \left( \frac{\partial \ln q\left( \vs^{(i)} \right)}{\partial \theta} - \tilde{D} \right), \quad
+\vs^{(i)} \sim q, \label{eq:fq-grad-baseline} \\
+\tilde{F} &= \bbE_\text{MC}[F_q], \\
+\tilde{D} &= \bbE_\text{MC}\left[ \frac{\partial \ln q}{\partial \theta} \right],
+\end{align}
+and we do not take the gradient of $\tilde{F}$ and $\tilde{D}$ w.r.t.\ $\theta$. Although $\tilde{F}$ and $\tilde{D}$ do not affect the expectation of the estimator, they reduce the variance of the estimator in many practical cases, and thus improve the convergence of SGD. This technique falls in a broader family of control variate methods to reduce variances~\cite{ranganath2014black}.
 
 \section{Comparison between MCMC and variational method}
 \label{sec:compare-mcmc}
 
-Besides being able to estimate observables that require the partition function, another feature of variational inference in contrast to MCMC is that it always produces an upper bound of the true free energy, as long as the statistical error of Monte Carlo sampling is sufficiently small. This leads to an intuitive way to compare the accuracies of two variational methods: a lower variational free energy indicates a better approximation of the target distribution. However, this also means a systematic bias in the estimated energy. Other estimated observables can contain biases with unknown directions, and a lower variational free energy does not necessarily indicate that other estimated observables are more accurate.
+Besides being able to estimate observables that require the partition function, another feature of variational inference in contrast to MCMC is that it always produces an upper bound of the true free energy, as long as the statistical error of Monte Carlo sampling is sufficiently small. This leads to an intuitive way to compare the accuracies of two variational methods: a lower variational free energy indicates a better approximation of the target distribution. However, this also means a systematic bias in the estimated energy. Other estimated observables can contain biases with unknown directions, and a lower variational free energy does not always imply that other estimated observables are more accurate.
 
 Moreover, there is no straightforward way to improve the accuracy of variational inference as the computation budget grows, whether by increasing the number of variational parameters or optimization steps. In contrast, we can always improve the accuracy or the probability to cover all modes in MCMC by increasing the number of samples. Therefore, to obtain unbiased and accurate estimations of observables, we may use a variational ansatz with MCMC importance sampling in \cref{eq:mcmc-importance}.
 
@@ -245,7 +247,7 @@ Now we have the self-consistent equations
 &= \prod_{k \in \partial i \setminus j} \sum_{s_k} f_{i k}(s_i, s_k) \mu_{k \to i}(s_k),
 \label{eq:bethe-message}
 \end{align}
-from which we can solve the $4 N d$ variables $\mu_{i \to j}(s_i)$. After recovering the normalization constants in \cref{eq:bethe-message}, they can be solved by iterative algorithms if convergence conditions are satisfied~\cite{mooij2007sufficient}, or by gradient descent-based algorithms.
+from which we can solve the $4 N d$ variables $\mu_{i \to j}(s_i)$. After recovering the normalization constants in \cref{eq:bethe-message}, they can be solved by iterative algorithms if convergence conditions are satisfied~\cite{mooij2007sufficient}, or by gradient-based algorithms.
 
 Knowing the messages, we can obtain the two-body marginals of the original distribution
 \begin{equation}

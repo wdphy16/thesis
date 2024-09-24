@@ -1,0 +1,58 @@
+\chapter{Variational Monte Carlo (VMC)}
+
+The path integral Monte Carlo method in the previous chapter allows us to obtain an unbiased stochastic approximation of the ground state properties for quantum many-body problems, in the same manner as the MCMC method in \cref{ch:mcmc}. Apart from that, another QMC scheme has been proposed to obtain a variational approximation of the target system, which bears the name variational Monte Carlo (VMC) and resembles the variational method in \cref{ch:cl-var}.
+
+\section{Variational energy}
+
+The ground state of a quantum system in \cref{eq:gs} is already defined by the variational principle, and we need to rewrite it into a form suitable for the Monte Carlo summation. Let $\psi(\vs)$ be the variational ansatz, which is not necessarily normalized, then its energy can be written as
+\begin{align}
+E_\psi &= \frac{\ev{\hat{H}}{\psi}}{\ip{\psi}} \\
+&= \frac
+{\sum_{\vs, \vs'} \ip{\psi}{\vs} \mel{\vs}{\hat{H}}{\vs'} \ip{\vs'}{\psi}}
+{\ip{\psi}} \\
+&= \frac
+{\sum_\vs \ip{\psi}{\vs} \ip{\vs}{\psi} \sum_{\vs'} \mel{\vs}{\hat{H}}{\vs'} \frac{\ip{\vs'}{\psi}}{\ip{\vs}{\psi}}}
+{\ip{\psi}} \\
+&= \sum_\vs q(\vs) E_\text{loc}(\vs), \label{eq:vmc}
+\end{align}
+where
+\begin{align}
+q(\vs) &= \frac{|\psi(\vs)|^2}{\ip{\psi}}, \\
+E_\text{loc}(\vs) &= \sum_{\vs'} H(\vs, \vs') \frac{\psi(\vs')}{\psi(\vs)}.
+\end{align}
+
+The variational energy in \cref{eq:vmc} has a similar form to the variational free energy in \cref{eq:fq}. In the same manner discussed there, we can generate samples of $\vs$ from $q(\vs)$, estimate $E_\psi$ using the Monte Carlo summation, then minimize it w.r.t.\ the parameters in $\psi(\vs)$ using gradient-based optimizers, and a lower $E_\psi$ indicates a better ansatz to approximate of the ground state. Unlike the weight $\varPi(\svs)$ of the path integral Monte Carlo in \cref{eq:pimc}, here we always have $q(\vs) \ge 0$, although the sign problem can still occur in $E_\text{loc}(\vs)$.
+
+Similar to \cref{eq:fq-grad}, the gradient of $E_\psi$ is derived in \cref{append:vmc-grad}, which can be estimated using the Monte Carlo summation. If the wave function $\psi(\vs)$, the parameters $\theta$, and the Hamiltonian $\hat{H}$ are all real, we have
+\begin{align}
+\frac{\partial E}{\partial \theta} &= 2 \sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E \right) \left( D_\text{loc}(\vs) - D \right), \label{eq:vmc-grad} \\
+D_\text{loc}(\vs) &= \frac{\partial \ln \psi(\vs)}{\partial \theta}, \\
+D &= \sum_\vs q(\vs) D_\text{loc}(\vs).
+\end{align}
+
+
+
+
+
+
+\section{Complex gradient}
+
+\section{Amplitude and phase of quantum ansatz}
+
+\section{Quantum geometric tensor (QGT) and stochastic reconfiguration (SR)}
+
+QMC over VMC
+
+\chapter{Tensor networks}
+
+\section{Matrix product state (MPS)}
+
+\section{Density matrix renormalization group (DMRG)}
+
+\section{Tensor networks with higher-dimensional geometries}
+
+\chapter{Tensor-RNN: bridge between tensor networks and neural networks}
+
+\chapter{VarBench: variational benchmarks for quantum many-body systems}
+
+\chapter{NetKet: machine learning toolbox for quantum many-body systems}

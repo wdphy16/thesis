@@ -50,7 +50,7 @@ Meanwhile, we can only keep the first order in the Taylor expansion of $\rme^{-\
 \end{equation}
 Given that the time step $\Delta \tau$ is small enough and the number of iterations $k$ is large enough, $\ket{\psi_k}$ converges to the desired $\ket{\psi_0}$. This method is known as the power iteration~\cite{mises1929praktische}. It falls in a broader family of iterative methods to compute the lowest one or few eigenvalues and eigenvectors of a matrix, where the Lanczos algorithm~\cite{lanczos1950iteration} is particularly well-known, following various algorithmic improvements and software implementations~\cite{knyazev2001toward, stathopoulos2010primme}.
 
-In the context of quantum physics, this kind of methods are referred to as the exact diagonalization (ED)~\cite{weisse2008exact}, because they do not involve any approximation or stochastic estimation in the obtained states. However, we can only perform ED on small systems, because the storage of the entire state vector and the multiplication with the Hamiltonian become impractical on larger systems due to the exponentially high dimension of the Hilbert space, as discussed in \cref{sec:qu-sys}. As of this writing, the largest ED computation has been performed on $50$ spin-$1/2$ particles~\cite{wietek2018sublattice}, which utilizes the symmetries of the physical system, as well as sophisticated parallelization and storage strategies on the supercomputer. In spite of its exponential computational complexity, ED is still a necessary method to provide initial insights at small system sizes when investigating an unfamiliar quantum model, and it serves as a baseline to test the correctness of more advanced computational techniques.
+In the context of quantum physics, this kind of methods are referred to as the exact diagonalization (ED)~\cite{weisse2008exact}, because they do not involve any approximation or stochastic estimation in the obtained states. However, we can only perform ED on small systems, because the storage of the entire state vector and the multiplication with the Hamiltonian become impractical on larger systems due to the exponentially high dimension of the Hilbert space, as discussed in \cref{sec:qu-sys}. As of this writing, the largest ED computation has been performed on $50$ spin-$1/2$ particles~\cite{wietek2018sublattice}, which utilizes the symmetries of the physical system, as well as sophisticated parallelization and storage strategies on the supercomputer. In spite of its exponential computational complexity, ED is still a necessary method to provide initial insights at small system sizes when investigating an unfamiliar quantum model, and it serves as the ground truth to test the correctness of more advanced computational techniques.
 
 \section{Quantum Monte Carlo (QMC)}
 
@@ -66,7 +66,7 @@ where the auxiliary configurations $\vs_1, \ldots, \vs_{N_\tau}$ are inserted us
 \begin{equation}
 G(\vs, \vs') = \mel{\vs}{\edth}{\vs'}.
 \end{equation}
-As long as $\Delta \tau$ is small, $G(\vs, \vs')$ can be computed with high accuracy, usually by the Trotter--Suzuki decomposition~\cite{suzuki1976generalized}.
+As long as $\Delta \tau$ is small, $G(\vs, \vs')$ can be computed with high accuracy, where the Trotter--Suzuki decomposition~\cite{suzuki1976generalized} is usually applied.
 
 Using this discretization to estimate the energy, and recovering the normalization, we have
 \begin{align}
@@ -89,7 +89,10 @@ where
 \tilde{\varPi}(\svs) &= \psiinit^*(\vs_0) G(\vs_0, \vs_1) G(\vs_1, \vs_2) \cdots G(\vs_{N_\tau - 1}, \vs_{N_\tau}) \psiinit(\vs_{N_\tau}), \label{eq:pimc-pi} \\
 E_\text{loc}(\vs) &= \sum_{\vs'} H(\vs, \vs') \frac{\psiinit(\vs')}{\psiinit(\vs)}.
 \end{align}
-The resulting \cref{eq:pimc} has a similar form to the weighted summation in \cref{eq:cl-obs}. If the weight $\varPi(\svs) \ge 0$ for all $\svs$, we can interpret it as a probability distribution, and estimate \cref{eq:pimc} using the Monte Carlo summation in \cref{eq:monte-carlo}. This method requires to sample the set of auxiliary configurations $\svs$, and each sample contains $N (N_\tau + 1)$ scalar variables, where $N$ is the system size. This is an unbiased estimator of $E$ only when $N_\tau \to \infty$, and in practice we usually need a large $N_\tau$ such that $N_\tau \Delta \tau \gg 1$, which leads to much higher computational cost than Monte Carlo methods for the corresponding classical system. The evaluation of \cref{eq:pimc-pi} not only requires  accurately and efficiently computing the propagator $G(\vs, \vs')$, but also the initial wave function $\psi(\vs)$, and a good choice of $\ket{\psi}$ that is close to the ground state can significantly reduce the magnitude of $N_\tau$ needed. Also note that \cref{eq:pimc-commute} holds not only for $\hat{H}$, but also for any observable that commutes with $\hat{H}$. This method is commonly referred to as the path integral Monte Carlo~\cite{barker1979quantum}, and a particular method to sample $\svs$ is known as the reptation Monte Carlo~\cite{baroni1999reptation}.
+
+The resulting \cref{eq:pimc} has a similar form to the weighted summation in \cref{eq:cl-obs}. If the weight $\varPi(\svs) \ge 0$ for all $\svs$, we can interpret it as a probability distribution, and estimate \cref{eq:pimc} using the Monte Carlo summation in \cref{eq:monte-carlo}. This method requires to sample the set of auxiliary configurations $\svs$, and each sample contains $N (N_\tau + 1)$ scalar variables, where $N$ is the system size. This is an unbiased estimator of $E$ only when $N_\tau \to \infty$, and in practice we usually need a large $N_\tau$ such that $N_\tau \Delta \tau \gg 1$, which leads to much higher computational cost than Monte Carlo methods for the corresponding classical system. The evaluation of \cref{eq:pimc-pi} not only requires  accurately and efficiently computing the propagator $G(\vs, \vs')$, but also the initial wave function $\psi(\vs)$, and a good choice of $\ket{\psi}$ that is close to the ground state can significantly reduce the magnitude of $N_\tau$ needed. Also note that \cref{eq:pimc-commute} holds not only for $\hat{H}$, but also for any observable that commutes with $\hat{H}$.
+
+This method is commonly referred to as the path integral Monte Carlo~\cite{barker1979quantum}, and a particular method to sample $\svs$ is known as the reptation Monte Carlo~\cite{baroni1999reptation}. For some physical systems, this kind of QMC computations have successfully achieved numerically exact results~\cite{todo2001cluster}, which can serve as the ground truth to test the correctness of other methods even if the ED result is unavailable.
 
 \section{Sign problem}
 
@@ -101,30 +104,6 @@ E &= \lim_{N_\tau \to \infty} \sum_\svs \varPi'(\svs) E'_\text{loc}(\svs), \labe
 \varPi'(\svs) &= \frac{|\tilde{\varPi}(\svs)|}{\sum_\svs' |\tilde{\varPi}(\svs')|}, \\
 E'_\text{loc}(\svs) &= \sign\left( \tilde{\varPi}(\svs) \right) E_\text{loc}(\vs_{N_\tau}). \label{eq:pimc-eloc-sign}
 \end{align}
-However, the intrinsic complexity of the wave function does not simply disappear. Unlike the classical local free energy $F_{q\,\text{loc}}(\vs)$ in \cref{eq:fq-loc}, which is usually far below zero when $s$ is around the ground state, the local energy $E'_\text{loc}(\svs)$ in \cref{eq:pimc-eloc-sign} can frequently change its sign as the integration path $\svs$ changes. In \cref{eq:pimc-sign}, there can be many positive and negative terms cancelling out, which leads to a small mean value and a large variance of the estimator, and prevents the result from achieving high accuracy. This problem can also occur for the $E_\text{loc}(\vs_{N_\tau})$ in \cref{eq:pimc}, even if the weights are positive.
+However, the intrinsic complexity of the wave function does not simply disappear. Unlike the classical local free energy $F_\text{loc}(\vs)$ in \cref{eq:fq-loc}, which is usually far below zero when $s$ is around the ground state, the local energy $E'_\text{loc}(\svs)$ in \cref{eq:pimc-eloc-sign} can frequently change its sign as the integration path $\svs$ changes. In \cref{eq:pimc-sign}, there can be many positive and negative terms cancelling out, which leads to a small mean value and a large variance of the estimator, and prevents the result from achieving high accuracy. This problem can also occur for the $E_\text{loc}(\vs_{N_\tau})$ in \cref{eq:pimc}, even if the weights are non-negative.
 
-As a well-studied case, the Hamiltonian is guaranteed to be free of the sign problem if it is stoquastic~\cite{bravyi2008complexity}, i.e., all its off-diagonal entries are non-positive. For example, the ferromagnetic (FM) Heisenberg model on a 1D chain is stoquastic, while the antiferromagnetic (AFM) one is not. In some cases, the sign problem of a Hamiltonian can be removed with a change of basis. For example, an AFM Heisenberg model on a non-frustrated graph can be converted to an FM one by applying the Marshall sign rule~\cite{marshall1955antiferromagnetism}. However, such a transformation is unavailable if the sign problem comes from the intrinsic complexity of the wave function, rather than the apparent choice of the basis. Various other schemes of QMC have been proposed to alleviate the sign problem, such as the diffusion Monte Carlo (DMC)~\cite{reynolds1982fixed} and auxiliary-field quantum Monte Carlo (AFQMC)~\cite{zhang2003quantum}, and they are beyond the scope of this thesis.
-
-\chapter{Variational Monte Carlo (VMC)}
-
-\section{Amplitude and phase of quantum ansatz}
-
-\section{Complex gradient}
-
-\section{Quantum geometric tensor (QGT) and stochastic reconfiguration (SR)}
-
-QMC over VMC
-
-\chapter{Tensor networks}
-
-\section{Matrix product state (MPS)}
-
-\section{Density matrix renormalization group (DMRG)}
-
-\section{Tensor networks with higher-dimensional geometries}
-
-\chapter{Tensor-RNN: bridge between tensor networks and neural networks}
-
-\chapter{VarBench: variational benchmarks for quantum many-body systems}
-
-\chapter{NetKet: machine learning toolbox for quantum many-body systems}
+As a well-studied case, the Hamiltonian is guaranteed to be free of the sign problem if it is stoquastic~\cite{bravyi2008complexity}, i.e., all its off-diagonal entries are non-positive. For example, the ferromagnetic (FM) Heisenberg model on a 1D chain is stoquastic, while the antiferromagnetic (AFM) one is not. In some cases, the sign problem of a Hamiltonian can be removed with a change of basis. For example, an AFM Heisenberg model on a non-frustrated graph can be converted to an FM one by applying the Marshall sign rule~\cite{marshall1955antiferromagnetism}. However, such a transformation is unavailable if the sign problem comes from the intrinsic complexity of the wave function, rather than the apparent choice of the basis. Various other schemes of QMC have been proposed to alleviate the sign problem, such as the diffusion Monte Carlo (DMC)~\cite{reynolds1982fixed} and auxiliary-field quantum Monte Carlo (AFQMC)~\cite{zhang2003quantum}, and they are beyond the scope of this thesis. In the next chapter, we present a detailed review of another QMC scheme, namely variational Monte Carlo (VMC), upon which this thesis mainly develops.

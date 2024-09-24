@@ -1,7 +1,7 @@
 \chapter{Autoregressive neural networks (ARNN)}
 \label{sec:arnn}
 
-In the previous chapter, we have seen the power of variational inference to approximate the free energy of intractable many-body systems. A crucial requirement for this method is a variational ansatz that supports efficient evaluation of normalized probability, and preferably has the rich expressiveness of neural networks. The search for this kind of variational ansatz has led to the development of autoregressive (AR) models, which have yielded the most prominent achievements in modern machine learning, and also find broad applications in many-body physics.
+In the previous chapter, we have seen the power of variational inference to approximate the free energy of intractable many-body systems. A crucial requirement for this method is a variational ansatz that supports efficient evaluation of normalized probability, and preferably has the rich expressiveness of neural networks. The search for this kind of variational ansatzes has led to the development of autoregressive (AR) models, which have yielded the most prominent achievements in modern machine learning, and also find broad applications in many-body physics.
 
 \section{Autoregressive factorization of joint probability}
 
@@ -57,7 +57,7 @@ Convolutional layers can also be applied to utilize the translational symmetry a
 
 An early application of 1D convolutional ARNN is the modeling of audios, known as WaveNet~\cite{oord2016wavenet}. The 2D convolutional ARNN has been similarly applied to the modeling of images, known as PixelCNN~\cite{oord2016pixel}, whose shape of the 2D convolutional kernel is illustrated in \cref{fig:arnn-arch}~(c). These ARNN architectures have also been introduced to the modeling of many-body systems, originally under the name of variational autoregressive networks (VAN)~\cite{wu2019solving}, and achieved superior results compared to traditional variational ansatzes.
 
-Besides the dense and the convolutional ones, another widely used family of ARNNs is the recurrent neural networks (RNN), which incorporate the translational symmetry of the physical system in another way. They maintain the AR property by updating of some hidden variables $\vh^{(i)}$, also known as ``memories'', at each AR step $i$:
+Besides the dense and the convolutional ones, another widely used family of ARNNs are the recurrent neural networks (RNN), which incorporate the translational symmetry of the physical system in another way. They maintain the AR property by updating of some hidden variables $\vh^{(i)}$, also known as ``memories'', at each AR step $i$:
 \begin{align}
 \vh^{(i)} &= f\left( s_{i - 1}, \vh^{(i - 1)} \right), \\
 \hat{s}_i &= g\left( \vh^{(i)} \right),
