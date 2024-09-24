@@ -1,3 +1,4 @@
+AFQMC
 Ansätze
 ansatzes
 approximators
@@ -62,6 +63,7 @@ pseudorandom
 ReLU
 reparameterization
 reparameterize
+reptation
 RFOT
 RG
 RRGs
@@ -71,6 +73,7 @@ Shanno
 Sherrington
 Steger
 Stoquasticity
+stoquastic
 tensorial
 TODO
 TwoBo

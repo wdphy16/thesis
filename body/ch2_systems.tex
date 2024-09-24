@@ -136,18 +136,18 @@ In the quantum case, we start from studying the ground state, or zero temperatur
 \begin{equation}
 \ket{\psi} = \sum_\vs \psi(\vs) \ket{\vs},
 \end{equation}
-where $\vs$ is a vector of $N$ classical spin values, which is a possible outcome if we measure the quantum system along a chosen $z$ direction. The basis states $\{\ket{\vs}\}$ satisfy the orthonormal relation $\ip{\vs}{\vs'} = \delta_{\vs, \vs'}$, so we can project the state $\ket{\psi}$ onto a basis state $\ket{\vs}$ and obtain the corresponding wave function value $\psi(\vs) = \ip{\vs}{\psi}$, which is a complex number in general. Therefore, the state $\ket{\psi}$ is a complex vector in the Hilbert space of $2^N$ dimensions. Moreover, it needs to satisfy the normalization condition $\ip{\psi}{\psi} = \sum_{\vs} |\psi(\vs)|^2 = 1$.
+where $\vs$ is a vector of $N$ classical spin values, which is a possible outcome if we measure the quantum system along a chosen $z$ direction. The basis states $\{\ket{\vs}\}$ satisfy the orthonormal relation $\ip{\vs}{\vs'} = \delta_{\vs, \vs'}$, so we can project the state $\ket{\psi}$ onto a basis state $\ket{\vs}$ and obtain the corresponding wave function value $\psi(\vs) = \ip{\vs}{\psi}$, which is a complex number in general. Therefore, the state $\ket{\psi}$ is a complex vector in the Hilbert space of $2^N$ dimensions. Moreover, it needs to satisfy the normalization condition $\ip{\psi}{\psi} = \sum_\vs |\psi(\vs)|^2 = 1$.
 
 When the system is at the ground state, it is determined by the Hamiltonian operator $\hat{H}$ describing the system:
 \begin{equation}
-\ket{\psi_0} = \arg\min_{\ket{\psi}} \mel{\psi}{\hat{H}}{\psi}.
+\ket{\psi_0} = \arg\min_{\ket{\psi}} \ev{\hat{H}}{\psi}.
 \label{eq:gs}
 \end{equation}
 In contrast to the classical case, even if the quantum system is at the ground state and is non-degenerate, it can still be a superposition of exponentially many basis states.
 
 Knowing the quantum state of the system, we can obtain the expectation value of any physical observable $\hat{O}$ by
 \begin{equation}
-\bar{O} = \mel{\psi}{\hat{O}}{\psi} = \sum_{\vs, \vs'} \psi^*(\vs) O(\vs, \vs') \psi(\vs),
+\bar{O} = \ev{\hat{O}}{\psi} = \sum_{\vs, \vs'} \psi^*(\vs) O(\vs, \vs') \psi(\vs),
 \label{eq:qu-obs}
 \end{equation}
 where $O(\vs, \vs') = \mel{\vs}{\hat{O}}{\vs'}$. Like the classical case, the summation in \cref{eq:qu-obs} also contains exponentially many terms and is intractable. Worse still, to exactly compute the ground state vector in \cref{eq:gs} in general, one needs the exact diagonalization (ED) of the $2^N \times 2^N$ Hamiltonian matrix, which takes even higher exponential time~\cite{weisse2008exact}. Therefore, we again need approximation methods to study the system in practice.

@@ -35,7 +35,6 @@
     doi=true,
     eprint=true,
 ]{biblatex}
-\usepackage{biblatex}
 \addbibresource{tail/bibliography.bib}
 
 \usepackage[french,english]{babel}
@@ -76,13 +75,13 @@
 \usepackage{xcolor}
 \graphicspath{{images/}}
 
-\usepackage{subfig}
 \usepackage{booktabs}
 \usepackage{lipsum}
 \ifxetex
 \else
     \usepackage{microtype}
 \fi
+\usepackage{subfig}
 \usepackage{url}
 
 \usepackage{fancyhdr}
@@ -135,8 +134,8 @@
     \ifpdf
         \usepackage[final]{pdfpages}
     \else
-        \usepackage{calc}
         \usepackage{breakurl}
+        \usepackage{calc}
         \usepackage[nlwarning=false]{hypdvips}
         \usepackage{backref}
         \renewcommand*{\bacref}[1]{}
@@ -237,8 +236,8 @@
 
 \ifxetex
 \else
-    \usepackage{amsmath}
     \usepackage{amsfonts}
+    \usepackage{amsmath}
     \usepackage{amssymb}
     \usepackage{mathtools}
     % Fix the problem with delimiter size caused by fourier and amsmath packages.
@@ -260,14 +259,14 @@
     \usepackage{bm}
 \fi
 
-\usepackage{physics}
 \usepackage[capitalize]{cleveref}
+\usepackage{physics}
 
 \usepackage{algorithm}
 \usepackage{algorithmic}
-\usepackage{pdflscape}
-\usepackage[framemethod=TikZ]{mdframed}
 \usepackage{makecell}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{pdflscape}
 
 \DeclareFieldFormat[article,inbook,incollection,inproceedings,patent,thesis,unpublished,techreport,misc,book]{title}{\mkbibquote{#1}}
 
