@@ -1,6 +1,6 @@
 \chapter{Variational Monte Carlo (VMC)}
 
-The path integral Monte Carlo method in the previous chapter allows us to obtain an unbiased stochastic approximation of the ground state properties for quantum many-body problems, in the same manner as the MCMC method in \cref{ch:mcmc}. Apart from that, another QMC scheme has been proposed to obtain a variational approximation of the target system, which bears the name variational Monte Carlo (VMC) and resembles the variational method in \cref{ch:cl-var}.
+The path integral Monte Carlo method in the previous chapter allows us to obtain an unbiased stochastic approximation of the ground state properties for quantum many-body problems, in the same manner as the MCMC method in \cref{ch:mcmc}. Apart from that, another QMC scheme has been proposed to obtain a variational approximation of the target system, which bears the name variational Monte Carlo (VMC)~\cite{scherer2017computational} and resembles the variational method in \cref{ch:cl-var}.
 
 \section{Variational energy}
 
@@ -21,38 +21,79 @@ q(\vs) &= \frac{|\psi(\vs)|^2}{\ip{\psi}}, \\
 E_\text{loc}(\vs) &= \sum_{\vs'} H(\vs, \vs') \frac{\psi(\vs')}{\psi(\vs)}.
 \end{align}
 
-The variational energy in \cref{eq:vmc} has a similar form to the variational free energy in \cref{eq:fq}. In the same manner discussed there, we can generate samples of $\vs$ from $q(\vs)$, estimate $E_\psi$ using the Monte Carlo summation, then minimize it w.r.t.\ the parameters in $\psi(\vs)$ using gradient-based optimizers, and a lower $E_\psi$ indicates a better ansatz to approximate of the ground state. Unlike the weight $\varPi(\svs)$ of the path integral Monte Carlo in \cref{eq:pimc}, here we always have $q(\vs) \ge 0$, although the sign problem can still occur in $E_\text{loc}(\vs)$.
+The variational energy in \cref{eq:vmc} has a similar form to the variational free energy in \cref{eq:fq}. In the same manner discussed there, we can generate samples of $\vs$ from $q(\vs)$, estimate $E_\psi$ using the Monte Carlo summation, then minimize it w.r.t.\ the parameters in $\psi(\vs)$ using gradient-based optimizers, and a lower $E_\psi$ indicates a better ansatz to approximate of the ground state. Unlike the weight $\varPi(\svs)$ for the path integral Monte Carlo in \cref{eq:pimc}, here we always have $q(\vs) \ge 0$, although the sign problem can still occur in $E_\text{loc}(\vs)$.
 
-Similar to \cref{eq:fq-grad}, the gradient of $E_\psi$ is derived in \cref{append:vmc-grad}, which can be estimated using the Monte Carlo summation. If the wave function $\psi(\vs)$, the parameters $\theta$, and the Hamiltonian $\hat{H}$ are all real, we have
+Similar to \cref{eq:fq-grad}, the gradient of $E_\psi$ also needs to be derived in a form suitable for the Monte Carlo summation. In the general case where the Hamiltonian $\hat{H}$, the wave function $\psi(\vs)$, and the parameters $\theta$ can be complex-valued, we have
+\begin{equation}
+\frac{\partial E_\psi}{\partial \theta} = \sum_\vs q(\vs) \left( \left( E_\text{loc}(\vs) - E_\psi \right)^* \frac{\partial \ln \psi(\vs)}{\partial \theta} + \left( E_\text{loc}(\vs) - E_\psi \right) \frac{\partial \ln \psi^*(\vs)}{\partial \theta} \right), \label{eq:vmc-grad-cmpl}
+\end{equation}
+whose derivation is presented in \cref{append:vmc-grad}. In the simple case where $\hat{H}$, $\psi(\vs)$, and $\theta$ are all real-valued, it simplifies to
 \begin{align}
-\frac{\partial E}{\partial \theta} &= 2 \sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E \right) \left( D_\text{loc}(\vs) - D \right), \label{eq:vmc-grad} \\
-D_\text{loc}(\vs) &= \frac{\partial \ln \psi(\vs)}{\partial \theta}, \\
+\frac{\partial E_\psi}{\partial \theta} &= 2 \sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) D_\text{loc}(\vs), \label{eq:vmc-grad-real} \\
+D_\text{loc}(\vs) &= \frac{\partial \ln \psi(\vs)}{\partial \theta}.
+\end{align}
+To reduce the variance when estimating the gradient using the Monte Carlo summation, in the same manner as \cref{eq:fq-grad-baseline}, we shift $D_\text{loc}(\vs)$ to have zero mean, without changing the expectation of the gradient:
+\begin{align}
+\frac{\partial E_\psi}{\partial \theta} &= 2 \sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) \left( D_\text{loc}(\vs) - D \right), \label{eq:vmc-grad-baseline} \\
 D &= \sum_\vs q(\vs) D_\text{loc}(\vs).
 \end{align}
 
-
-
-
-
-
 \section{Complex gradient}
+
+A peculiar nature of quantum systems is that $\hat{H}$, $\psi(\vs)$, and $\theta$ can actually be complex-valued, which has caused substantial confusion because there is no universally accepted and applicable definition for the gradient of a complex-valued function w.r.t.\ complex parameters. For example, the usual definition in complex analysis requires $\lim_{\Delta z \to 0} \frac{f(z + \Delta z) - f(z)}{\Delta z}$ exists for all directions of $\Delta z$ on the complex plane~\cite{rudin1986real}, which is usually unfulfilled for complicated variational ansatzes such as neural networks~\cite{bassey2021survey}. Even if this condition is fulfilled, it usually implies that $f(z)$ is holomorphic and has singular points, which  interfere with the numerical stability of computations.
+
+Fortunately, the variational energy $E_\psi$ is guaranteed to be real when the summation in \cref{eq:vmc} is performed exactly, which allows us to define a ``split'' gradient for the purpose of the gradient descent (GD) optimization in \cref{eq:gd}. Assuming $\theta = \thetar + \rmi \thetai$,  we compute the gradient w.r.t.\ the real parameters $\thetar$ and $\thetai$ respectively, then combine them by
+\begin{equation}
+\frac{\partial E_\psi}{\partial \theta} = \frac{\partial E_\psi}{\partial \thetar} + \rmi \frac{\partial E_\psi}{\partial \thetai},
+\end{equation}
+which yields the correct direction of optimization when substituted into \cref{eq:gd}. Using this definition for the gradient in \cref{eq:vmc-grad-cmpl}, we obtain
+\begin{align}
+\frac{\partial E_\psi}{\partial \theta}
+&= \sum_\vs q(\vs) \bigg(
+\left( E_\text{loc}(\vs) - E_\psi \right)^* \ptri \ln \psi(\vs) \nonumber \\
+&\phantom{{}={}} \qquad\quad + \left( E_\text{loc}(\vs) - E_\psi \right) \ptri \ln \psi^*(\vs)
+\bigg).
+\end{align}
+Because $\frac{\partial f^*(x)}{\partial x} = \left( \frac{\partial f(x)}{\partial x} \right)^*$ when $x$ is real, we have
+\begin{align}
+\frac{\partial E_\psi}{\partial \theta}
+&= \phantom{+ \rmi}\!\sum_\vs q(\vs) \left(
+\left( E_\text{loc}(\vs) - E_\psi \right)^* \frac{\partial \ln \psi(\vs)}{\partial \thetar}
++ \left( E_\text{loc}(\vs) - E_\psi \right) \left( \frac{\partial \ln \psi(\vs)}{\partial \thetar} \right)^*
+\right) \nonumber \\
+&\phantom{=} + \rmi \sum_\vs q(\vs) \left(
+\left( E_\text{loc}(\vs) - E_\psi \right)^* \frac{\partial \ln \psi(\vs)}{\partial \thetai}
++ \left( E_\text{loc}(\vs) - E_\psi \right) \left( \frac{\partial \ln \psi(\vs)}{\partial \thetai} \right)^*
+\right) \\
+% &= \phantom{{}+ \rmi \cdot{}} 2 \Re \sum_\vs q(\vs)
+% \left( E_\text{loc}(\vs) - E_\psi \right)
+% \left( \frac{\partial \ln \psi(\vs)}{\partial \thetar} \right)^* \nonumber \\
+% &\phantom{{}={}} + \rmi \cdot 2 \Re \sum_\vs q(\vs)
+% \left( E_\text{loc}(\vs) - E_\psi \right)
+% \left( \frac{\partial \ln \psi(\vs)}{\partial \thetai} \right)^*, \\
+&= 2 \sum_\vs q(\vs) \left(
+\Re\left( \left( E_\text{loc}(\vs) - E_\psi \right) \left( \frac{\partial \ln \psi(\vs)}{\partial \thetar} \right)^* \right)
++ \rmi \Re\left( \left( E_\text{loc}(\vs) - E_\psi \right) \left( \frac{\partial \ln \psi(\vs)}{\partial \thetai} \right)^* \right)
+\right). \label{eq:vmc-grad-split}
+\end{align}
+In addition, we can reduce its variance in the same manner as \cref{eq:vmc-grad-baseline}.
+
+The same gradient, except differing by an overall coefficient of $2$ because of the convention, can be derived from the viewpoint of the Wirtinger calculus~\cite{wirtinger1927formalen}, also known as the $\bbC \bbR$-calculus~\cite{kreutz2009complex}. In this theory, any complex-valued function can be written as $f(z, z^*)$, which is holomorphic in $z$ and $z^*$ respectively, and we can take the gradient $\frac{\partial f}{\partial z}$ and the co-gradient $\frac{\partial f}{\partial z^*}$ while treating the other variable as constant. It has been proven that
+\begin{equation}
+\frac{\partial f}{\partial z} = \frac{1}{2} \left( \frac{\partial f}{\partial x} - \rmi \frac{\partial f}{\partial y} \right), \quad
+\frac{\partial f}{\partial z^*} = \frac{1}{2} \left( \frac{\partial f}{\partial x} + \rmi \frac{\partial f}{\partial y} \right),
+\end{equation}
+where $z = x + \rmi y$. For the purpose of GD, we substitute the co-gradient $\frac{\partial E_\psi}{\partial \theta^*}$ into \cref{eq:gd}, which is the same as \cref{eq:vmc-grad-split} except without the coefficient of $2$. Automatic differentiation (AD) software can use the Wirtinger calculus with the chain rule of derivatives to compute $\frac{\partial \ln \psi}{\partial \theta^*}$, which usually takes less computation time than computing $\frac{\partial \ln \psi}{\partial \thetar}$ and $\frac{\partial \ln \psi}{\partial \thetai}$ separately, but care should be taken that different software can have different conventions for the sign of the imaginary part and the overall coefficient.
+
+It is worth discussing the $\Re$ notation in \cref{eq:vmc-grad-split}. The gradients $\frac{\partial E_\psi}{\partial \thetar}$ and $\frac{\partial E_\psi}{\partial \thetai}$ are both real when evaluated exactly, because they are gradients of a real-valued function w.r.t.\ real parameters. Therefore, the sums $\sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) \left( \frac{\partial \ln \psi(\vs)}{\partial \thetar} \right)^*$ and $\sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) \left( \frac{\partial \ln \psi(\vs)}{\partial \thetai} \right)^*$ are also real when evaluated exactly. However, when using Monte Carlo sampling, the estimators $\bbE_\text{MC}\left[ \left( E_\text{loc} - E_\psi \right) \left( \frac{\partial \ln \psi}{\partial \thetar} \right)^* \right]$ and $\bbE_\text{MC}\left[ \left( E_\text{loc} - E_\psi \right) \left( \frac{\partial \ln \psi}{\partial \thetai} \right)^* \right]$ can have imaginary parts because of the discrepancy of samples, which are discarded in \cref{eq:vmc-grad-split} before outputting the gradient and updating the parameters in \cref{eq:gd}.
+
+In some implementations of VMC, as well as stochastic gradient descent (SGD) in other complex-valued optimization problems, the $\Re$ notation is ignored either deliberately or unintentionally, and the imaginary parts of the estimated $\frac{\partial E_\psi}{\partial \thetar}$ and $\frac{\partial E_\psi}{\partial \thetai}$ are mixed into the updates to $\thetai$ and $\thetar$ respectively. This may affect the convergence of SGD, as discussed in \cref{sec:gd}. To the author's knowledge, there is no strong evidence that either implementation consistently outperforms the other. We refer to Ref.~\cite{bassey2021survey} as a recent survey on complex-valued neural networks, including their optimization, in various fields of machine learning.
 
 \section{Amplitude and phase of quantum ansatz}
 
-\section{Quantum geometric tensor (QGT) and stochastic reconfiguration (SR)}
+\section{Stochastic reconfiguration (SR)}
+\label{sec:sr}
+
+\footnote{The name ``stochastic reconfiguration'' is also used in diffusion Monte Carlo (DMC), where it refers to the technique to reconfigure the number of walkers~\cite{assaraf2000diffusion}. Both the names originate from the earlier work on Green's function Monte Carlo~\cite{sorella1998green}.}
 
 QMC over VMC
-
-\chapter{Tensor networks}
-
-\section{Matrix product state (MPS)}
-
-\section{Density matrix renormalization group (DMRG)}
-
-\section{Tensor networks with higher-dimensional geometries}
-
-\chapter{Tensor-RNN: bridge between tensor networks and neural networks}
-
-\chapter{VarBench: variational benchmarks for quantum many-body systems}
-
-\chapter{NetKet: machine learning toolbox for quantum many-body systems}

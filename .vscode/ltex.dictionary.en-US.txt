@@ -29,10 +29,12 @@ Gelman
 GELU
 Goldfarb
 Hamiltonians
+holomorphic
 Hopfield
 initializations
 Ising
 Khinchin
+Kolmogorov
 Kullback
 L-BFGS
 Lanczos
@@ -80,4 +82,5 @@ TwoBo
 unnormalized
 VarBench
 WaveNet
+Wirtinger
 Wormald

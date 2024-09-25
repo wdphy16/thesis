@@ -5,45 +5,36 @@
 \chapter{Energy gradient in VMC}
 \label{append:vmc-grad}
 
-In this appendix, we present the derivation of the gradient in \cref{eq:vmc-grad}, which is used to minimize the variational energy in VMC. For clarity, we use $x$ to denote the configuration $\vs$ in the main text, and $H_{x x'}$ to denote the Hamiltonian entry $H(\vs, \vs')$. The variational energy from \cref{eq:vmc} is
+In this appendix, we present the derivation of the gradient in \cref{eq:vmc-grad-cmpl}, which is used to minimize the variational energy in VMC. For clarity, we use $s$ to denote the configuration $\vs$ in the main text, and $H_{s s'}$ to denote the Hamiltonian entry $H(\vs, \vs')$. The variational energy from \cref{eq:vmc} is
 \begin{equation}
-E = \frac{\sum_{x, x'} \psi^*(x') H_{x' x} \psi(x)}{\sum_{x''} \psi^*(x'') \psi(x'')}
-= \sum_x q(x) E_\text{loc}(x),
+E = \frac{\sum_{s, s'} \psi^*(s') H_{s' s} \psi(s)}{\sum_{s''} \psi^*(s'') \psi(s'')}
+= \sum_s q(s) E_\text{loc}(s),
 \end{equation}
 where
 \begin{align}
-q(x) &= \frac{\psi^*(x) \psi(x)}{\ip{\psi}}, \\
-E_\text{loc}(x) &= \sum_{x'} H_{x x'} \frac{\psi(x')}{\psi(x)}.
+q(s) &= \frac{\psi^*(s) \psi(s)}{\ip{\psi}}, \\
+E_\text{loc}(s) &= \sum_{s'} H_{s s'} \frac{\psi(s')}{\psi(s)}.
 \end{align}
 The gradient is
 \begin{align}
-\pp_\theta E &= \phantom{{}-{}}\frac{\pp_\theta\!\left( \sum_{x, x'} \psi^*(x') H_{x' x} \psi(x) \right)}{\sum_{x''} \psi^*(x'') \psi(x'')} \nonumber \\
-&\phantom{{}={}}- \frac{\left( \sum_{x, x'} \psi^*(x') H_{x' x} \psi(x) \right) \pp_\theta\!\left( \sum_{x''} \psi^*(x'') \psi(x'') \right)}{\left( \sum_{x''} \psi^*(x'') \psi(x'') \right)^2} \\
-&= \phantom{{}-{}}\frac{\sum_{x, x'} H_{x' x} \pp_\theta\!\left( \psi^*(x') \psi(x) \right)}{\sum_{x''} \psi^*(x'') \psi(x'')} \nonumber \\
-&\phantom{{}={}}- E \frac{\sum_{x''} \pp_\theta\!\left( \psi^*(x'') \psi(x'') \right)}{\sum_{x''} \psi^*(x'') \psi(x'')} \\
-&= \frac{1}{\ip{\psi}} \sum_x \left( \left( \sum_{x'} H_{x' x} \pp_\theta\!\left( \psi^*(x') \psi(x) \right) \right) - E \pp_\theta\!\left( \psi^*(x) \psi(x) \right) \right) \\
-\intertext{(Note that $\frac{1}{\ip{\psi}} \sum_x \pp_\theta\!\left( \psi^*(x) \psi(x) \right) \neq \pp_\theta \frac{\sum_x \psi^*(x) \psi(x)}{\ip{\psi}}$, because there is no constraint that $\psi$ is normalized)} \nonumber
+\pp_\theta E &= \phantom{{}-{}}\frac{\pp_\theta\!\left( \sum_{s, s'} \psi^*(s') H_{s' s} \psi(s) \right)}{\sum_{s''} \psi^*(s'') \psi(s'')} \nonumber \\
+&\phantom{{}={}}- \frac{\left( \sum_{s, s'} \psi^*(s') H_{s' s} \psi(s) \right) \pp_\theta\!\left( \sum_{s''} \psi^*(s'') \psi(s'') \right)}{\left( \sum_{s''} \psi^*(s'') \psi(s'') \right)^2} \\
+&= \phantom{{}-{}}\frac{\sum_{s, s'} H_{s' s} \pp_\theta\!\left( \psi^*(s') \psi(s) \right)}{\sum_{s''} \psi^*(s'') \psi(s'')} \nonumber \\
+&\phantom{{}={}}- E \frac{\sum_{s''} \pp_\theta\!\left( \psi^*(s'') \psi(s'') \right)}{\sum_{s''} \psi^*(s'') \psi(s'')} \\
+&= \frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s' s} \pp_\theta\!\left( \psi^*(s') \psi(s) \right) \right) - E \pp_\theta\!\left( \psi^*(s) \psi(s) \right) \right) \\
+\intertext{(Note that $\frac{1}{\ip{\psi}} \sum_s \pp_\theta\!\left( \psi^*(s) \psi(s) \right) \neq \pp_\theta \frac{\sum_s \psi^*(s) \psi(s)}{\ip{\psi}}$, because there is no constraint that $\psi$ is normalized)} \nonumber
 \end{align}
 
 \begin{align}
 \intertext{(Cont'd)} \nonumber \\
-&= \phantom{{}+{}}\frac{1}{\ip{\psi}} \sum_x \left( \left( \sum_{x'} H_{x' x} \psi^*(x') \pp_\theta \psi(x) \right) - E \psi^*(x) \pp_\theta \psi(x) \right) \nonumber \\
-&\phantom{{}={}}+ \frac{1}{\ip{\psi}} \sum_x \left( \left( \sum_{x'} H_{x' x} \psi(x) \pp_\theta \psi^*(x') \right) - E \psi(x) \pp_\theta \psi^*(x) \right) \\
-&= \phantom{{}+{}}\frac{1}{\ip{\psi}} \sum_x \left( \left( \sum_{x'} {\color{red} H^*_{x x'}} \psi^*(x') \pp_\theta \psi(x) \right) - {\color{red} E^*} \psi^*(x) \pp_\theta \psi(x) \right) \nonumber \\
-\intertext{(We used $H_{x' x} = H^*_{x x'}$, $E = E^*$)} \nonumber \\
-&\phantom{{}={}}+ \frac{1}{\ip{\psi}} \sum_x \left( \left( \sum_{x'} H_{\color{red} x x'} \psi({\color{red} x'}) \pp_\theta \psi^*({\color{red} x}) \right) - E \psi(x) \pp_\theta \psi^*(x) \right) \\
-\intertext{(We renamed $x \gets x'$, $x' \gets x$ in $\sum_{x x'}$)} \nonumber \\
+&= \phantom{{}+{}}\frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s' s} \psi^*(s') \pp_\theta \psi(s) \right) - E \psi^*(s) \pp_\theta \psi(s) \right) \nonumber \\
+&\phantom{{}={}}+ \frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s' s} \psi(s) \pp_\theta \psi^*(s') \right) - E \psi(s) \pp_\theta \psi^*(s) \right) \\
+&= \phantom{{}+{}}\frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} {\color{red} H^*_{s s'}} \psi^*(s') \pp_\theta \psi(s) \right) - {\color{red} E^*} \psi^*(s) \pp_\theta \psi(s) \right) \nonumber \\
+\intertext{(We used $H_{s' s} = H^*_{s s'}$, $E = E^*$)} \nonumber \\
+&\phantom{{}={}}+ \frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{\color{red} s s'} \psi({\color{red} s'}) \pp_\theta \psi^*({\color{red} s}) \right) - E \psi(s) \pp_\theta \psi^*(s) \right) \\
+\intertext{(We renamed $s \gets s'$, $s' \gets s$ in $\sum_{s s'}$)} \nonumber \\
 %
-&= \phantom{{}+{}}\frac{1}{\ip{\psi}} \sum_x \left( \left( \sum_{x'} H_{x x'}^* \frac{\psi^*(x')}{\psi^*(x)} \psi^*(x) \psi(x) \frac{\pp_\theta \psi(x)}{\psi(x)} \right) - E^* \psi^*(x) \psi(x) \frac{\pp_\theta \psi(x)}{\psi(x)} \right) \nonumber \\
-&\phantom{{}={}}+ \frac{1}{\ip{\psi}} \sum_x \left( \left( \sum_{x'} H_{x x'} \frac{\psi(x')}{\psi(x)} \psi^*(x) \psi(x) \frac{\pp_\theta \psi^*(x)}{\psi^*(x)} \right) - E \psi^*(x) \psi(x) \frac{\pp_\theta \psi^*(x)}{\psi^*(x)} \right) \\
-&= \sum_x q(x) \left( \left( E_\text{loc}(x) - E \right)^* \pp_\theta \ln \psi(x) + \left( E_\text{loc}(x) - E \right) \pp_\theta \ln \psi^*(x) \right).
+&= \phantom{{}+{}}\frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s s'}^* \frac{\psi^*(s')}{\psi^*(s)} \psi^*(s) \psi(s) \frac{\pp_\theta \psi(s)}{\psi(s)} \right) - E^* \psi^*(s) \psi(s) \frac{\pp_\theta \psi(s)}{\psi(s)} \right) \nonumber \\
+&\phantom{{}={}}+ \frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s s'} \frac{\psi(s')}{\psi(s)} \psi^*(s) \psi(s) \frac{\pp_\theta \psi^*(s)}{\psi^*(s)} \right) - E \psi^*(s) \psi(s) \frac{\pp_\theta \psi^*(s)}{\psi^*(s)} \right) \\
+&= \sum_s q(s) \left( \left( E_\text{loc}(s) - E \right)^* \pp_\theta \ln \psi(s) + \left( E_\text{loc}(s) - E \right) \pp_\theta \ln \psi^*(s) \right).
 \end{align}
-If $\psi(x)$, $\theta$, and $\hat{H}$ are all real, the gradient is simplified to
-\begin{equation}
-\pp_\theta E = 2 \sum_x q(x) \left( E_\text{loc}(x) - E \right) D_\text{loc}(x),
-\end{equation}
-where $D_\text{loc}(x) = \pp_\theta \ln \psi(x)$. To reduce the variance of the Monte Carlo estimator, in the same manner as \cref{eq:fq-grad-baseline}, we modify the gradient to
-\begin{equation}
-\pp_\theta E = 2 \sum_x q(x) \left( E_\text{loc}(x) - E \right) \left( D_\text{loc}(x) - D \right),
-\end{equation}
-where $D = \sum_x q(x) D_\text{loc}(x)$, and it does not change the expectation of the gradient.
