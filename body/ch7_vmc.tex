@@ -4,7 +4,7 @@ The path integral Monte Carlo method in the previous chapter allows us to obtain
 
 \section{Variational energy}
 
-The ground state of a quantum system in \cref{eq:gs} is already defined by the variational principle, and we need to rewrite it into a form suitable for the Monte Carlo summation. Let $\psi(\vs)$ be the variational ansatz, which is not necessarily normalized, then its energy can be written as
+The ground state of a quantum system in \cref{eq:gs} is already defined by the variational principle, and we only need to rewrite it into a form suitable for Monte Carlo summation. Let $\psi(\vs)$ be the variational ansatz, which is not necessarily normalized, then its energy can be written as
 \begin{align}
 E_\psi &= \frac{\ev{\hat{H}}{\psi}}{\ip{\psi}} \\
 &= \frac
@@ -23,7 +23,34 @@ E_\text{loc}(\vs) &= \sum_{\vs'} H(\vs, \vs') \frac{\psi(\vs')}{\psi(\vs)}.
 
 The variational energy in \cref{eq:vmc} has a similar form to the variational free energy in \cref{eq:fq}. In the same manner discussed there, we can generate samples of $\vs$ from $q(\vs)$, estimate $E_\psi$ using the Monte Carlo summation, then minimize it w.r.t.\ the parameters in $\psi(\vs)$ using gradient-based optimizers, and a lower $E_\psi$ indicates a better ansatz to approximate of the ground state. Unlike the weight $\varPi(\svs)$ for the path integral Monte Carlo in \cref{eq:pimc}, here we always have $q(\vs) \ge 0$, although the sign problem can still occur in $E_\text{loc}(\vs)$.
 
-Similar to \cref{eq:fq-grad}, the gradient of $E_\psi$ also needs to be derived in a form suitable for the Monte Carlo summation. In the general case where the Hamiltonian $\hat{H}$, the wave function $\psi(\vs)$, and the parameters $\theta$ can be complex-valued, we have
+\section{Variance of energy}
+
+The variance of the energy $\Var E_\psi = \ev{\hat{H}^2} - \ev{\hat{H}}^2$ under the state $\ket{\psi}$ can also be estimated by Monte Carlo sampling, where the first term can be written as
+\begin{align}
+\frac{\ev{\hat{H}^2}{\psi}}{\ip{\psi}}
+&= \frac
+{\sum_{\vs, \vs', \vs''} \ip{\psi}{\vs'} \mel{\vs'}{\hat{H}}{\vs} \mel{\vs}{\hat{H}}{\vs''} \ip{\vs''}{\psi}}
+{\ip{\psi}} \label{eq:vmc-var-1} \\
+&= \frac
+{\sum_\vs \ip{\psi}{\vs} \ip{\vs}{\psi}
+\left( \sum_{\vs'} \frac{\ip{\psi}{\vs'}}{\ip{\psi}{\vs}} \mel{\vs'}{\hat{H}}{\vs} \right)
+\left( \sum_{\vs''} \mel{\vs}{\hat{H}}{\vs''} \frac{\ip{\vs''}{\psi}}{\ip{\vs}{\psi}} \right)}
+{\ip{\psi}} \label{eq:vmc-var-2} \\
+\shortintertext{(Assuming $\ip{\vs}{\psi} \neq 0$ for all $\vs$)}
+&= \sum_\vs q(\vs) |E_\text{loc}(\vs)|^2. \label{eq:vmc-var}
+\end{align}
+therefore, the variance of the energy happens to be the same as the variance of the local energy in \cref{eq:vmc}. This variance has the noteworthy property that it reaches zero when the variational state $\ket{\psi}$ reaches the ground state $\ket{\psi_0}$, which is useful in the optimization of $\ket{\psi}$.
+For a simple example, in a two-state system $\ket{\psi} = \sqrt{\lambda} \ket{\psi_0} + \sqrt{1 - \lambda} \ket{\psi_1}$, where $\lambda \in [0, 1]$ is a tunable parameter, we have
+\begin{equation}
+\Var E_\psi = \lambda (1 - \lambda) \Delta E^2, \label{eq:var-two-states}
+\end{equation}
+where $\Delta E = E_1 - E_0$ is the energy gap, and we can see $\Var E_\psi = 0$ when $\lambda = 1$. However, the variance is also zero if $\ket{\psi}$ is trapped into any excited state, as we can see $\Var E_\psi = 0$ when $\lambda = 0$ in \cref{eq:var-two-states}. This will be discussed in more depth in \cref{ch:varbench}.
+
+Caution should be taken that we assume $\ip{\vs}{\psi} \neq 0$ for all $\vs$ when inserting $\ip{\vs}{\psi}$ into the denominators in \cref{eq:vmc-var-2}. If this assumption is unfulfilled, then the summation in \cref{eq:vmc-var} will only contain the terms with $\ip{\vs}{\psi} \neq 0$, and the variance of the local energy will be a biased estimator of the true variance, as pointed out in~\cite{sinibaldi2023unbiasing}. In practice, when some $\ip{\vs}{\psi}$ are exponentially suppressed and numerically close to zero, they may cause high variance of the variance estimator, which means that the estimated variance and therefore the convergence of the optimization is unreliable. This caveat is similar to the problem of mode collapse in \cref{sec:mode-collapse}, although we are using the variational rather than the unbiased approximation in the quantum case. It does not occur when estimating the energy, because we have $\lim_{\ip{\vs}{\psi} \to 0} q(\vs) E_\text{loc}(\vs) = 0$, while it occurs in the variance as $\ip{\vs}{\psi}$ cancels out in the numerator and the denominator in $q(\vs) |E_\text{loc}(\vs)|^2$.
+
+\section{Complex gradient}
+
+Similar to \cref{eq:fq-grad}, the gradient of $E_\psi$ also needs to be derived in a form suitable for Monte Carlo summation. In the general case where the Hamiltonian $\hat{H}$, the wave function $\psi(\vs)$, and the parameters $\theta$ can be complex-valued, we have
 \begin{equation}
 \frac{\partial E_\psi}{\partial \theta} = \sum_\vs q(\vs) \left( \left( E_\text{loc}(\vs) - E_\psi \right)^* \frac{\partial \ln \psi(\vs)}{\partial \theta} + \left( E_\text{loc}(\vs) - E_\psi \right) \frac{\partial \ln \psi^*(\vs)}{\partial \theta} \right), \label{eq:vmc-grad-cmpl}
 \end{equation}
@@ -32,13 +59,11 @@ whose derivation is presented in \cref{append:vmc-grad}. In the simple case wher
 \frac{\partial E_\psi}{\partial \theta} &= 2 \sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) D_\text{loc}(\vs), \label{eq:vmc-grad-real} \\
 D_\text{loc}(\vs) &= \frac{\partial \ln \psi(\vs)}{\partial \theta}.
 \end{align}
-To reduce the variance when estimating the gradient using the Monte Carlo summation, in the same manner as \cref{eq:fq-grad-baseline}, we shift $D_\text{loc}(\vs)$ to have zero mean, without changing the expectation of the gradient:
+To reduce the variance when estimating the gradient using Monte Carlo sampling, in the same manner as \cref{eq:fq-grad-baseline}, we shift $D_\text{loc}(\vs)$ to have zero mean, without changing the expectation of the gradient:
 \begin{align}
 \frac{\partial E_\psi}{\partial \theta} &= 2 \sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) \left( D_\text{loc}(\vs) - D \right), \label{eq:vmc-grad-baseline} \\
 D &= \sum_\vs q(\vs) D_\text{loc}(\vs).
 \end{align}
-
-\section{Complex gradient}
 
 A peculiar nature of quantum systems is that $\hat{H}$, $\psi(\vs)$, and $\theta$ can actually be complex-valued, which has caused substantial confusion because there is no universally accepted and applicable definition for the gradient of a complex-valued function w.r.t.\ complex parameters. For example, the usual definition in complex analysis requires $\lim_{\Delta z \to 0} \frac{f(z + \Delta z) - f(z)}{\Delta z}$ exists for all directions of $\Delta z$ on the complex plane~\cite{rudin1986real}, which is usually unfulfilled for complicated variational ansatzes such as neural networks~\cite{bassey2021survey}. Even if this condition is fulfilled, it usually implies that $f(z)$ is holomorphic and has singular points, which  interfere with the numerical stability of computations.
 

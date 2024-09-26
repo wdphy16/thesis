@@ -21,18 +21,18 @@ The gradient is
 &\phantom{{}={}}- \frac{\left( \sum_{s, s'} \psi^*(s') H_{s' s} \psi(s) \right) \pp_\theta\!\left( \sum_{s''} \psi^*(s'') \psi(s'') \right)}{\left( \sum_{s''} \psi^*(s'') \psi(s'') \right)^2} \\
 &= \phantom{{}-{}}\frac{\sum_{s, s'} H_{s' s} \pp_\theta\!\left( \psi^*(s') \psi(s) \right)}{\sum_{s''} \psi^*(s'') \psi(s'')} \nonumber \\
 &\phantom{{}={}}- E \frac{\sum_{s''} \pp_\theta\!\left( \psi^*(s'') \psi(s'') \right)}{\sum_{s''} \psi^*(s'') \psi(s'')} \\
-&= \frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s' s} \pp_\theta\!\left( \psi^*(s') \psi(s) \right) \right) - E \pp_\theta\!\left( \psi^*(s) \psi(s) \right) \right) \\
-\intertext{(Note that $\frac{1}{\ip{\psi}} \sum_s \pp_\theta\!\left( \psi^*(s) \psi(s) \right) \neq \pp_\theta \frac{\sum_s \psi^*(s) \psi(s)}{\ip{\psi}}$, because there is no constraint that $\psi$ is normalized)} \nonumber
+&= \frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s' s} \pp_\theta\!\left( \psi^*(s') \psi(s) \right) \right) - E \pp_\theta\!\left( \psi^*(s) \psi(s) \right) \right)
 \end{align}
+(Note that $\frac{1}{\ip{\psi}} \sum_s \pp_\theta\!\left( \psi^*(s) \psi(s) \right) \neq \pp_\theta \frac{\sum_s \psi^*(s) \psi(s)}{\ip{\psi}}$, because there is no constraint that $\psi$ is normalized)
 
 \begin{align}
-\intertext{(Cont'd)} \nonumber \\
+\intertext{(Cont'd)}
 &= \phantom{{}+{}}\frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s' s} \psi^*(s') \pp_\theta \psi(s) \right) - E \psi^*(s) \pp_\theta \psi(s) \right) \nonumber \\
 &\phantom{{}={}}+ \frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s' s} \psi(s) \pp_\theta \psi^*(s') \right) - E \psi(s) \pp_\theta \psi^*(s) \right) \\
 &= \phantom{{}+{}}\frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} {\color{red} H^*_{s s'}} \psi^*(s') \pp_\theta \psi(s) \right) - {\color{red} E^*} \psi^*(s) \pp_\theta \psi(s) \right) \nonumber \\
-\intertext{(We used $H_{s' s} = H^*_{s s'}$, $E = E^*$)} \nonumber \\
+\intertext{(We used $H_{s' s} = H^*_{s s'}$, $E = E^*$)}
 &\phantom{{}={}}+ \frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{\color{red} s s'} \psi({\color{red} s'}) \pp_\theta \psi^*({\color{red} s}) \right) - E \psi(s) \pp_\theta \psi^*(s) \right) \\
-\intertext{(We renamed $s \gets s'$, $s' \gets s$ in $\sum_{s s'}$)} \nonumber \\
+\intertext{(We renamed $s \gets s'$, $s' \gets s$ in $\sum_{s s'}$)}
 %
 &= \phantom{{}+{}}\frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s s'}^* \frac{\psi^*(s')}{\psi^*(s)} \psi^*(s) \psi(s) \frac{\pp_\theta \psi(s)}{\psi(s)} \right) - E^* \psi^*(s) \psi(s) \frac{\pp_\theta \psi(s)}{\psi(s)} \right) \nonumber \\
 &\phantom{{}={}}+ \frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s s'} \frac{\psi(s')}{\psi(s)} \psi^*(s) \psi(s) \frac{\pp_\theta \psi^*(s)}{\psi^*(s)} \right) - E \psi^*(s) \psi(s) \frac{\pp_\theta \psi^*(s)}{\psi^*(s)} \right) \\
