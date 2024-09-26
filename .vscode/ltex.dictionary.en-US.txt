@@ -25,6 +25,7 @@ ergodic
 exaFLOPS
 ferrimagnetic
 fM
+gapless
 Gelman
 GELU
 Goldfarb

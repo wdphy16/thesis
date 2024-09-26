@@ -1,6 +1,8 @@
 \chapter{Unbiased evaluation of ground state}
 
-The previous part have let us seen exact sampling methods, particularly autoregressive neural networks (ARNN), achieve higher accuracy and efficiency in approximating classical many-body systems. In this part, we move on to investigate quantum systems, which are known to be more intricate than their classical counterparts. Even though we only focus on their ground states, rather than finite-temperature ensembles or dynamics, they involve peculiar issues that do not exist in the classical world, such as sign structures and entanglements in wave functions. We first review the traditional methods of exact diagonalization (ED), path integral Monte Carlo, variational Monte Carlo (VMC), and tensor networks. They not only share some common issues with Markov chain Monte Carlo (MCMC) and variational methods discussed in the previous part, but are also affected by the peculiar issues in quantum systems. Then we introduce a variational ansatz named tensor-RNN, which combines the strengths of tensor networks and recurrent neural networks (RNN) to shed new light on both the analytical and the numerical aspects of quantum systems. Moreover, we discuss the results from VarBench, an extensive project to benchmark the performances of variational methods on quantum many-body systems, which witnesses the recent development in the field, including exact sampling methods. Lastly, we present NetKet, a software package that we have developed to ease the implementation of all the computational techniques aforementioned, with attention on the integration of exact sampling in it.
+The previous part have let us seen exact sampling methods, particularly autoregressive neural networks (ARNN), achieve higher accuracy and efficiency in approximating classical many-body systems. Now we move on to investigate quantum systems, which are known to be more intricate than their classical counterparts. Even though we only focus on their ground states, rather than finite-temperature ensembles or dynamics, they involve peculiar issues that do not exist in the classical world, such as vanishing energy gaps, sign structures, and entanglements.
+
+In this part, we first review the traditional methods of exact diagonalization (ED), path integral Monte Carlo, variational Monte Carlo (VMC), and tensor networks. They not only share some common issues with Markov chain Monte Carlo (MCMC) and variational methods discussed in the previous part, but are also affected by the peculiar issues in quantum systems. Then we introduce a variational ansatz named tensor-RNN, which combines the strengths of tensor networks and recurrent neural networks (RNN) to shed new light on both the analytical and the numerical aspects of quantum systems. Moreover, we discuss the results from VarBench, an extensive project to benchmark the performances of variational methods on quantum many-body systems, which witnesses the recent development in the field, including exact sampling methods. Lastly, we present NetKet, a software package that we have developed to ease the implementation of all the computational techniques aforementioned, with attention on the integration of exact sampling in it.
 
 \section{Imaginary time evolution (ITE)}
 
@@ -26,7 +28,9 @@ assuming it converges. Therefore, \cref{eq:ite-psi-tau} becomes
 \begin{equation}
 \ket{\psi_\tau} = \sum_i c_i \rme^{-\tau E_i} \ket{\psi_i}.
 \end{equation}
-In the limit $\tau \to \infty$, as the exponential $\rme^{-\tau E_0}$ grows faster than all other terms, the resulting state $\ket{\psi_\tau}$ is dominated by the ground state $\ket{\psi_0}$. This is true regardless of the coefficients $c_i$, as long as $c_0 \neq 0$, i.e., the initial state is not orthogonal to the ground state, which is usually fulfilled if the initial state is randomly chosen. In the case of degenerate ground states, this method produces an arbitrary one among them, depending on the choice of the initial state. Recovering the normalization, we have
+In the limit $\tau \to \infty$, as the exponential $\rme^{-\tau E_0}$ grows faster than all other terms, the resulting state $\ket{\psi_\tau}$ is dominated by the ground state $\ket{\psi_0}$. This is true regardless of the coefficients $c_i$, as long as $c_0 \neq 0$, i.e., the initial state is not orthogonal to the ground state, which is usually fulfilled if the initial state is randomly chosen. In the case of degenerate ground states, this method produces an arbitrary one among them, depending on the choice of the initial state.
+
+Recovering the normalization, we have
 \begin{equation}
 \ket{\psi_0} = \lim_{\tau \to \infty} \frac{\ket{\psi_\tau}}{\sqrt{\ip{\psi_\tau}}}.
 \label{eq:ite}
@@ -36,6 +40,12 @@ This method is known as the imaginary time evolution (ITE)~\cite{goldberg1967int
 \ket{\psi(t)} = \rme^{-\rmi \hat{H} t} \ket{\psiinit},
 \end{equation}
 which becomes \cref{eq:ite-psi-tau} if we let the time be an imaginary number $t = -\rmi \tau$.
+
+The asymptotic convergence speed of the limit in \cref{eq:ite} depends on the energy gap $\Delta E = E_1 - E_0$ between the ground state $\ket{\psi_0}$ and the first excited state $\ket{\psi_1}$, as we can see from the ratio of their overlaps with $\ket{\psi_\tau}$:
+\begin{equation}
+\frac{\ip{\psi_1}{\psi_\tau}}{\ip{\psi_0}{\psi_\tau}} \propto \rme^{-\tau \Delta E}. \label{eq:ite-converge}
+\end{equation}
+This is a root cause of various numerical difficulties in gapless systems, such as spin liquids and systems around critical points.
 
 \section{Exact diagonalization (ED)}
 
@@ -48,7 +58,7 @@ Meanwhile, we can only keep the first order in the Taylor expansion of $\rme^{-\
 \begin{equation}
 \rme^{-\Delta \tau \hat{H}} \approx 1 - \Delta \tau \hat{H}.
 \end{equation}
-Given that the time step $\Delta \tau$ is small enough and the number of iterations $k$ is large enough, $\ket{\psi_k}$ converges to the desired $\ket{\psi_0}$. This method is known as the power iteration~\cite{mises1929praktische}. It falls in a broader family of iterative methods to compute the lowest one or few eigenvalues and eigenvectors of a matrix, where the Lanczos algorithm~\cite{lanczos1950iteration} is particularly well-known, following various algorithmic improvements and software implementations~\cite{knyazev2001toward, stathopoulos2010primme}.
+Given that the time step $\Delta \tau$ is small enough and the number of iterations $k$ is large enough, $\ket{\psi_k}$ converges to the desired $\ket{\psi_0}$. This method is known as the power iteration~\cite{mises1929praktische}. It falls in a broader family of iterative methods to compute the lowest one or few eigenvalues and eigenvectors of a matrix, where the Lanczos algorithm~\cite{lanczos1950iteration} is particularly well-known, following various algorithmic improvements and software implementations~\cite{knyazev2001toward, stathopoulos2010primme}. The convergence speeds of those algorithms also depend on the energy gap $\Delta E$, as shown in \cref{eq:ite-converge}.
 
 In the context of quantum physics, this kind of methods are referred to as the exact diagonalization (ED)~\cite{weisse2008exact}, because they do not involve any approximation or stochastic estimation in the obtained states. However, we can only perform ED on small systems, because the storage of the entire state vector and the multiplication with the Hamiltonian become impractical on larger systems due to the exponentially high dimension of the Hilbert space, as discussed in \cref{sec:qu-sys}. As of this writing, the largest ED computation has been performed on $50$ spin-$1/2$ particles~\cite{wietek2018sublattice}, which utilizes the symmetries of the physical system, as well as sophisticated parallelization and storage strategies on the supercomputer. Despite its exponential computational complexity, ED is still a necessary method to provide initial insights at small system sizes when investigating an unfamiliar quantum model, and it serves as the ground truth to test the correctness of more advanced computational techniques.
 
