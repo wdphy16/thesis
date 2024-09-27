@@ -96,7 +96,7 @@ The gradient is
 \chapter{Details in SR}
 \label{append:sr}
 
-In this appendix, we present the derivation of the SR formula in \cref{eq:sr-eq}. Substituting \cref{eq:psi-dtau-proj} into \cref{eq:sr-eq-1,eq:sr-eq-2}, and ignoring $O(\Delta \tau^2)$ terms, we have
+In this appendix, we present the derivation of the SR formula in \cref{eq:sr-eq}. Substituting \cref{eq:psi-dtau-proj} into \cref{eq:sr-eq-1,eq:sr-eq-2}, and ignoring $O(\dta^2)$ terms, we have
 \begin{align}
 \ip{\psi} - \dta \ev{\hat{H}}{\psi} &= \alpha \ip{\psi} + \sum_i \dth_i \ip{\psi}{\pp_i \psi}, \label{eq:sr-eq-1-dtau} \\
 \ip{\pp_j \psi}{\psi} - \dta \mel{\pp_j \psi}{\hat{H}}{\psi} &= \alpha \ip{\pp_j \psi}{\psi} + \sum_i \dth_i \ip{\pp_j \psi}{\pp_i \psi}. \label{eq:sr-eq-2-dtau}
@@ -129,11 +129,11 @@ Substituting it into \cref{eq:sr-eq-2-norm},
 \end{align}
 Using the notations in the main text, we obtain
 \begin{equation}
-\mS \Delta \theta = -\frac{\Delta \tau}{2} \vf,
+\mS \dth = -\frac{\dta}{2} \vf,
 \end{equation}
 where
 \begin{align}
-\vf &= 2 \left( \ev{\hat{H} \hat{\vD}} - \ev{\hat{H}} \ev{\hat{\vD}} \right), \\
-\mS &= \ev{\hat{\vD} \hat{\vD}^\transpose} - \ev{\hat{\vD}} \ev{\hat{\vD}^\transpose},
+\mS &= \ev{\hat{\vD} \hat{\vD}^\transpose} - \ev{\hat{\vD}} \ev{\hat{\vD}^\transpose}, \\
+\vf &= 2 \left( \ev{\hat{H} \hat{\vD}} - \ev{\hat{H}} \ev{\hat{\vD}} \right),
 \end{align}
-where $\vf$ is the gradient in \cref{eq:vmc-grad-real}, $\hat{\vD}$ is the vector of all $\{\hat{D}_i\}$, and the transpose $\hat{\vD}^\transpose$ is defined on the index $i$ in the parameter space, unlike the adjoint $\hat{\vD}^\dagger$ defined on the index $\vs$ in the configuration space.
+$\dth$ is a vector of the updates to all the parameters, $\vf$ is the gradient vector in \cref{eq:vmc-grad-real}, $\hat{\vD}$ is a vector of all the derivatives $\{\hat{D}_i\}$, and the transpose $\hat{\vD}^\transpose$ is defined on the index $i$ in the parameter space, unlike the adjoint $\hat{\vD}^\dagger$ defined on the index $\vs$ in the configuration space.

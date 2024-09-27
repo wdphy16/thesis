@@ -140,7 +140,7 @@ Cancelling $\alpha$, and ignoring $O(\Delta \tau^2)$ terms, the equations above 
 \mS \Delta \theta = -\frac{\Delta \tau}{2} \vf,
 \label{eq:sr-eq}
 \end{equation}
-where $\vf$ is the gradient in \cref{eq:vmc-grad-real}, commonly known as the ``force'' in the context of VMC, and $\mS$ is a $n_\text{p} \times n_\text{p}$ matrix define by
+where $\vf$ is the gradient in \cref{eq:vmc-grad-real}, commonly known as the ``force'' in the context of VMC, and $\mS$ is an $n_\text{p} \times n_\text{p}$ matrix define by
 \begin{equation}
 S_{i j} = \sum_\vs q(\vs) \left( D_i(\vs) - \bar{D}_i \right) \left( D_j(\vs) - \bar{D}_j \right).
 \label{eq:qgt}
@@ -152,51 +152,84 @@ The details on the derivation of \cref{eq:sr-eq} are presented in \cref{append:s
 \end{equation}
 where $\gamma = \frac{\Delta \tau}{2}$ is the learning rate. Therefore, the SR algorithm is also known as the quantum natural gradient descent~\cite{stokes2020quantum}. Alternatively, it can be derived from the viewpoint of the Fubini--Study metric~\cite{study1905kurzeste}, which replaces the classical case of the KL divergence in \cref{eq:kl}, and $\mS$ is called the quantum geometric tensor (QGT)~\cite{berry1989quantum}, which generalizes the Fisher information matrix in \cref{eq:fim} into the quantum case.
 
-In practice, we usually need to estimate $\mS$ using Monte Carlo sampling:
+In practice, we usually need to estimate $\mS$ along with $\vf$ using Monte Carlo sampling:
 \begin{align}
-\bbE_{\text{MC}}[\mS] &= \frac{1}{M} \sum_{i = 1}^M
+\theta_{t + 1} &\gets \theta_t - \gamma \left. \tilde{\mS}^{-1} \tilde{\vf} \right|_{\theta = \theta_t}, \\
+\tilde{\mS} &= \frac{1}{M} \sum_{i = 1}^M
 \left( \vD\big( \vs^{(i)} \big) - \tilde{\vD} \right)
 \left( \vD\big( \vs^{(i)} \big) - \tilde{\vD} \right)^\transpose, \label{eq:qgt-mc} \\
+\tilde{\vf} &= \frac{2}{M} \sum_{i = 1}^M
+\left( E_\text{loc}\big( \vs^{(i)} \big) - \tilde{E} \right)
+\left( \vD\big( \vs^{(i)} \big) - \tilde{\vD} \right), \\
+\tilde{E} &= \frac{1}{M} \sum_{i = 1}^M E_\text{loc}\big( \vs^{(i)} \big), \\
 \tilde{\vD} &= \frac{1}{M} \sum_{i = 1}^M \vD\big( \vs^{(i)} \big), \quad
 \vs^{(i)} \sim q,
 \end{align}
-where $M$ is the number of samples, and usually $M < n_\text{p}$. In this case, a problem occurs that each term $\vD(\vs) \vD(\vs)^\transpose$ is a rank-$1$ matrix, so the rank of $\bbE_{\text{MC}}[\mS]$ is at most $M$, and it cannot be inverted in \cref{eq:sr}. A common remedy is to add a diagonal term to $\mS$ before inverting it:
+where $M$ is the number of samples, and usually $M < n_\text{p}$. In this case, a problem occurs that each term $\vD(\vs) \vD(\vs)^\transpose$ is a rank-$1$ matrix, so the rank of $\tilde{\mS}$ is at most $M$, and it cannot be inverted in \cref{eq:sr}. A common remedy is to add a diagonal term to $\tilde{\mS}$ before inverting it:
 \begin{equation}
-\theta_{t + 1} \gets \theta_t - \gamma \left. (\mS + \lambda \mI)^{-1} \vf \right|_{\theta = \theta_t}.
+\theta_{t + 1} \gets \theta_t - \gamma \left. (\tilde{\mS} + \lambda \mI)^{-1} \tilde{\vf} \right|_{\theta = \theta_t}.
 \label{eq:sr-ds}
 \end{equation}
 It is technically known as the Tikhonov regularization~\cite{tikhonov1943stability} and commonly referred to as the ``diagonal shift'', and it also has resemblance to the Levenberg--Marquardt algorithm discussed in \cref{sec:ngd} as an interpolation between the first- and the second-order updates. In the extreme case that $\lambda \to \infty$ while $\frac{\gamma}{\lambda}$ is fixed, \cref{eq:sr-ds} degenerates to the simple GD in \cref{eq:gd}. Besides the learning rate $\gamma$, the diagonal shift $\lambda$ is another crucial hyperparameter in VMC that needs tuning. We may use a large $\lambda$ at the beginning of the optimization to ensure the stability, and decrease it as the optimization approaches the minimum.
 
-Recently, a different approach to invert $\mS$ has been proposed in Refs.~\cite{chen2023efficient, rende2024simple}. It has been proven that the estimated update to the parameters can be expressed as
+Recently, a different approach to invert $\tilde{\mS}$ has been proposed in Refs.~\cite{chen2023efficient, rende2024simple}. The estimated update to the parameters can be expressed as
 \begin{equation}
 \theta_{t + 1} \gets \theta_t - \gamma \left. (\mX \mX^\transpose + \lambda \mI)^{-1} \mX \tilde{\vf} \right|_{\theta = \theta_t},
 \label{eq:minsr}
 \end{equation}
 which has the same form as the common definition of the pseudoinverse of a singular matrix, where $\mX$ is a $M \times n_\text{P}$ matrix defined by
 \begin{equation}
-X_{i j} = D_j\left( \vs^{(i)} \right) - \tilde{D}_j,
+X_{i j} = D_j\left( \vs^{(i)} \right) - \tilde{D}_j.
 \end{equation}
-and $\tilde{\vf}$ is the estimated force. This method is named MinSR in Ref.~\cite{chen2023efficient}, and it is gradually becoming the default implementation of SR when $M < n_\text{p}$. Note that even if $\mX \mX^\transpose$ is full-rank, the diagonal shift $\lambda$ is usually still needed to improve the stability, because the limited number of samples can cause significant noise in $\mS$. It is worth mentioning that previously the large size of $\mS$ requires us to use iterative solvers for the linear system in \cref{eq:sr-eq}, which avoid storing all the $n_\text{p} \times n_\text{p}$ in $\mS$. As the size of the matrix to reduce is significantly smaller in MinSR, we can use exact solvers instead, which enable more parallelization on GPUs, and have fewer hyperparameters.
+This method is named MinSR in Ref.~\cite{chen2023efficient}, and it is gradually becoming the default implementation of SR when $M < n_\text{p}$. Note that even if $\mX \mX^\transpose$ is full-rank, the diagonal shift $\lambda$ is usually still needed to improve the stability, because the limited number of samples can cause significant noise in $\tilde{\mS}$. It is worth mentioning that previously the large size of $\tilde{\mS}$ requires us to use iterative solvers for the linear system in \cref{eq:sr-eq}, which avoid storing all the $n_\text{p} \times n_\text{p}$ in $\tilde{\mS}$. As the size of the matrix to reduce is significantly smaller in MinSR, we can use exact solvers instead, which enable more efficient parallelization on GPUs, and have fewer hyperparameters prone to manual tuning.
 
-However, $\mX \mX^\transpose$ can still be singular if the expressiveness of the ansatz is limited, which is indicated by degeneracy in the basis vectors of the locally linearized variational space in \cref{eq:psi-dtau-proj}. Worse still, the magnitude of $\psi(\vs)$ can be exponentially suppressed for many $\vs$, which causes numerically zero eigenvalues in $\mS$. These zero or near-zero eigenvalues correspond to zero or near-zero entries in $\vf$ in principle, but the estimated linear system can contain noise that leads to a pathological solution of $\mS^{-1} \vf$. Therefore, extra care should be taken when inverting $\mS$. Besides the diagonal shift, it has been proposed to truncate the near-zero eigenvalues before the pseudoinverse, either with a fixed threshold or using the signal-to-noise ratio (SNR) of $\mS$~\cite{schmitt2020quantum, chen2023efficient}. Alternatively, Ref.~\cite{goldshlager2024kaczmarz} has proposed a running estimation of $\mS^{-1}$ over multiple optimization steps, which increases the effective sample size compared to inverting it in each step.
+However, $\mX \mX^\transpose$ can still be singular if the expressiveness of the ansatz is limited, which is indicated by degeneracy in the basis vectors of the locally linearized variational space in \cref{eq:psi-dtau-proj}. Worse still, the magnitude of $\psi(\vs)$ can be exponentially suppressed for many $\vs$, which causes numerically zero eigenvalues in $\mS$, and the number of numerically non-zero eigenvalues can be less than $M$ when the wave function is highly concentrated. These zero or near-zero eigenvalues correspond to zero or near-zero entries in $\mX \tilde{\vf}$ in principle, but the estimated linear system can contain noise that leads to a pathological solution of $\tilde{\mS}^{-1} \tilde{\vf}$. Therefore, extra care should be taken when inverting $\tilde{\mS}$. Besides the diagonal shift, it has been proposed to truncate the near-zero eigenvalues before the pseudoinverse, either with a fixed threshold or using the signal-to-noise ratio (SNR) of $\tilde{\mS}$~\cite{schmitt2020quantum, chen2023efficient}. Alternatively, Ref.~\cite{goldshlager2024kaczmarz} has proposed a running estimation of $\tilde{\mS}^{-1}$ over multiple optimization steps, which increases the effective sample size compared to inverting it in each step.
 
-It has been shown that SR is necessary to obtain correct solutions to non-stoquastic systems in many cases~\cite{carleo2017solving, choo2019two}, and the simple SGD or its variants such as Adam fail to converge to the ground state. This success is usually attributed to the incorporation of the local geometry in SR, which smoothens the highly non-convex energy landscape. In the ideal case where the estimations of $\vf$ and $\mS$ are exact, the ansatz has sufficiently high expressiveness, and the learning rate $\gamma$ is sufficiently small, then SR is equivalent to the exact ITE, and always converges to the ground state after sufficiently many steps, as long as the initial state is valid.
+It has been shown that SR is necessary to obtain correct solutions to non-stoquastic systems in many cases~\cite{carleo2017solving, choo2019two, bukov2021learning}, and the simple SGD or its variants such as Adam fail to converge to the ground state. This success is attributed to the incorporation of the local geometry in SR, which smoothens the highly non-convex energy landscape. In the ideal case where the estimations of $\vf$ and $\mS$ are exact, the ansatz has sufficiently high expressiveness, and the learning rate $\gamma$ is sufficiently small, then SR is equivalent to the exact ITE, and always converges to the ground state after sufficiently many steps, as long as the initial state is valid.
 
 It is also commonly believed that SR should not be used together with optimizers with adaptive learning rates, such as Adam, because they make SR deviate from the ideal convergence path of ITE. On the other hand, multistep solvers for ordinary differential equations (ODE), such as the Heun and the Runge--Kutta schemes, have been proposed to replace the single-step update in \cref{eq:sr}~\cite{bukov2021learning}. They improve the order of approximation to ITE, and are more commonly used in literature on dynamics~\cite{schmitt2020quantum}, although the limited accuracy in estimating $\mS$ still impedes their performances.
 
-After the above introduction to the general framework of VMC, we discuss some common choices of the variational ansatz in the following.
+After the above introduction to the general framework of VMC, in the following we discuss some common choices of the variational ansatz for quantum spin-$1/2$ systems that are of interest in this thesis.
 
 \section{Variational ansatzes for quantum systems}
 
 \subsection{Jastrow ansatz}
 
-\subsection{Gutzwiller projected state}
+The Jastrow ansatz~\cite{jastrow1955many} was originally proposed to model the interactions between particles depending on their relative distances. In the context of spin systems, it is a bilinear form of the input configuration~\cite{huse1988simple}:
+\begin{equation}
+\ln \psi(\vs) = \frac{1}{2} \vs^\transpose \mW \vs,
+\end{equation}
+where $\mW$ is an $N \times N$ matrix of tunable parameters. Despite its simplicity, it is capable of modeling two-spin correlations and providing some initial insights about the system. The symmetries of the system can be imposed in the structure of $\mW$.
+
+\subsection{Gutzwiller projected states}
+
+Quantum many-body systems can exhibit a plethora of collective and emergent behaviors beyond two-spin correlations, such as spinons and fractional excitations in spin liquids~\cite{misguich2010quantum, balents2010spin}. Although we mainly focus on spin systems in this thesis, an approach to study these systems is to transform the Hamiltonian of spins to an equivalent Hamiltonian of fermions, then it is possible to construct highly entangled states using the anti-commutation structure of the fermions, which produce the necessary many-body correlations to model the aforementioned intricate behaviors. These introduced fermions are known as partons, namely Abrikosov fermions~\cite{abrikosov1965electron} in the following case. The transformation is given by
+\begin{equation}
+\hat{\vS}_i = \frac{1}{2} \sum_{\alpha \beta} \hat{c}^\dagger_{i \alpha} \hat{\vsi}_{\alpha \beta} \hat{c}_{i \beta},
+\end{equation}
+where $\hat{\vS}_i = \left( \hat{S}^x_i, \hat{S}^y_i, \hat{S}^z_i \right)$ is a vector of the spin operators at the site $i$, $\hat{\vsi} = \left( \hat{\sigma}^x_i, \hat{\sigma}^y_i, \hat{\sigma}^z_i \right)$ is a vector of the Pauli matrices, while $\hat{c}^\dagger_{i \alpha}$ and $\hat{c}_{i \beta}$ are the fermionic creation and annihilation operators respectively at the site $i$. The indices $\alpha$ and $\beta$ can take the values $\spinup$ and $\spindown$ for the fermions, and they are also used as the indices of the Pauli matrices. The valid states of the original spin Hamiltonian pose the constraint $\ev{\hat{n}_i} = 1$ for all sites $i$, where $\hat{n}_i = \sum_\alpha \hat{c}^\dagger_{i \alpha} \hat{c}_{i \alpha}$ is the number operator. To satisfy this constraint, the Gutzwiller projector~\cite{gutzwiller1963effect}
+\begin{equation}
+\hat{P}_\text{G} = \prod_i \hat{n}_i (2 - \hat{n}_i)
+\end{equation}
+is applied to any variational state for the fermionic Hamiltonian, and this kind of variational states are commonly referred to as the Gutzwiller projected states.
+
+Slater determinant~\cite{slater1929theory}
+
+Pair-product state
+
+Jastrow correlator
+
+RBM correlator~\cite{nomura2017restricted, ferrari2019neural, nomura2021dirac}
+
+We refer to Ref.~\cite{ferrari2019static} as a self-contained introduction to this technique.
 
 \subsection{Neural quantum states (NQS)}
 
-RBM~\cite{carleo2017solving, nomura2021dirac, chen2022systematic}
+RBM~\cite{carleo2017solving, nomura2021dirac}
 
 CNN~\cite{choo2019two}
+
+ClebschTree~\cite{vieijra2021many}
 
 Hierarchical~\cite{rende2024queries}
 
@@ -227,8 +260,6 @@ Phasor sum~\cite{szabo2020neural}
 Two-stage training~\cite{szabo2020neural}
 
 Alternating learning, hysteresis optimization~\cite{astrakhantsev2021broken}
-
-Share parameter or not
 
 % Optimize the signs~\cite{torlai2020wave}
 
