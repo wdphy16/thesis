@@ -1,5 +1,9 @@
 \appendix
 
+\newcommand{\dta}{{\Delta \tau}}
+\newcommand{\dth}{{\Delta \theta}}
+\newcommand{\evbig}[1]{\big\langle #1 \big\rangle}
+\newcommand{\fpsps}[1]{\frac{#1}{\ip{\psi}}}
 \newcommand{\pp}{\partial}
 
 \chapter{Energy gradient in VMC}
@@ -38,3 +42,98 @@ The gradient is
 &\phantom{{}={}}+ \frac{1}{\ip{\psi}} \sum_s \left( \left( \sum_{s'} H_{s s'} \frac{\psi(s')}{\psi(s)} \psi^*(s) \psi(s) \frac{\pp_\theta \psi^*(s)}{\psi^*(s)} \right) - E \psi^*(s) \psi(s) \frac{\pp_\theta \psi^*(s)}{\psi^*(s)} \right) \\
 &= \sum_s q(s) \left( \left( E_\text{loc}(s) - E \right)^* \pp_\theta \ln \psi(s) + \left( E_\text{loc}(s) - E \right) \pp_\theta \ln \psi^*(s) \right).
 \end{align}
+
+\iffalse
+\chapter{Optimal update in SR}
+
+\begin{align}
+\ket{\psi_\dth}
+&= \ket{\psi} \big|_{\theta \gets \theta + \dth} \nonumber \\
+&= \ket{\psi}
++ \sum_i \dth_i \ket{\pp_i \psi}
++ \frac{1}{2} \sum_{i j} \dth_i \dth_j \ket{\pp_i \psi}
++ O(\dth^3) \\
+%
+\ket{\psi_\dta}
+&= \rme^{-\dta \hat{H}} \ket{\psi} \nonumber \\
+&= \ket{\psi} - \dta \hat{H} \ket{\psi} + O(\dta^2)
+\end{align}
+
+\begin{align}
+\fpsps{\ip{\psi_\dth}}
+&= 1
++ \sum_i \dth_i \left( \fpsps{\ip{\pp_i \psi}{\psi}} + \fpsps{\ip{\psi}{\pp_i \psi}} \right) \nonumber \\
+&+ \sum_{i j} \dth_i \dth_j \left( \frac{1}{2} \fpsps{\ip{\pp_i \pp_j \psi}{\psi}} + \fpsps{\ip{\pp_i \psi}{\pp_j \psi}} + \frac{1}{2} \fpsps{\ip{\psi}{\pp_i \pp_j \psi}} \right) \nonumber \\
+&+ O(\dth^3) \\
+%
+\frac{\ip{\psi}}{\ip{\psi_\dth}}
+&= 1
+- \sum_i \dth_i \left( \fpsps{\ip{\pp_i \psi}{\psi}} + \fpsps{\ip{\psi}{\pp_i \psi}} \right) \nonumber \\
+&- \sum_{i j} \dth_i \dth_j \left( \frac{1}{2} \fpsps{\ip{\pp_i \pp_j \psi}{\psi}} + \fpsps{\ip{\pp_i \psi}{\pp_j \psi}} + \frac{1}{2} \fpsps{\ip{\psi}{\pp_i \pp_j \psi}} \right) \nonumber \\
+&+ \sum_{i j} \dth_i \dth_j \left( \fpsps{\ip{\pp_i \psi}{\psi}} \fpsps{\ip{\pp_j \psi}{\psi}} + 2 \fpsps{\ip{\pp_i \psi}{\psi}} \fpsps{\ip{\psi}{\pp_j \psi}} + \fpsps{\ip{\psi}{\pp_i \psi}} \fpsps{\ip{\psi}{\pp_j \psi}} \right) \nonumber \\
+&+ O(\dth^3) \\
+%
+\fpsps{\ip{\psi_\dth}{\psi_\dta}}
+&= 1
++ \sum_i \dth_i \fpsps{\ip{\pp_i \psi}{\psi}}
++ \frac{1}{2} \sum_{i j} \dth_i \dth_j \fpsps{\ip{\pp_i \pp_j \psi}{\psi}} \nonumber \\
+&- \dta \ev{\hat{H}}
+- \dta \sum_i \dth_i \fpsps{\mel{\pp_i \psi}{\hat{H}}{\psi}}
+- \frac{1}{2} \dta \sum_{i j} \dth_i \dth_j \fpsps{\mel{\pp_i \pp_j \psi}{\hat{H}}{\psi}} \nonumber \\
+&+ O(\dth^3) + O(\dta^2)
+\end{align}
+
+\begin{align}
+&\frac{\ip{\psi_\dth}{\psi_\dta} \ip{\psi_\dta}{\psi_\dth}}{\ip{\psi_\dth}} \nonumber \\
+&= 1 - \dta \ev{\hat{H}}
+- \dta \sum_i \dth_i \left( \fpsps{\mel{\pp_i \psi}{\hat{H}}{\psi}} + \fpsps{\mel{\psi}{\hat{H}}{\pp_i \psi}} \right) \nonumber \\
+&- \sum_{i j} \dth_i \dth_j \fpsps{\ip{\pp_i \psi}{\pp_j \psi}} \nonumber \\
+&+ \sum_{i j} \dth_i \dth_j \left( \fpsps{\ip{\pp_i \psi}{\psi}} \fpsps{\ip{\pp_j \psi}{\psi}} + 2 \fpsps{\ip{\pp_i \psi}{\psi}} \fpsps{\ip{\psi}{\pp_j \psi}} + \fpsps{\ip{\psi}{\pp_i \psi}} \fpsps{\ip{\psi}{\pp_j \psi}} \right) \nonumber \\
+&+ O(\dth^3) + O(\dta^2) + O(\dta \dth^2)
+\end{align}
+\fi
+
+\chapter{Details in SR}
+\label{append:sr}
+
+In this appendix, we present the derivation of the SR formula in \cref{eq:sr-eq}. Substituting \cref{eq:psi-dtau-proj} into \cref{eq:sr-eq-1,eq:sr-eq-2}, and ignoring $O(\Delta \tau^2)$ terms, we have
+\begin{align}
+\ip{\psi} - \dta \ev{\hat{H}}{\psi} &= \alpha \ip{\psi} + \sum_i \dth_i \ip{\psi}{\pp_i \psi}, \label{eq:sr-eq-1-dtau} \\
+\ip{\pp_j \psi}{\psi} - \dta \mel{\pp_j \psi}{\hat{H}}{\psi} &= \alpha \ip{\pp_j \psi}{\psi} + \sum_i \dth_i \ip{\pp_j \psi}{\pp_i \psi}. \label{eq:sr-eq-2-dtau}
+\end{align}
+We define the operator $\hat{D}_i \ket{\psi}$ = $\diag(\pp_i \ln \psi) \ket{\psi}$, and its adjoint $\bra{\psi} \hat{D}^\dagger_i$ = $\bra{\psi} \diag(\pp_i \ln \psi)$. It can be used as
+\begin{align}
+\fpsps{\ip{\psi}{\pp_i \psi}}
+&= \fpsps{\sum_\vs \psi^*(\vs) \pp_i \psi(\vs)} \\
+&= \fpsps{\sum_\vs \psi^*(\vs) \psi(\vs) \pp_i \ln \psi(\vs)} \\
+&= \ev{\hat{D}_i}.
+\end{align}
+Normalizing \cref{eq:sr-eq-1-dtau,eq:sr-eq-2-dtau} by $\ip{\psi}$, we have
+\begin{align}
+1 - \dta \evbig{\hat{H}} &= \alpha + \sum_i \dth_i \evbig{\hat{D}_i}, \label{eq:sr-eq-1-norm} \\
+\evbig{\hat{D}^\dagger_j} - \dta \evbig{\hat{D}^\dagger_j \hat{H}} &= \alpha\,\evbig{\hat{D}^\dagger_j} + \sum_i \dth_i\,\evbig{\hat{D}^\dagger_j \hat{D}_i}. \label{eq:sr-eq-2-norm}
+\end{align}
+From \cref{eq:sr-eq-1-norm}, we obtain
+\begin{equation}
+\alpha = 1 - \dta\,\evbig{\hat{H}} - \sum_i \dth_i\,\evbig{\hat{D}_i}.
+\end{equation}
+Substituting it into \cref{eq:sr-eq-2-norm},
+\begin{align}
+\evbig{\hat{D}^\dagger_j} - \dta \evbig{\hat{D}^\dagger_j \hat{H}}
+&= \evbig{\hat{D}^\dagger_j}
+- \dta \evbig{\hat{D}^\dagger_j} \evbig{\hat{H}}
++ \sum_i \dth_i \left( \evbig{\hat{D}^\dagger_j \hat{D}_i} - \evbig{\hat{D}^\dagger_j} \evbig{\hat{D}_i} \right) \\
+\implies
+-\dta \left( \evbig{\hat{D}^\dagger_j \hat{H}} - \evbig{\hat{D}^\dagger_j} \evbig{\hat{H}} \right)
+&= \sum_i \dth_i \left( \evbig{\hat{D}^\dagger_j \hat{D}_i} - \evbig{\hat{D}^\dagger_j} \evbig{\hat{D}_i} \right).
+\end{align}
+Using the notations in the main text, we obtain
+\begin{equation}
+\mS \Delta \theta = -\frac{\Delta \tau}{2} \vf,
+\end{equation}
+where
+\begin{align}
+\vf &= 2 \left( \ev{\hat{H} \hat{\vD}} - \ev{\hat{H}} \ev{\hat{\vD}} \right), \\
+\mS &= \ev{\hat{\vD} \hat{\vD}^\transpose} - \ev{\hat{\vD}} \ev{\hat{\vD}^\transpose},
+\end{align}
+where $\vf$ is the gradient in \cref{eq:vmc-grad-real}, $\hat{\vD}$ is the vector of all $\{\hat{D}_i\}$, and the transpose $\hat{\vD}^\transpose$ is defined on the index $i$ in the parameter space, unlike the adjoint $\hat{\vD}^\dagger$ defined on the index $\vs$ in the configuration space.

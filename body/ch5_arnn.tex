@@ -10,7 +10,7 @@ We start from noticing that any joint probability $q(\vs)$ can be factorized int
 q(\vs) &= \prod_i q_i(s_i \mid \vs_{< i}) \label{eq:autoreg} \\
 &= q_1(s_1) q_2(s_2 \mid s_1) q_3(s_3 \mid s_1, s_2) \cdots q_N(s_N \mid s_1, s_2, \ldots, s_{N - 1}),
 \end{align}
-where we still assume that $\vs$ is a vector of $N$ spins, each can take the values $\pm 1$, and $\vs_{< i} = \{s_1, s_2, \ldots, s_{i - 1}\}$ denotes all variables before the $i$-th. This relation between random variables is called an AR model, which is a generalization from the traditional concept of AR in time series, where each random variable only have a linear dependency on the previous ones. In our case, the dependency can be arbitrarily nonlinear.
+where we still assume that $\vs$ is a vector of $N$ spins, each can take the values $\pm 1$, and $\vs_{< i} = (s_1, s_2, \ldots, s_{i - 1})$ denotes all variables before the $i$-th. This relation between random variables is called an AR model, which is a generalization from the traditional concept of AR in time series, where each random variable only have a linear dependency on the previous ones. In our case, the dependency can be arbitrarily nonlinear.
 
 In principle, if the joint probability is known, one can compute the conditional probabilities by definition:
 \begin{equation}
@@ -45,7 +45,7 @@ This figure is reproduced from Fig.~1 in Ref.~\cite{wu2019solving}.
 
 The most general way to parameterize the conditional probabilities is a dense feedforward neural network (FFNN) as in \cref{eq:ffnn}, which takes the spins $\vs$ as inputs, and outputs the parameters $\hat{\vs}$, then the conditional probabilities are modeled by the Bernoulli distributions $\calB(s_i \mid \hat{s}_i)$. The network needs to fulfill the AR property: each output $\hat{s}_i$ can only depend on the previous inputs $\vs_{< i}$. For a single dense layer, this is achieved by applying a triangular mask on the weight matrix in \cref{eq:linear-layer}:
 \begin{gather}
-\text{MaskedLin}(\vx) = (\mM \odot \mW) \vx + \mb, \\
+\text{MaskedLin}(\vx) = (\mM \odot \mW) \vx + \vb, \\
 M_{i j} = \begin{cases}
 1, & i > j \\
 0, & i \le j
@@ -197,7 +197,7 @@ For each function $\rho_i$, there are $(N - i)$ input variables in general and a
 
 To demonstrate the performance of TwoBo, we conduct numerical experiments using the Edwards--Anderson (EA) model on 2D and 3D grids with PBC, as well as random regular graphs (RRG). As discussed in \cref{sec:ea}, the EA model is generally more difficult to solve than the simple Ising model in \cref{sec:made}, and the 3D EA model is particularly challenging from the perspective of computational complexity. Moreover, the RRG demonstrates the performance of TwoBo on systems without regular geometry. We use RRGs with degree $d = 3$, and sample them from the uniform distribution of all RRGs with the given $N$ and $d$ using the Steger--Wormald algorithm~\cite{steger1999generating}. Each reported result is averaged over $10$ random instances of the Hamiltonian, and the error bar shows the standard error over the instances.
 
-The results from TwoBo are compared with those from MADE. We use the MADE with only one layer, and it still has more trainable parameters than the TwoBo with the same system size. On the 2D grids, another comparison is made with the RNN architecture in~\cite{hibat2021variational}, which has outperformed several dense and convolutional ARNN architectures in the regime of numerous parameters. In this thesis, we mainly compare with it in the regime of few parameters, using only $4$ memory units and a comparable number of trainable parameters to TwoBo, while the comparison using more parameters will be shown in \cref{fig:twobo-rnn-param}.
+The results from TwoBo are compared with those from MADE. We use the MADE with only one layer, and it still has more trainable parameters than the TwoBo with the same system size. On the 2D grids, another comparison is made with the RNN architecture in Ref.~\cite{hibat2021variational}, which has outperformed several dense and convolutional ARNN architectures in the regime of numerous parameters. In this thesis, we mainly compare with it in the regime of few parameters, using only $4$ memory units and a comparable number of trainable parameters to TwoBo, while the comparison using more parameters will be shown in \cref{fig:twobo-rnn-param}.
 
 An annealing procedure is performed to compute the free energies at different inverse temperatures $\beta \in (0, 3]$, and help the optimization converge to the desired global minimum at high $\beta$. We equally divide the range of $\beta$ into $N_\text{anneal} = 60$ annealing steps. At the first $\beta = 0.05$, we perform $N_\text{warm} = 500$ optimization steps as warm-up. After that, in each annealing step, we perform $N_\text{opt} = 200$ optimization steps while keeping $\beta$ unchanged. In the next annealing step, we continue to optimize the ansatz with a different value of $\beta$. All the architectures of TwoBo, MADE, and RNN are trained using this procedure.
 
@@ -370,7 +370,7 @@ This figure is reproduced from Fig.~4 in Ref.~\cite{wu2021unbiased}.
 
 Next, we apply the sampling methods to the frustrated plaquette model (FPM) discussed in \cref{sec:fpm}, which is more difficult than the Ising model due to the first-order phase transition induced by the frustrated $J_3$ interactions and the plaquette interactions. Moreover, we increase the system size from $16 \times 16$ to $32 \times 32$. This time, the Wolff algorithm is no longer applicable as it is designed only for systems with two-body interactions. In contrast, the neural sampling methods are general enough to handle the plaquette interactions.
 
-As shown in \cref{fig:ncus-fpm-autocorr}, the results have a similar trend to those for the Ising model around the critical point. The autocorrelation times from NCUS can be as high as $O(10^3)$, but it is still practical to obtain reliable estimations of the free energy with the error bars derived from them, and they are lower by orders of magnitude than the results from the previous neural sampling methods. These results provide evidence that cluster updates and symmetry operations help alleviate the problem of mode collapse with the presence of first-order phase transitions, as discussed in \cref{sec:mode-collapse}.
+As shown in \cref{fig:ncus-fpm-autocorr}, the results have a similar trend to those for the Ising model around the critical point. The autocorrelation times from NCUS can be as high as $O(10^3)$, but it is still practical to obtain reliable estimations of the free energy with the error bars derived from them, and they are lower by orders of magnitude than the results from the previous neural sampling methods. These results provide evidence that cluster updates and symmetry operations help alleviate the problem of mode collapse with the presence of first-order phase transitions aforementioned in \cref{sec:mode-collapse}.
 
 \subsubsection{Choices of the distribution $P_\text{cluster}(k)$}
 

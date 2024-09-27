@@ -1,6 +1,6 @@
 \chapter{Variational Monte Carlo (VMC)}
 
-The path integral Monte Carlo method in the previous chapter allows us to obtain an unbiased stochastic approximation of the ground state properties for quantum many-body problems, in the same manner as the MCMC method in \cref{ch:mcmc}. Apart from that, another QMC scheme has been proposed to obtain a variational approximation of the target system, which bears the name variational Monte Carlo (VMC)~\cite{scherer2017computational} and resembles the variational method in \cref{ch:cl-var}.
+The PIMC method in the previous chapter allows us to obtain an unbiased stochastic approximation of the ground state properties for quantum many-body problems, in the same manner as the MCMC method in \cref{ch:mcmc}. Apart from that approach, another QMC scheme has been proposed to obtain a variational approximation of the target system, which bears the name variational Monte Carlo (VMC)~\cite{scherer2017computational, sorella2005wave} and resembles the variational method in \cref{ch:cl-var}. Unlike classical systems where MCMC suffices to obtain accurate results in many cases, in quantum systems the sheer large amount of computation required by unbiased methods has motivated a wide usage of variational methods, as we will see in the following.
 
 \section{Variational energy}
 
@@ -21,11 +21,13 @@ q(\vs) &= \frac{|\psi(\vs)|^2}{\ip{\psi}}, \\
 E_\text{loc}(\vs) &= \sum_{\vs'} H(\vs, \vs') \frac{\psi(\vs')}{\psi(\vs)}.
 \end{align}
 
-The variational energy in \cref{eq:vmc} has a similar form to the variational free energy in \cref{eq:fq}. In the same manner discussed there, we can generate samples of $\vs$ from $q(\vs)$, estimate $E_\psi$ using the Monte Carlo summation, then minimize it w.r.t.\ the parameters in $\psi(\vs)$ using gradient-based optimizers, and a lower $E_\psi$ indicates a better ansatz to approximate of the ground state. Unlike the weight $\varPi(\svs)$ for the path integral Monte Carlo in \cref{eq:pimc}, here we always have $q(\vs) \ge 0$, although the sign problem can still occur in $E_\text{loc}(\vs)$.
+The variational energy in \cref{eq:vmc} has a similar form to the variational free energy in \cref{eq:fq}. In the same manner discussed there, we can generate samples of the configuration $\vs$ from $q(\vs)$, estimate $E_\psi$ using the Monte Carlo summation, then minimize it w.r.t.\ the parameters in $\psi(\vs)$ using gradient-based optimizers, and a lower $E_\psi$ indicates a better ansatz to approximate of the ground state. It is worth mentioning that the state $\ket{\psi}$ obtained from variational optimization can be further improved by iterative eigenvector solvers in \cref{sec:ed}~\cite{hu2013direct, chen2022systematic}, or used as the initial state for other QMC schemes in \cref{sec:qmc}.
+
+When the Hamiltonian is non-stoquastic, unlike the weight $\varPi(\svs)$ for PIMC in \cref{eq:pimc}, in VMC we always have $q(\vs) \ge 0$. However, the sign problem can still occur because $E_\text{loc}(\vs)$ can be either positive or negative, which further causes large noise in the estimated gradient and impedes the optimization.
 
 \section{Variance of energy}
 
-The variance of the energy $\Var E_\psi = \ev{\hat{H}^2} - \ev{\hat{H}}^2$ under the state $\ket{\psi}$ can also be estimated by Monte Carlo sampling, where the first term can be written as
+Besides the energy itself, its variance $\Var E_\psi = \ev{\hat{H}^2} - \ev{\hat{H}}^2$ under the state $\ket{\psi}$ can also be estimated by Monte Carlo sampling, where the first term can be written as
 \begin{align}
 \frac{\ev{\hat{H}^2}{\psi}}{\ip{\psi}}
 &= \frac
@@ -39,39 +41,39 @@ The variance of the energy $\Var E_\psi = \ev{\hat{H}^2} - \ev{\hat{H}}^2$ under
 \shortintertext{(Assuming $\ip{\vs}{\psi} \neq 0$ for all $\vs$)}
 &= \sum_\vs q(\vs) |E_\text{loc}(\vs)|^2. \label{eq:vmc-var}
 \end{align}
-therefore, the variance of the energy happens to be the same as the variance of the local energy in \cref{eq:vmc}. This variance has the noteworthy property that it reaches zero when the variational state $\ket{\psi}$ reaches the ground state $\ket{\psi_0}$, which is useful in the optimization of $\ket{\psi}$.
-For a simple example, in a two-state system $\ket{\psi} = \sqrt{\lambda} \ket{\psi_0} + \sqrt{1 - \lambda} \ket{\psi_1}$, where $\lambda \in [0, 1]$ is a tunable parameter, we have
+Therefore, the variance of the energy happens to be the same as the variance of the local energy in \cref{eq:vmc}. This variance has the noteworthy property that it reaches zero when the variational state $\ket{\psi}$ reaches the ground state $\ket{\psi_0}$, which is useful to indicate the progress of the variational optimization. For a simple example, in a two-state system $\ket{\psi} = \sqrt{\lambda} \ket{\psi_0} + \sqrt{1 - \lambda} \ket{\psi_1}$, where $\lambda \in [0, 1]$ is a tunable parameter, we have
 \begin{equation}
 \Var E_\psi = \lambda (1 - \lambda) \Delta E^2, \label{eq:var-two-states}
 \end{equation}
 where $\Delta E = E_1 - E_0$ is the energy gap, and we can see $\Var E_\psi = 0$ when $\lambda = 1$. However, the variance is also zero if $\ket{\psi}$ is trapped into any excited state, as we can see $\Var E_\psi = 0$ when $\lambda = 0$ in \cref{eq:var-two-states}. This will be discussed in more depth in \cref{ch:varbench}.
 
-Caution should be taken that we assume $\ip{\vs}{\psi} \neq 0$ for all $\vs$ when inserting $\ip{\vs}{\psi}$ into the denominators in \cref{eq:vmc-var-2}. If this assumption is unfulfilled, then the summation in \cref{eq:vmc-var} will only contain the terms with $\ip{\vs}{\psi} \neq 0$, and the variance of the local energy will be a biased estimator of the true variance, as pointed out in~\cite{sinibaldi2023unbiasing}. In practice, when some $\ip{\vs}{\psi}$ are exponentially suppressed and numerically close to zero, they may cause high variance of the variance estimator, which means that the estimated variance and therefore the convergence of the optimization is unreliable. This caveat is similar to the problem of mode collapse in \cref{sec:mode-collapse}, although we are using the variational rather than the unbiased approximation in the quantum case. It does not occur when estimating the energy, because we have $\lim_{\ip{\vs}{\psi} \to 0} q(\vs) E_\text{loc}(\vs) = 0$, while it occurs in the variance as $\ip{\vs}{\psi}$ cancels out in the numerator and the denominator in $q(\vs) |E_\text{loc}(\vs)|^2$.
+Caution should be taken that we have assumed $\ip{\vs}{\psi} \neq 0$ for all $\vs$ when inserting $\ip{\vs}{\psi}$ into the denominators in \cref{eq:vmc-var-2}. If this assumption is unfulfilled, then the summation in \cref{eq:vmc-var} will only contain the terms with $\ip{\vs}{\psi} \neq 0$, and the variance of the local energy will be a biased estimator of the true variance, as pointed out in Ref.~\cite{sinibaldi2023unbiasing}. In practice, when some $\ip{\vs}{\psi}$ are exponentially suppressed and numerically close to zero, they may cause high variance of the variance estimator, which means that the estimated variance and therefore the convergence of the optimization is unreliable. This situation is similar to the problem of mode collapse aforementioned in \cref{sec:mode-collapse}, and in the quantum case it can occur even though we are using the variational rather than the unbiased approximation. Note that it does not occur when estimating the energy, because we have $\lim_{\ip{\vs}{\psi} \to 0} q(\vs) E_\text{loc}(\vs) = 0$, while it occurs in the variance as $\ip{\vs}{\psi}$ cancels out in the numerator and the denominator in $q(\vs) |E_\text{loc}(\vs)|^2$.
 
 \section{Complex gradient}
+\label{sec:cmpl-grad}
 
 Similar to \cref{eq:fq-grad}, the gradient of $E_\psi$ also needs to be derived in a form suitable for Monte Carlo summation. In the general case where the Hamiltonian $\hat{H}$, the wave function $\psi(\vs)$, and the parameters $\theta$ can be complex-valued, we have
 \begin{equation}
 \frac{\partial E_\psi}{\partial \theta} = \sum_\vs q(\vs) \left( \left( E_\text{loc}(\vs) - E_\psi \right)^* \frac{\partial \ln \psi(\vs)}{\partial \theta} + \left( E_\text{loc}(\vs) - E_\psi \right) \frac{\partial \ln \psi^*(\vs)}{\partial \theta} \right), \label{eq:vmc-grad-cmpl}
 \end{equation}
 whose derivation is presented in \cref{append:vmc-grad}. In the simple case where $\hat{H}$, $\psi(\vs)$, and $\theta$ are all real-valued, it simplifies to
+\begin{equation}
+\frac{\partial E_\psi}{\partial \theta} = 2 \sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) \vD(\vs),
+\label{eq:vmc-grad-real}
+\end{equation}
+where $\vD(\vs) = \frac{\partial \ln \psi(\vs)}{\partial \theta}$ denotes the gradient vector of $\ln \psi(\vs)$. To reduce the variance when estimating the gradient using Monte Carlo sampling, in the same manner as \cref{eq:fq-grad-baseline}, we shift $\vD(\vs)$ to have zero mean, without changing the expectation of the gradient:
 \begin{align}
-\frac{\partial E_\psi}{\partial \theta} &= 2 \sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) D_\text{loc}(\vs), \label{eq:vmc-grad-real} \\
-D_\text{loc}(\vs) &= \frac{\partial \ln \psi(\vs)}{\partial \theta}.
-\end{align}
-To reduce the variance when estimating the gradient using Monte Carlo sampling, in the same manner as \cref{eq:fq-grad-baseline}, we shift $D_\text{loc}(\vs)$ to have zero mean, without changing the expectation of the gradient:
-\begin{align}
-\frac{\partial E_\psi}{\partial \theta} &= 2 \sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) \left( D_\text{loc}(\vs) - D \right), \label{eq:vmc-grad-baseline} \\
-D &= \sum_\vs q(\vs) D_\text{loc}(\vs).
+\frac{\partial E_\psi}{\partial \theta} &= 2 \sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) \left( \vD(\vs) - \bar{\vD} \right), \label{eq:vmc-grad-baseline} \\
+\bar{\vD} &= \sum_\vs q(\vs) \vD(\vs).
 \end{align}
 
-A peculiar nature of quantum systems is that $\hat{H}$, $\psi(\vs)$, and $\theta$ can actually be complex-valued, which has caused substantial confusion because there is no universally accepted and applicable definition for the gradient of a complex-valued function w.r.t.\ complex parameters. For example, the usual definition in complex analysis requires $\lim_{\Delta z \to 0} \frac{f(z + \Delta z) - f(z)}{\Delta z}$ exists for all directions of $\Delta z$ on the complex plane~\cite{rudin1986real}, which is usually unfulfilled for complicated variational ansatzes such as neural networks~\cite{bassey2021survey}. Even if this condition is fulfilled, it usually implies that $f(z)$ is holomorphic and has singular points, which  interfere with the numerical stability of computations.
+A peculiar nature of quantum systems is that $\hat{H}$, $\psi(\vs)$, and $\theta$ can actually be complex-valued, which has caused substantial confusion because there is no universally accepted and applicable definition for the gradient of a complex-valued function w.r.t.\ complex parameters. For example, the usual definition in complex analysis requires that $\lim_{\Delta z \to 0} \frac{f(z + \Delta z) - f(z)}{\Delta z}$ exists for all directions of $\Delta z$ on the complex plane~\cite{rudin1986real}, which is usually unfulfilled for complicated functions such as neural networks~\cite{bassey2021survey}. Even if this condition is fulfilled, it usually implies that $f(z)$ is holomorphic and has singular points, which impedes the numerical stability of the variational optimization.
 
-Fortunately, the variational energy $E_\psi$ is guaranteed to be real when the summation in \cref{eq:vmc} is performed exactly, which allows us to define a ``split'' gradient for the purpose of the gradient descent (GD) optimization in \cref{eq:gd}. Assuming $\theta = \thetar + \rmi \thetai$,  we compute the gradient w.r.t.\ the real parameters $\thetar$ and $\thetai$ respectively, then combine them by
+Fortunately, the variational energy $E_\psi$ is guaranteed to be real when the summation in \cref{eq:vmc} is performed exactly, which allows us to define a ``split'' gradient for the purpose of the gradient descent (GD) optimizer in \cref{eq:gd}. Assuming $\theta = \thetar + \rmi \thetai$,  we compute the gradient of the real function $E_\psi$ w.r.t.\ the real parameters $\thetar$ and $\thetai$ respectively, then combine them by
 \begin{equation}
 \frac{\partial E_\psi}{\partial \theta} = \frac{\partial E_\psi}{\partial \thetar} + \rmi \frac{\partial E_\psi}{\partial \thetai},
 \end{equation}
-which yields the correct direction of optimization when substituted into \cref{eq:gd}. Using this definition for the gradient in \cref{eq:vmc-grad-cmpl}, we obtain
+which yields the correct direction of optimization when substituted into \cref{eq:gd}. Using this definition, the gradient in \cref{eq:vmc-grad-cmpl} becomes
 \begin{align}
 \frac{\partial E_\psi}{\partial \theta}
 &= \sum_\vs q(\vs) \bigg(
@@ -112,21 +114,130 @@ where $z = x + \rmi y$. For the purpose of GD, we substitute the co-gradient $\f
 
 It is worth discussing the $\Re$ notation in \cref{eq:vmc-grad-split}. The gradients $\frac{\partial E_\psi}{\partial \thetar}$ and $\frac{\partial E_\psi}{\partial \thetai}$ are both real when evaluated exactly, because they are gradients of a real-valued function w.r.t.\ real parameters. Therefore, the sums $\sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) \left( \frac{\partial \ln \psi(\vs)}{\partial \thetar} \right)^*$ and $\sum_\vs q(\vs) \left( E_\text{loc}(\vs) - E_\psi \right) \left( \frac{\partial \ln \psi(\vs)}{\partial \thetai} \right)^*$ are also real when evaluated exactly. However, when using Monte Carlo sampling, the estimators $\bbE_\text{MC}\left[ \left( E_\text{loc} - E_\psi \right) \left( \frac{\partial \ln \psi}{\partial \thetar} \right)^* \right]$ and $\bbE_\text{MC}\left[ \left( E_\text{loc} - E_\psi \right) \left( \frac{\partial \ln \psi}{\partial \thetai} \right)^* \right]$ can have imaginary parts because of the discrepancy of samples, which are discarded in \cref{eq:vmc-grad-split} before outputting the gradient and updating the parameters in \cref{eq:gd}.
 
-In some implementations of VMC, as well as stochastic gradient descent (SGD) in other complex-valued optimization problems, the $\Re$ notation is ignored either deliberately or unintentionally, and the imaginary parts of the estimated $\frac{\partial E_\psi}{\partial \thetar}$ and $\frac{\partial E_\psi}{\partial \thetai}$ are mixed into the updates to $\thetai$ and $\thetar$ respectively. This additional noise in the gradient may affect the convergence of SGD, as discussed in \cref{sec:gd}. To the author's knowledge, there is no strong evidence that either implementation consistently outperforms the other. However, a mistake that occasionally occurs is to take the real parts before multiplying, i.e., $\Re\left( E_\text{loc} - E_\psi \right) \Re\left( \frac{\partial \ln \psi}{\partial \thetar} \right)$, which changes the result even if exactly performing the summation over $\vs$. We refer to Ref.~\cite{bassey2021survey} as a recent survey on complex-valued neural networks, including their optimization, in various fields of machine learning.
-
-\section{Amplitude and phase of quantum ansatz}
-
-To avoid the aforementioned intricacy of complex-valued functions,
-
-
-
-
-
-
+In some implementations of VMC, as well as stochastic gradient descent (SGD) in other complex-valued optimization problems, the $\Re$ notation is ignored either deliberately or unintentionally, and the imaginary parts of the estimated $\frac{\partial E_\psi}{\partial \thetar}$ and $\frac{\partial E_\psi}{\partial \thetai}$ are mixed into the updates to $\thetai$ and $\thetar$ respectively. This additional noise in the gradient may affect the convergence of SGD, as discussed in \cref{sec:gd}. To the author's knowledge, there is no strong evidence that either implementation consistently outperforms the other. However, an occasionally occurring mistake is to take the real parts before multiplying, i.e., $\Re\left( E_\text{loc} - E_\psi \right) \Re\left( \frac{\partial \ln \psi}{\partial \thetar} \right)$, which changes the result even if the summation over $\vs$ is exactly performed. We refer to Ref.~\cite{bassey2021survey} as a recent survey on complex-valued neural networks, including their optimization, in various fields of machine learning.
 
 \section{Stochastic reconfiguration (SR)}
 \label{sec:sr}
 
-\footnote{The name ``stochastic reconfiguration'' is also used in diffusion Monte Carlo (DMC), where it refers to the technique to reconfigure the number of walkers~\cite{assaraf2000diffusion}. Both the names originate from the earlier work on Green's function Monte Carlo~\cite{sorella1998green}.}
+Beyond the simple GD optimizer, a commonly used optimization method in VMC is stochastic reconfiguration (SR)\footnote{The name ``stochastic reconfiguration'' is also used in diffusion Monte Carlo (DMC), where it refers to the technique to reconfigure the number of walkers~\cite{assaraf2000diffusion}. Both the names originate from the earlier work on Green's function Monte Carlo~\cite{sorella1998green}.}. It is naturally derived as an approximation of the imaginary time evolution (ITE) in \cref{sec:ite}, and is similar to the natural gradient descent (NGD) in \cref{sec:ngd}.
 
-QMC over VMC
+We consider the ITE of the state $\ket{\psi}$ with a small step $\Delta \tau$:
+\begin{equation}
+\ket{\psi_{\Delta \tau}} = \rme^{-\Delta \tau \hat{H}} \ket{\psi} = \ket{\psi} - \Delta \tau \hat{H} \ket{\psi} + O(\Delta \tau^2),
+\end{equation}
+and project it onto a Hilbert subspace generated by the states $\left\{ \ket{\psi}, \ket{\partial_1 \psi}, \ket{\partial_2 \psi}, \ldots, \ket{\partial_{n_\text{p}} \psi} \right\}$, where we denote $\ket{\partial_1 \psi} = \frac{\partial}{\partial_{\theta_i}} \ket{\psi}$, and $n_\text{p}$ is the number of parameters. This space contains all the states that the ansatz can reach by varying the parameters, up to the local linear approximation. To make the projection, we try to write $\ket{\psi_{\Delta \tau}}$ as a linear combination of these basis states:
+\begin{equation}
+\ket{\psi_{\Delta \tau}} = \alpha \ket{\psi} + \sum_i \Delta \theta_i \ket{\partial_i \psi},
+\label{eq:psi-dtau-proj}
+\end{equation}
+where $\{\Delta \theta_i\}$ will be used as the updates to the parameters, and $\alpha$ represents the change in the magnitude of $\ket{\psi}$. The dimension of the subspace $(n_\text{p} + 1)$ is usually much less than that of the whole Hilbert space $2^N$, so \cref{eq:psi-dtau-proj} does not hold exactly, but we require it to hold when multiplying both sides with each basis state:
+\begin{align}
+\ip{\psi}{\psi_{\Delta \tau}} &= \alpha \ip{\psi} + \sum_i \Delta \theta_i \ip{\psi}{\partial_i \psi}, \label{eq:sr-eq-1} \\
+\ip{\partial_j \psi}{\psi_{\Delta \tau}} &= \alpha \ip{\partial_j \psi}{\psi} + \sum_i \Delta \theta_i \ip{\partial_j \psi}{\partial_i \psi}. \label{eq:sr-eq-2}
+\end{align}
+Cancelling $\alpha$, and ignoring $O(\Delta \tau^2)$ terms, the equations above simplify to
+\begin{equation}
+\mS \Delta \theta = -\frac{\Delta \tau}{2} \vf,
+\label{eq:sr-eq}
+\end{equation}
+where $\vf$ is the gradient in \cref{eq:vmc-grad-real}, commonly known as the ``force'' in the context of VMC, and $\mS$ is a $n_\text{p} \times n_\text{p}$ matrix define by
+\begin{equation}
+S_{i j} = \sum_\vs q(\vs) \left( D_i(\vs) - \bar{D}_i \right) \left( D_j(\vs) - \bar{D}_j \right).
+\label{eq:qgt}
+\end{equation}
+The details on the derivation of \cref{eq:sr-eq} are presented in \cref{append:sr}. It has the same form in the complex case, as long as the same definition of the complex gradient is used in $\mS$ and $\vf$. In the same form as the preconditioned GD in \cref{eq:newton}, the parameters are updated by
+\begin{equation}
+\theta_{t + 1} \gets \theta_t - \gamma \left. \mS^{-1} \vf \right|_{\theta = \theta_t},
+\label{eq:sr}
+\end{equation}
+where $\gamma = \frac{\Delta \tau}{2}$ is the learning rate. Therefore, the SR algorithm is also known as the quantum natural gradient descent~\cite{stokes2020quantum}. Alternatively, it can be derived from the viewpoint of the Fubini--Study metric~\cite{study1905kurzeste}, which replaces the classical case of the KL divergence in \cref{eq:kl}, and $\mS$ is called the quantum geometric tensor (QGT)~\cite{berry1989quantum}, which generalizes the Fisher information matrix in \cref{eq:fim} into the quantum case.
+
+In practice, we usually need to estimate $\mS$ using Monte Carlo sampling:
+\begin{align}
+\bbE_{\text{MC}}[\mS] &= \frac{1}{M} \sum_{i = 1}^M
+\left( \vD\big( \vs^{(i)} \big) - \tilde{\vD} \right)
+\left( \vD\big( \vs^{(i)} \big) - \tilde{\vD} \right)^\transpose, \label{eq:qgt-mc} \\
+\tilde{\vD} &= \frac{1}{M} \sum_{i = 1}^M \vD\big( \vs^{(i)} \big), \quad
+\vs^{(i)} \sim q,
+\end{align}
+where $M$ is the number of samples, and usually $M < n_\text{p}$. In this case, a problem occurs that each term $\vD(\vs) \vD(\vs)^\transpose$ is a rank-$1$ matrix, so the rank of $\bbE_{\text{MC}}[\mS]$ is at most $M$, and it cannot be inverted in \cref{eq:sr}. A common remedy is to add a diagonal term to $\mS$ before inverting it:
+\begin{equation}
+\theta_{t + 1} \gets \theta_t - \gamma \left. (\mS + \lambda \mI)^{-1} \vf \right|_{\theta = \theta_t}.
+\label{eq:sr-ds}
+\end{equation}
+It is technically known as the Tikhonov regularization~\cite{tikhonov1943stability} and commonly referred to as the ``diagonal shift'', and it also has resemblance to the Levenberg--Marquardt algorithm discussed in \cref{sec:ngd} as an interpolation between the first- and the second-order updates. In the extreme case that $\lambda \to \infty$ while $\frac{\gamma}{\lambda}$ is fixed, \cref{eq:sr-ds} degenerates to the simple GD in \cref{eq:gd}. Besides the learning rate $\gamma$, the diagonal shift $\lambda$ is another crucial hyperparameter in VMC that needs tuning. We may use a large $\lambda$ at the beginning of the optimization to ensure the stability, and decrease it as the optimization approaches the minimum.
+
+Recently, a different approach to invert $\mS$ has been proposed in Refs.~\cite{chen2023efficient, rende2024simple}. It has been proven that the estimated update to the parameters can be expressed as
+\begin{equation}
+\theta_{t + 1} \gets \theta_t - \gamma \left. (\mX \mX^\transpose + \lambda \mI)^{-1} \mX \tilde{\vf} \right|_{\theta = \theta_t},
+\label{eq:minsr}
+\end{equation}
+which has the same form as the common definition of the pseudoinverse of a singular matrix, where $\mX$ is a $M \times n_\text{P}$ matrix defined by
+\begin{equation}
+X_{i j} = D_j\left( \vs^{(i)} \right) - \tilde{D}_j,
+\end{equation}
+and $\tilde{\vf}$ is the estimated force. This method is named MinSR in Ref.~\cite{chen2023efficient}, and it is gradually becoming the default implementation of SR when $M < n_\text{p}$. Note that even if $\mX \mX^\transpose$ is full-rank, the diagonal shift $\lambda$ is usually still needed to improve the stability, because the limited number of samples can cause significant noise in $\mS$. It is worth mentioning that previously the large size of $\mS$ requires us to use iterative solvers for the linear system in \cref{eq:sr-eq}, which avoid storing all the $n_\text{p} \times n_\text{p}$ in $\mS$. As the size of the matrix to reduce is significantly smaller in MinSR, we can use exact solvers instead, which enable more parallelization on GPUs, and have fewer hyperparameters.
+
+However, $\mX \mX^\transpose$ can still be singular if the expressiveness of the ansatz is limited, which is indicated by degeneracy in the basis vectors of the locally linearized variational space in \cref{eq:psi-dtau-proj}. Worse still, the magnitude of $\psi(\vs)$ can be exponentially suppressed for many $\vs$, which causes numerically zero eigenvalues in $\mS$. These zero or near-zero eigenvalues correspond to zero or near-zero entries in $\vf$ in principle, but the estimated linear system can contain noise that leads to a pathological solution of $\mS^{-1} \vf$. Therefore, extra care should be taken when inverting $\mS$. Besides the diagonal shift, it has been proposed to truncate the near-zero eigenvalues before the pseudoinverse, either with a fixed threshold or using the signal-to-noise ratio (SNR) of $\mS$~\cite{schmitt2020quantum, chen2023efficient}. Alternatively, Ref.~\cite{goldshlager2024kaczmarz} has proposed a running estimation of $\mS^{-1}$ over multiple optimization steps, which increases the effective sample size compared to inverting it in each step.
+
+It has been shown that SR is necessary to obtain correct solutions to non-stoquastic systems in many cases~\cite{carleo2017solving, choo2019two}, and the simple SGD or its variants such as Adam fail to converge to the ground state. This success is usually attributed to the incorporation of the local geometry in SR, which smoothens the highly non-convex energy landscape. In the ideal case where the estimations of $\vf$ and $\mS$ are exact, the ansatz has sufficiently high expressiveness, and the learning rate $\gamma$ is sufficiently small, then SR is equivalent to the exact ITE, and always converges to the ground state after sufficiently many steps, as long as the initial state is valid.
+
+It is also commonly believed that SR should not be used together with optimizers with adaptive learning rates, such as Adam, because they make SR deviate from the ideal convergence path of ITE. On the other hand, multistep solvers for ordinary differential equations (ODE), such as the Heun and the Runge--Kutta schemes, have been proposed to replace the single-step update in \cref{eq:sr}~\cite{bukov2021learning}. They improve the order of approximation to ITE, and are more commonly used in literature on dynamics~\cite{schmitt2020quantum}, although the limited accuracy in estimating $\mS$ still impedes their performances.
+
+After the above introduction to the general framework of VMC, we discuss some common choices of the variational ansatz in the following.
+
+\section{Variational ansatzes for quantum systems}
+
+\subsection{Jastrow ansatz}
+
+\subsection{Gutzwiller projected state}
+
+\subsection{Neural quantum states (NQS)}
+
+RBM~\cite{carleo2017solving, nomura2021dirac, chen2022systematic}
+
+CNN~\cite{choo2019two}
+
+Hierarchical~\cite{rende2024queries}
+
+\section{Amplitude and phase of quantum ansatz}
+
+To avoid the intricacy of complex-valued functions aforementioned in \cref{sec:cmpl-grad}, especially when using deep neural networks as variational ansatzes, a common practice is to parameterize the amplitude and the phase of the wave function ansatz respectively:
+\begin{equation}
+\psi(\vs) = \sqrt{q(\vs)} \rme^{\rmi \phi(\vs)},
+\end{equation}
+where $q(\vs)$ can be interpreted as a probability distribution. It is more common to separate the amplitude and the phase rather than the real and the imaginary parts, because we frequently work with the log-gradient in \cref{eq:vmc-grad-cmpl}, and the ratio of two probabilities in MCMC sampling as in \cref{eq:metropolis}. When sampling the configurations $\vs$, we only need to evaluate $q(\vs)$, and not $\phi(\vs)$. In particular, when parameterizing $q(\vs)$ using the autoregressive (AR) model as in \cref{eq:autoreg}, there is no need for $\phi(\vs)$ to also fulfill the AR property.
+
+This separation of the amplitude and the phase has been applied in abundant literature of NQS~\cite{torlai2018neural, hibat2020recurrent, astrakhantsev2021broken}. In particular, Ref.~\cite{bukov2021learning} provides empirical evidence that an ansatz with this separation achieves higher accuracy than the corresponding ansatz with the complex parameterization, and Ref.~\cite{wang2024variational} even shows that the complex parameterization is outperformed by only optimizing the amplitude and fix the phase according to the Marshall sign rule. On the other hand, there is also considerable literature using the complex parameterization to achieve high accuracies on various systems~\cite{roth2020iterative, li2022bridging, viteritti2023transformer}, which typically use deeper networks and more parameters than the formers. Also, it remains an open question whether there is benefit in sharing a part of the parameters between the amplitude and the phase networks.
+
+Amplitude is hard~\cite{bukov2021learning, park2022expressive}
+
+Sign structure is hard~\cite{westerhout2020generalization, szabo2020neural}
+
+Marshall sign rule is necessary~\cite{carleo2017solving, choo2019two, bukov2021learning, li2022bridging}
+
+Deep neural networks are more prone to sign problem~\cite{szabo2020neural}
+
+Vision transformer, no manual Marshall sign rule
+
+Optimize the phases
+
+Phasor sum~\cite{szabo2020neural}
+
+Two-stage training~\cite{szabo2020neural}
+
+Alternating learning, hysteresis optimization~\cite{astrakhantsev2021broken}
+
+Share parameter or not
+
+% Optimize the signs~\cite{torlai2020wave}
+
+Optimize the signs by cross entropy~\cite{park2022expressive}
+
+It remains an open question whether this can be used in unsupervised learning, with modern relaxation estimators.
+
+Optimize the signs using combinatorial optimization~\cite{westerhout2023many}
+
+Evolutionary algorithm~\cite{chen2022neural}
+
+The understanding is still limited on the relation between the effectiveness of these methods and the properties of the physical system as well as the neural network.
