@@ -217,7 +217,7 @@ A variety of variational ansatzes originally developed for fermionic systems can
 \begin{equation}
 \ket{\psi_\text{S}} = \prod_{i = 1}^{2 N} \left( \sum_{j = 1}^{2 N} W^\text{S}_{i j} \hat{c}^\dagger_j \right) \ket{0},
 \end{equation}
-where $\ket{0}$ is the fermionic vacuum state, and $\mW^\text{S}$ is a $2 N \times 2 N$ matrix of tunable parameters. The indices $i$ and $j$ runs over both the spin value and the site, i.e., $i = (1 \spinup), \ldots, (N \spinup), (1 \spindown), \ldots, (N, \spindown)$. In VMC, we need to sample the fermionic configuration $\vn = (n_{1 \spinup}, \ldots, n_{N \spinup}, n_{1 \spindown}, \ldots, n_{N \spindown})$, and evaluate the wave function values of the samples. Following the anti-commutation relations of fermions, the wave function value is given by a determinant:
+where $\ket{0}$ is the fermionic vacuum state, and $\mW^\text{S}$ is a $2 N \times 2 N$ matrix of variational parameters. The indices $i$ and $j$ runs over both the spin value and the site, i.e., $i = (1 \spinup), \ldots, (N \spinup), (1 \spindown), \ldots, (N, \spindown)$. In VMC, we need to sample the fermionic configuration $\vn = (n_{1 \spinup}, \ldots, n_{N \spinup}, n_{1 \spindown}, \ldots, n_{N \spindown})$, and evaluate the wave function values of the samples. Following the anti-commutation relations of fermions, the wave function value is given by a determinant:
 \begin{align}
 \ip{\vn}{\psi_\text{S}} &= \bra{0} \hat{c}_{x_N} \cdots \hat{c}_{x_1} \left( \sum_p (-1)^p \prod_{k = 1}^N W^\text{S}_{x_k, x_{p(k)}} \right) \hat{c}^\dagger_{x_1} \cdots \hat{c}^\dagger_{x_N} \ket{0} \\
 &= \det \begin{pmatrix}
@@ -232,26 +232,34 @@ For Hamiltonians with electron pairing interactions as in the Bardeen--Cooper--S
 \begin{equation}
 \ket{\psi_\text{PP}} = \left( \sum_{i, j = 1}^{2 N} W^\text{PP}_{i j} \hat{c}^\dagger_i \hat{c}^\dagger_j \right)^{\frac{N}{2}} \ket{0},
 \end{equation}
-where $\mW^\text{PP}$ is a $2 N \times 2 N$ matrix of tunable parameters. The wave function value is given by a Pfaffian~\cite{cayley1849determinants}, which is a property similar to the determinant but defined specifically for skew-symmetric matrices. Both the determinant and the Pfaffian can be evaluated in $O(N^3)$ time. When we only need the ratio of two probabilities, e.g., for the MCMC sampling in \cref{eq:metropolis}, it can be evaluated more efficiently~\cite{becca2017quantum}.
+where $\mW^\text{PP}$ is a $2 N \times 2 N$ matrix of variational parameters. The wave function value is given by a Pfaffian~\cite{cayley1849determinants}, which is a property similar to the determinant but defined specifically for skew-symmetric matrices. Both the determinant and the Pfaffian can be evaluated in $O(N^3)$ time. When we only need the ratio of two probabilities, e.g., for the MCMC sampling in \cref{eq:metropolis}, it can be evaluated more efficiently~\cite{becca2017quantum}.
 
 Based on the above ansatzes, which are constructed from the analytical descriptions of the ground states of simple Hamiltonians, we can apply more terms on them, commonly referred to as correlators, with variational parameters to improve their expressiveness. Possible forms of correlators include the Jastrow correlator:
 \begin{equation}
-\hat{C}_\text{J} = \rme^{\frac{1}{2} \sum_{i j} \hat{S}_i \hat{S}_j}.
+\hat{C}_\text{J} = \exp\left( {\frac{1}{2} \sum_{i j} W^\text{J}_{i j} \hat{S}_i \hat{S}_j} \right),
 \end{equation}
-The restricted Boltzmann machine (RBM) to be discussed in \cref{sec:nqs} can also be used as a correlator, which gives higher accuracy than the traditional Jastrow--Slater ansatz in modern VMC computations~\cite{nomura2017restricted, ferrari2019neural, nomura2021dirac}. We refer to Ref.~\cite{becca2017quantum} as a self-contained introduction to VMC on fermionic systems, and Ref.~\cite{ferrari2019static} for details of applying this approach on spin systems.
+which is used in the well-known Slater--Jastrow ansatz:
+\begin{equation}
+\ket{\psi_\text{SJ}} = \hat{C}_\text{J} \ket{\psi_\text{S}}.
+\end{equation}
+The restricted Boltzmann machine (RBM) to be discussed in \cref{sec:nqs} can also be used as a correlator, which gives higher accuracy than the traditional Slater--Jastrow ansatz in modern VMC computations, especially for spin liquids with the presence of disorder~\cite{nomura2017restricted, ferrari2019neural, nomura2021dirac}. We refer to Ref.~\cite{becca2017quantum} as a self-contained introduction to VMC on fermionic systems, and Ref.~\cite{ferrari2019static} for details of applying this approach on spin systems.
 
 \subsection{Neural quantum states (NQS)}
 \label{sec:nqs}
 
-RBM~\cite{carleo2017solving, nomura2021dirac}
+The neural networks discussed in \cref{sec:nn} have also been proposed as variational ansatzes for quantum many-body systems, commonly known as neural quantum states (NQS). A simple yet effective architecture is the restricted Boltzmann machine (RBM), which is essentially a two-layer neural network~\cite{carleo2017solving}:
+\begin{align}
+\ln \psi_\text{RBM}(\vs) &= \sum_i x_i + \sum_j a_j s_j, \\
+x_i &= \ln 2 \cosh\left( b_i + \sum_j W_{i j} s_j \right).
+\end{align}
+Its variational parameters include $\mW, \va, \vb$, where $\mW$ is an $\alpha N \times N$ matrix, $\alpha$ is a hyperparameter controlling the size of the network, $\va$ is a vector known as the visible bias, and $\vb$ is another vector known as the hidden bias. When $\alpha = 1$, the RBM has approximately the same number of parameters as the Jastrow ansatz, and achieves higher accuracy than the latter on many physical systems~\cite{wu2023variational}. It has a deep physical background rooted in the statistical properties of disordered spin systems~\cite{sherrington1975solvable, hopfield1982neural}, and its simple architecture has motivated studies to interpret the learned parameters~\cite{abdollahi2016explainable, fernandez2023disentangling}. Despite its simplicity, it is still continuously used in recent VMC computations~\cite{nomura2017restricted, nomura2021dirac}.
 
-CNN~\cite{choo2019two}
+A growing variety of NQS architectures have emerged in recent literature, including deeper multilayer architectures to improve the expressiveness~\cite{carleo2018constructing}, as well as convolutional neural networks (CNN)~\cite{choo2019two} and group equivariant neural networks~\cite{luo2021gauge, roth2021group} to implement symmetries of physical systems. In particular, Ref.~\cite{vieijra2021many} has proposed an architecture named ClebschTree to incorporate the non-abelian $\mathrm{SU}(2)$ symmetry into NQS. Meanwhile, autoregressive neural networks (ARNN)~\cite{sharir2020deep} and recurrent neural networks (RNN)~\cite{hibat2020recurrent, roth2020iterative} have been used to efficiently approximate complicated many-body distributions while supporting exact sampling, as discussed in \cref{ch:arnn}. The advancement in language modeling has also motivated the use of the transformer architecture in NQS~\cite{luo2021gauge, zhang2023transformer}.
 
-ClebschTree~\cite{vieijra2021many}
-
-Hierarchical~\cite{rende2024queries}
+A recent breakthrough has been made by the vision transformer (ViT)~\cite{viteritti2023transformer, viteritti2023transformer2}, which greatly improves the results on the long-standing difficult problem of learning the sign structures in disordered systems, as we will discuss in \cref{sec:amp-phase}. Compared to the original ViT in vision-language modeling, the ViT used as NQS does not employ the autoregressive architecture, and many nonlinear activation functions are removed~\cite{rende2024queries}. Its success can be attributed to the linear transformations arranged in a hierarchical scheme.
 
 \section{Amplitude and phase of quantum ansatz}
+\label{sec:amp-phase}
 
 To avoid the intricacy of complex-valued functions aforementioned in \cref{sec:cmpl-grad}, especially when using deep neural networks as variational ansatzes, a common practice is to parameterize the amplitude and the phase of the wave function ansatz respectively:
 \begin{equation}
@@ -276,6 +284,8 @@ Optimize the phases
 Phasor sum~\cite{szabo2020neural}
 
 Two-stage training~\cite{szabo2020neural}
+
+fine-tuning~\cite{rende2024fine}
 
 Alternating learning, hysteresis optimization~\cite{astrakhantsev2021broken}
 

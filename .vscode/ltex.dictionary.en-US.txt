@@ -70,6 +70,7 @@ NGU
 NGUS
 NIS
 NN
+non-abelian
 non-stoquastic
 observables
 partons
@@ -106,6 +107,7 @@ TODO
 TwoBo
 unnormalized
 VarBench
+ViT
 WaveNet
 Wirtinger
 Wormald
