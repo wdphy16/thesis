@@ -47,7 +47,7 @@ Therefore, the variance of the energy happens to be the same as the variance of 
 \end{equation}
 where $\Delta E = E_1 - E_0$ is the energy gap, and we can see $\Var E_\psi = 0$ when $\lambda = 1$. However, the variance is also zero if $\ket{\psi}$ is trapped into any excited state, as we can see $\Var E_\psi = 0$ when $\lambda = 0$ in \cref{eq:var-two-states}. This will be discussed in more depth in \cref{ch:varbench}.
 
-Caution should be taken that we have assumed $\ip{\vs}{\psi} \neq 0$ for all $\vs$ when inserting $\ip{\vs}{\psi}$ into the denominators in \cref{eq:vmc-var-2}. If this assumption is unfulfilled, then the summation in \cref{eq:vmc-var} will only contain the terms with $\ip{\vs}{\psi} \neq 0$, and the variance of the local energy will be a biased estimator of the true variance, as pointed out in Ref.~\cite{sinibaldi2023unbiasing}. In practice, when some $\ip{\vs}{\psi}$ are exponentially suppressed and numerically close to zero, they may cause high variance of the variance estimator, which means that the estimated variance and therefore the convergence of the optimization is unreliable. This situation is similar to the problem of mode collapse aforementioned in \cref{sec:mode-collapse}, and in the quantum case it can occur even though we are using the variational rather than the unbiased approximation. Note that it does not occur when estimating the energy, because we have $\lim_{\ip{\vs}{\psi} \to 0} q(\vs) E_\text{loc}(\vs) = 0$, while it occurs in the variance as $\ip{\vs}{\psi}$ cancels out in the numerator and the denominator in $q(\vs) |E_\text{loc}(\vs)|^2$.
+Caution should be taken that we have assumed $\ip{\vs}{\psi} \neq 0$ for all $\vs$ when inserting $\ip{\vs}{\psi}$ into the denominators in \cref{eq:vmc-var-2}. If this assumption is unfulfilled, then the summation in \cref{eq:vmc-var} will only contain the terms with $\ip{\vs}{\psi} \neq 0$, and the variance of the local energy will be a biased estimator of the true variance, as pointed out in Ref.~\cite{sinibaldi2023unbiasing}. In practice, when some $\ip{\vs}{\psi}$ are exponentially suppressed and numerically close to zero, they may cause high variance of the variance estimator, which means that the estimated variance and therefore the convergence of the optimization is unreliable. This situation is similar to the problem of mode collapse aforementioned in \cref{sec:mode-collapse}, and in the quantum case it can occur even though we are using the variational rather than the unbiased approximation. Note that it does not occur when estimating the energy, because we have $\lim_{\psi(\vs) \to 0} q(\vs) E_\text{loc}(\vs) = 0$, while it occurs in the variance as $\psi(\vs)$ cancels out in the numerator and the denominator in $q(\vs) |E_\text{loc}(\vs)|^2$.
 
 \section{Complex gradient}
 \label{sec:cmpl-grad}
@@ -195,15 +195,15 @@ After the above introduction to the general framework of VMC, in the following w
 
 \subsection{Jastrow ansatz}
 
-The Jastrow ansatz~\cite{jastrow1955many} was originally proposed to model the interactions between particles depending on their relative distances. In the context of spin systems, it is a bilinear form of the input configuration~\cite{huse1988simple}:
+The Jastrow ansatz~\cite{jastrow1955many} was originally proposed to model the interactions between particles depending on their relative distances. In the context of spin systems, it is a quadratic form of the input configuration, without the normalization~\cite{huse1988simple}:
 \begin{equation}
-\ln \psi(\vs) = \frac{1}{2} \vs^\transpose \mW \vs,
+\ln \psi_\text{J}(\vs) = \frac{1}{2} \vs^\transpose \mW^\text{J} \vs,
 \end{equation}
-where $\mW$ is an $N \times N$ matrix of tunable parameters. Despite its simplicity, it is capable of modeling two-spin correlations and providing some initial insights about the system. The symmetries of the system can be imposed in the structure of $\mW$.
+where $\mW^\text{J}$ is an $N \times N$ matrix of tunable parameters. Despite its simplicity, it is capable of modeling two-spin correlations and providing some initial insights about the system. The symmetries of the system can be imposed in the structure of $\mW^\text{J}$.
 
 \subsection{Gutzwiller projected states}
 
-Quantum many-body systems can exhibit a plethora of collective and emergent behaviors beyond two-spin correlations, such as spinons and fractional excitations in spin liquids~\cite{misguich2010quantum, balents2010spin}. Although we mainly focus on spin systems in this thesis, an approach to study these systems is to transform the Hamiltonian of spins to an equivalent Hamiltonian of fermions, then it is possible to construct highly entangled states using the anti-commutation structure of the fermions, which produce the necessary many-body correlations to model the aforementioned intricate behaviors. These introduced fermions are known as partons, namely Abrikosov fermions~\cite{abrikosov1965electron} in the following case. The transformation is given by
+Quantum many-body systems can exhibit a plethora of collective and emergent behaviors beyond two-spin correlations, such as spinons and fractional excitations in spin liquids~\cite{misguich2010quantum, balents2010spin}. Although we mainly focus on spin systems in this thesis, an approach to study these systems is to transform the Hamiltonian of spins to an equivalent Hamiltonian of fermions, then it is possible to construct highly entangled states using the anti-commutation relations of fermions, which produce the necessary many-body correlations to model the aforementioned intricate behaviors, while can be evaluated in polynomial time. These introduced fermions are known as partons, namely Abrikosov fermions~\cite{abrikosov1965electron} in the following case. The transformation is given by
 \begin{equation}
 \hat{\vS}_i = \frac{1}{2} \sum_{\alpha \beta} \hat{c}^\dagger_{i \alpha} \hat{\vsi}_{\alpha \beta} \hat{c}_{i \beta},
 \end{equation}
@@ -213,17 +213,35 @@ where $\hat{\vS}_i = \left( \hat{S}^x_i, \hat{S}^y_i, \hat{S}^z_i \right)$ is a 
 \end{equation}
 is applied to any variational state for the fermionic Hamiltonian, and this kind of variational states are commonly referred to as the Gutzwiller projected states.
 
-Slater determinant~\cite{slater1929theory}
+A variety of variational ansatzes originally developed for fermionic systems can be applied to spin systems in this approach. To start with, the Slater determinant~\cite{slater1929theory} is a general description of the ground state of non-interacting fermionic Hamiltonians, which can be represented using the creation operators, without the normalization~\cite{toulouse2007optimization}:
+\begin{equation}
+\ket{\psi_\text{S}} = \prod_{i = 1}^{2 N} \left( \sum_{j = 1}^{2 N} W^\text{S}_{i j} \hat{c}^\dagger_j \right) \ket{0},
+\end{equation}
+where $\ket{0}$ is the fermionic vacuum state, and $\mW^\text{S}$ is a $2 N \times 2 N$ matrix of tunable parameters. The indices $i$ and $j$ runs over both the spin value and the site, i.e., $i = (1 \spinup), \ldots, (N \spinup), (1 \spindown), \ldots, (N, \spindown)$. In VMC, we need to sample the fermionic configuration $\vn = (n_{1 \spinup}, \ldots, n_{N \spinup}, n_{1 \spindown}, \ldots, n_{N \spindown})$, and evaluate the wave function values of the samples. Following the anti-commutation relations of fermions, the wave function value is given by a determinant:
+\begin{align}
+\ip{\vn}{\psi_\text{S}} &= \bra{0} \hat{c}_{x_N} \cdots \hat{c}_{x_1} \left( \sum_p (-1)^p \prod_{k = 1}^N W^\text{S}_{x_k, x_{p(k)}} \right) \hat{c}^\dagger_{x_1} \cdots \hat{c}^\dagger_{x_N} \ket{0} \\
+&= \det \begin{pmatrix}
+W^\text{S}_{x_1 x_1} & \cdots & W^\text{S}_{x_1 x_N} \\
+\vdots & \ddots & \vdots \\
+W^\text{S}_{x_N x_1} & \cdots & W^\text{S}_{x_N x_N}
+\end{pmatrix},
+\end{align}
+where $\vx$ = $(x_1, \ldots, x_N)$ is a vector of indices where a fermion exists, and there must be $N$ fermions in the $2 N$ possible values of $i$, because of the constraint $\ev{\hat{n}_i} = 1$. The permutation $p$ runs over all possible permutations of $(1, \ldots, N)$. Before the VMC optimization, the value of $\mW^\text{S}$ can be initialized as the unitary matrix that diagonalizes the quadratic part of the Hamiltonian, and it can still be a sensible initial value in some cases even if the Hamiltonian contains fermionic interactions~\cite{yokoyama1987variational, gross1987Antiferromagnetic, ferrari2022charge}.
 
-Pair-product state
+For Hamiltonians with electron pairing interactions as in the Bardeen--Cooper--Schrieffer (BCS) theory, a more precise description is the pair-product (PP) state, also known as the geminal wave function~\cite{bouchaud1988pair, gros1988superconductivity, tahara2008variational, astrakhantsev2021broken}:
+\begin{equation}
+\ket{\psi_\text{PP}} = \left( \sum_{i, j = 1}^{2 N} W^\text{PP}_{i j} \hat{c}^\dagger_i \hat{c}^\dagger_j \right)^{\frac{N}{2}} \ket{0},
+\end{equation}
+where $\mW^\text{PP}$ is a $2 N \times 2 N$ matrix of tunable parameters. The wave function value is given by a Pfaffian~\cite{cayley1849determinants}, which is a property similar to the determinant but defined specifically for skew-symmetric matrices. Both the determinant and the Pfaffian can be evaluated in $O(N^3)$ time. When we only need the ratio of two probabilities, e.g., for the MCMC sampling in \cref{eq:metropolis}, it can be evaluated more efficiently~\cite{becca2017quantum}.
 
-Jastrow correlator
-
-RBM correlator~\cite{nomura2017restricted, ferrari2019neural, nomura2021dirac}
-
-We refer to Ref.~\cite{ferrari2019static} as a self-contained introduction to this technique.
+Based on the above ansatzes, which are constructed from the analytical descriptions of the ground states of simple Hamiltonians, we can apply more terms on them, commonly referred to as correlators, with variational parameters to improve their expressiveness. Possible forms of correlators include the Jastrow correlator:
+\begin{equation}
+\hat{C}_\text{J} = \rme^{\frac{1}{2} \sum_{i j} \hat{S}_i \hat{S}_j}.
+\end{equation}
+The restricted Boltzmann machine (RBM) to be discussed in \cref{sec:nqs} can also be used as a correlator, which gives higher accuracy than the traditional Jastrow--Slater ansatz in modern VMC computations~\cite{nomura2017restricted, ferrari2019neural, nomura2021dirac}. We refer to Ref.~\cite{becca2017quantum} as a self-contained introduction to VMC on fermionic systems, and Ref.~\cite{ferrari2019static} for details of applying this approach on spin systems.
 
 \subsection{Neural quantum states (NQS)}
+\label{sec:nqs}
 
 RBM~\cite{carleo2017solving, nomura2021dirac}
 

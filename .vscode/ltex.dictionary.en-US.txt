@@ -15,10 +15,13 @@ Bogolubov
 Broyden
 ClebschTree
 correlator
+correlators
 Debiasing
 debiasing
 decorrelate
 diagonalize
+diagonalizes
+diagonalizing
 eigenstate
 eigenstates
 entropies
@@ -32,6 +35,7 @@ Fubini
 gapless
 Gelman
 GELU
+geminal
 Goldfarb
 Gutzwiller
 Hamiltonians
@@ -69,6 +73,7 @@ NN
 non-stoquastic
 observables
 partons
+Pfaffian
 Phasor
 phasor
 PIMC
