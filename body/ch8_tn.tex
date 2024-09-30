@@ -1,7 +1,22 @@
 \chapter{Tensor networks}
 \label{ch:tn}
 
+Quantum many-body systems are naturally represented in spaces of high-rank tensors, and the demand to decompose them into smaller tensors has arisen in studies of their entanglement properties~\cite{white1992density}. The diagrammatic notation of tensors, namely Penrose graphical notation~\cite{penrose1971applications}, has greatly eased the construction and reasoning of complicated contraction with multiple tensors, known as tensor networks~\cite{bridgeman2017hand, orus2014practical}. Their use has been widely promoted in various fields of physics beyond condensed matters, including quantum computing~\cite{feynman1986quantum, nielsen2010quantum}, high-energy physics~\cite{banuls2018tensor, banuls2020review}, and quantum gravity~\cite{perez2013spin, you2016entanglement, hayden2016holographic, asaduzzaman2020tensor}.
+
+Tensor networks can also be used as variational ansatzes, which enable exact and efficient summation over exponentially many configurations, instead of Monte Carlo sampling. Compared to neural networks, tensor networks are usually more controllable and systematically improvable, in the sense that they have few hyperparameters prone to manual tuning, and by tuning these hyperparameters, we can continuously improve the accuracy of variational approximation at the cost of more computation.
+
 \section{Matrix product state (MPS)}
+
+For the purpose of this thesis, we view tensors as multidimensional arrays, and we do not emphasize their invariance under symmetry operations.
+
+
+
+
+
+
+no covariant indices
+
+index name omit
 
 Ancestral sampling~\cite{wei2022sequential}
 
@@ -12,6 +27,8 @@ Ancestral sampling~\cite{wei2022sequential}
 \chapter{Tensor-RNN: bridge between tensor networks and neural networks}
 
 Another architecture~\cite{hibat2021variational, hibat2022supplementing}
+
+Mixture of neural and tensorial layers~\cite{chen2023antn}
 
 Recurrent arithmetic circuits~\cite{levine2017long, levine2019quantum}
 
