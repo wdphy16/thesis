@@ -62,6 +62,7 @@ MaskedLin
 McGroundstate
 MinSR
 Monasson
+MPO
 MQLib
 NCU
 NCUS

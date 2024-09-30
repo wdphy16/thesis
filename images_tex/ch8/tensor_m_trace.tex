@@ -1,0 +1,21 @@
+\documentclass[tikz]{standalone}
+\usepackage{bm}
+\usepackage{stix}
+
+\usetikzlibrary{calc}
+
+\definecolor{mplblue}{HTML}{1f77b4}
+
+\tikzstyle{site}=[rounded corners, minimum size=0.7cm, draw=mplblue!80!black, fill=mplblue!20!white]
+
+\begin{document}
+\begin{tikzpicture}[x=2cm, y=2cm]
+
+\node [site] (M) at (0, 0) {$\bm{M}$};
+\node (i) at (0, 0.6) {$i$};
+
+\draw (M) to [out=0, in=0, in min distance=1cm] (0, 0.5)
+          to [out=180, in=180, out min distance=1cm] (M);
+
+\end{tikzpicture}
+\end{document}

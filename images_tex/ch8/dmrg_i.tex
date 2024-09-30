@@ -1,0 +1,48 @@
+\documentclass[tikz]{standalone}
+\usepackage{bm}
+\usepackage{stix}
+
+\usetikzlibrary{calc}
+
+\definecolor{mplblue}{HTML}{1f77b4}
+\definecolor{mplorange}{HTML}{ff7f0e}
+\definecolor{mplgreen}{HTML}{2ca02c}
+\definecolor{mplmagenta}{HTML}{e377c2}
+
+\tikzstyle{site}=[rounded corners, minimum size=0.8cm, inner sep=0, draw=mplblue!80!black, fill=mplblue!20!white]
+\tikzstyle{sitex}=[rounded corners, minimum width=2cm, minimum height=0.8cm, inner sep=0, draw=mplgreen!80!black, fill=mplgreen!20!white]
+
+\begin{document}
+\begin{tikzpicture}[x=1.2cm, y=1.2cm]
+
+\node [site] (M1) at (0  , 0) {};
+\node [site] (M2) at (1  , 0) {};
+\node [sitex] (x) at (2.5, 0) {$\strut \bm{x}$};
+\node [site] (M5) at (4  , 0) {};
+\node [site] (M6) at (5  , 0) {};
+
+\node [site] (M1d) at (0  , -1) {};
+\node [site] (M2d) at (1  , -1) {};
+\node [sitex] (xd) at (2.5, -1) {$\strut \bm{x}^\dagger$};
+\node [site] (M5d) at (4  , -1) {};
+\node [site] (M6d) at (5  , -1) {};
+
+\draw [mplblue] (M1) -- (M2);
+\draw [mplblue] (M2) -- (x);
+\draw [mplblue] (x)  -- (M5);
+\draw [mplblue] (M5) -- (M6);
+
+\draw [mplblue] (M1d) -- (M2d);
+\draw [mplblue] (M2d) -- (xd);
+\draw [mplblue] (xd)  -- (M5d);
+\draw [mplblue] (M5d) -- (M6d);
+
+\draw [mplmagenta] (M1) -- (M1d);
+\draw [mplmagenta] (M2) -- (M2d);
+\draw [mplmagenta] ($(x.south west)!0.2!(x.south east)$) -- ($(xd.north west)!0.2!(xd.north east)$);
+\draw [mplmagenta] ($(x.south west)!0.8!(x.south east)$) -- ($(xd.north west)!0.8!(xd.north east)$);
+\draw [mplmagenta] (M5) -- (M5d);
+\draw [mplmagenta] (M6) -- (M6d);
+
+\end{tikzpicture}
+\end{document}

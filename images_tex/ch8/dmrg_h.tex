@@ -1,0 +1,69 @@
+\documentclass[tikz]{standalone}
+\usepackage{bm}
+\usepackage{stix}
+
+\usetikzlibrary{calc}
+
+\definecolor{mplblue}{HTML}{1f77b4}
+\definecolor{mplorange}{HTML}{ff7f0e}
+\definecolor{mplgreen}{HTML}{2ca02c}
+\definecolor{mplmagenta}{HTML}{e377c2}
+
+\tikzstyle{site}=[rounded corners, minimum size=0.8cm, inner sep=0, draw=mplblue!80!black, fill=mplblue!20!white]
+\tikzstyle{siteh}=[rounded corners, minimum size=0.8cm, inner sep=0, draw=mplorange!80!black, fill=mplorange!20!white]
+\tikzstyle{sitex}=[rounded corners, minimum width=2cm, minimum height=0.8cm, inner sep=0, draw=mplgreen!80!black, fill=mplgreen!20!white]
+
+\begin{document}
+\begin{tikzpicture}[x=1.2cm, y=1.2cm]
+
+\node [site] (M1) at (0  , 0) {};
+\node [site] (M2) at (1  , 0) {};
+\node [sitex] (x) at (2.5, 0) {$\strut \bm{x}$};
+\node [site] (M5) at (4  , 0) {};
+\node [site] (M6) at (5  , 0) {};
+
+\node [siteh] (H1) at (0, -1) {};
+\node [siteh] (H2) at (1, -1) {};
+\node [siteh] (H3) at (2, -1) {};
+\node [siteh] (H4) at (3, -1) {};
+\node [siteh] (H5) at (4, -1) {};
+\node [siteh] (H6) at (5, -1) {};
+
+\node [site] (M1d) at (0  , -2) {};
+\node [site] (M2d) at (1  , -2) {};
+\node [sitex] (xd) at (2.5, -2) {$\strut \phantom{^\dagger} \bm{x}^\dagger$};
+\node [site] (M5d) at (4  , -2) {};
+\node [site] (M6d) at (5  , -2) {};
+
+\draw [mplblue] (M1) -- (M2);
+\draw [mplblue] (M2) -- (x);
+\draw [mplblue] (x)  -- (M5);
+\draw [mplblue] (M5) -- (M6);
+
+\draw [mplblue] (M1d) -- (M2d);
+\draw [mplblue] (M2d) -- (xd);
+\draw [mplblue] (xd)  -- (M5d);
+\draw [mplblue] (M5d) -- (M6d);
+
+\draw [mplorange] (H1) -- (H2);
+\draw [mplorange] (H2) -- (H3);
+\draw [mplorange] (H3) -- (H4);
+\draw [mplorange] (H4) -- (H5);
+\draw [mplorange] (H5) -- (H6);
+
+\draw [mplmagenta] (M1) -- (H1);
+\draw [mplmagenta] (M2) -- (H2);
+\draw [mplmagenta] ($(x.south west)!0.2!(x.south east)$) -- (H3);
+\draw [mplmagenta] ($(x.south west)!0.8!(x.south east)$) -- (H4);
+\draw [mplmagenta] (M5) -- (H5);
+\draw [mplmagenta] (M6) -- (H6);
+
+\draw [mplmagenta] (M1d) -- (H1);
+\draw [mplmagenta] (M2d) -- (H2);
+\draw [mplmagenta] ($(xd.north west)!0.2!(xd.north east)$) -- (H3);
+\draw [mplmagenta] ($(xd.north west)!0.8!(xd.north east)$) -- (H4);
+\draw [mplmagenta] (M5d) -- (H5);
+\draw [mplmagenta] (M6d) -- (H6);
+
+\end{tikzpicture}
+\end{document}

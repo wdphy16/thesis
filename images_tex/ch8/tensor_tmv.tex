@@ -1,0 +1,26 @@
+\documentclass[tikz]{standalone}
+\usepackage{bm}
+\usepackage{stix}
+
+\usetikzlibrary{calc}
+
+\definecolor{mplblue}{HTML}{1f77b4}
+
+\tikzstyle{site}=[rounded corners, minimum size=0.7cm, draw=mplblue!80!black, fill=mplblue!20!white]
+
+\begin{document}
+\begin{tikzpicture}[x=2cm, y=2cm]
+
+\node [site] (T) at (0, 0) {$\bm{T}$};
+\node [site] (M) at (-0.6, 0) {$\bm{M}$};
+\node [site] (v) at (0.6, 0) {$\bm{v}$};
+\node (i) at (-0.3, 0.5) {$i$};
+\node (j) at (-0.3, -0.5) {$j$};
+\node (k) at (0.3, 0.1) {$k$};
+
+\draw (T) to [out=90, in=90] (M);
+\draw (T) to [out=270, in=270] (M);
+\draw (T) -- (v);
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,79 @@
+\documentclass[tikz]{standalone}
+\usepackage{bm}
+\usepackage{stix}
+
+\usetikzlibrary{calc}
+
+\definecolor{mplblue}{HTML}{1f77b4}
+\definecolor{mplmagenta}{HTML}{e377c2}
+
+\tikzstyle{site}=[rounded corners, minimum size=0.5cm, inner sep=0, draw=mplblue!80!black, fill=mplblue!20!white]
+
+\begin{document}
+\begin{tikzpicture}[x=1cm, y=1cm]
+
+\node [site] (M00) at (0, 0) {};
+\node [site] (M10) at (1, 0) {};
+\node [site] (M20) at (2, 0) {};
+\node [site] (M30) at (3, 0) {};
+
+\node [site] (M01) at (0.5, 0.5) {};
+\node [site] (M11) at (1.5, 0.5) {};
+\node [site] (M21) at (2.5, 0.5) {};
+\node [site] (M31) at (3.5, 0.5) {};
+
+\node [site] (M02) at (1, 1) {};
+\node [site] (M12) at (2, 1) {};
+\node [site] (M22) at (3, 1) {};
+\node [site] (M32) at (4, 1) {};
+
+\node [site] (M03) at (1.5, 1.5) {};
+\node [site] (M13) at (2.5, 1.5) {};
+\node [site] (M23) at (3.5, 1.5) {};
+\node [site] (M33) at (4.5, 1.5) {};
+
+\draw [mplmagenta] (M03) -- ++(0, -0.4);
+\draw [mplmagenta] (M13) -- ++(0, -0.4);
+\draw [mplmagenta] (M23) -- ++(0, -0.4);
+\draw [mplmagenta] (M33) -- ++(0, -0.4);
+\draw [mplmagenta] (M02) -- ++(0, -0.4);
+\draw [mplmagenta] (M12) -- ++(0, -0.4);
+\draw [mplmagenta] (M22) -- ++(0, -0.4);
+\draw [mplmagenta] (M32) -- ++(0, -0.4);
+\draw [mplmagenta] (M01) -- ++(0, -0.4);
+\draw [mplmagenta] (M11) -- ++(0, -0.4);
+\draw [mplmagenta] (M21) -- ++(0, -0.4);
+\draw [mplmagenta] (M31) -- ++(0, -0.4);
+\draw [mplmagenta] (M00) -- ++(0, -0.4);
+\draw [mplmagenta] (M10) -- ++(0, -0.4);
+\draw [mplmagenta] (M20) -- ++(0, -0.4);
+\draw [mplmagenta] (M30) -- ++(0, -0.4);
+
+\draw [mplblue] (M00) -- (M10);
+\draw [mplblue] (M10) -- (M20);
+\draw [mplblue] (M20) -- (M30);
+\draw [mplblue] (M01) -- (M11);
+\draw [mplblue] (M11) -- (M21);
+\draw [mplblue] (M21) -- (M31);
+\draw [mplblue] (M02) -- (M12);
+\draw [mplblue] (M12) -- (M22);
+\draw [mplblue] (M22) -- (M32);
+\draw [mplblue] (M03) -- (M13);
+\draw [mplblue] (M13) -- (M23);
+\draw [mplblue] (M23) -- (M33);
+
+\draw [mplblue] ($(M00.north east)!0.1!(M00.south west)$) -- (M01.center);
+\draw [mplblue] ($(M01.north east)!0.1!(M01.south west)$) -- (M02.center);
+\draw [mplblue] ($(M02.north east)!0.1!(M02.south west)$) -- (M03.center);
+\draw [mplblue] ($(M10.north east)!0.1!(M10.south west)$) -- (M11.center);
+\draw [mplblue] ($(M11.north east)!0.1!(M11.south west)$) -- (M12.center);
+\draw [mplblue] ($(M12.north east)!0.1!(M12.south west)$) -- (M13.center);
+\draw [mplblue] ($(M20.north east)!0.1!(M20.south west)$) -- (M21.center);
+\draw [mplblue] ($(M21.north east)!0.1!(M21.south west)$) -- (M22.center);
+\draw [mplblue] ($(M22.north east)!0.1!(M22.south west)$) -- (M23.center);
+\draw [mplblue] ($(M30.north east)!0.1!(M30.south west)$) -- (M31.center);
+\draw [mplblue] ($(M31.north east)!0.1!(M31.south west)$) -- (M32.center);
+\draw [mplblue] ($(M32.north east)!0.1!(M32.south west)$) -- (M33.center);
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,56 @@
+\documentclass[tikz]{standalone}
+\usepackage{bm}
+\usepackage{stix}
+
+\usetikzlibrary{calc}
+
+\definecolor{mplblue}{HTML}{1f77b4}
+\definecolor{mplmagenta}{HTML}{e377c2}
+
+\tikzstyle{site}=[rounded corners, minimum size=1.05cm, inner sep=0, draw=mplblue!80!black, fill=mplblue!20!white]
+\tikzstyle{kron}=[circle, draw, fill, minimum size=0.1cm, inner sep=0]
+
+\begin{document}
+\begin{tikzpicture}[x=1.5cm, y=1.5cm]
+
+\node [site] (M1) at (0, 0) {$\strut \bm{M}^{(1)}$};
+\node [site] (M2) at (1, 0) {$\strut \bm{M}^{(2)}$};
+\node [site] (M3) at (2, 0) {$\strut \bm{M}^{(3)}$};
+\node        (Me) at (3, 0) {$\strut \cdots {}$};
+\node [site] (MN) at (4, 0) {$\strut \bm{M}^{(N)}$};
+
+\node [kron, mplblue] (l) at (-0.7, 0) {};
+\node [kron, mplblue] (r) at ( 4.7, 0) {};
+
+\node [site] (M1d) at (0, -1) {$\strut \bm{M}^{(1) \dagger}$};
+\node [site] (M2d) at (1, -1) {$\strut \bm{M}^{(2) \dagger}$};
+\node [site] (M3d) at (2, -1) {$\strut \bm{M}^{(3) \dagger}$};
+\node        (Med) at (3, -1) {$\strut \cdots {}$};
+\node [site] (MNd) at (4, -1) {$\strut \bm{M}^{(N) \dagger}$};
+
+\node [kron, mplblue] (ld) at (-0.7, -1) {};
+\node [kron, mplblue] (rd) at ( 4.7, -1) {};
+
+\draw [mplblue] (M1) -- (M2);
+\draw [mplblue] (M2) -- (M3);
+\draw [mplblue] (M3) -- (Me);
+\draw [mplblue] (Me) -- (MN);
+
+\draw [mplblue] (l) -- (M1);
+\draw [mplblue] (MN) -- (r);
+
+\draw [mplblue] (M1d) -- (M2d);
+\draw [mplblue] (M2d) -- (M3d);
+\draw [mplblue] (M3d) -- (Med);
+\draw [mplblue] (Med) -- (MNd);
+
+\draw [mplblue] (ld) -- (M1d);
+\draw [mplblue] (MNd) -- (rd);
+
+\draw [mplmagenta] (M1) -- (M1d);
+\draw [mplmagenta] (M2) -- (M2d);
+\draw [mplmagenta] (M3) -- (M3d);
+\draw [mplmagenta] (MN) -- (MNd);
+
+\end{tikzpicture}
+\end{document}

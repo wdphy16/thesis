@@ -1,0 +1,47 @@
+\documentclass[tikz]{standalone}
+\usepackage{bm}
+\usepackage{stix}
+
+\usetikzlibrary{calc}
+
+\definecolor{mplblue}{HTML}{1f77b4}
+\definecolor{mplmagenta}{HTML}{e377c2}
+
+\tikzstyle{site}=[rounded corners, minimum size=1.05cm, inner sep=0, draw=mplblue!80!black, fill=mplblue!20!white]
+\tikzstyle{kron}=[circle, draw, fill, minimum size=0.1cm, inner sep=0]
+
+\begin{document}
+\begin{tikzpicture}[x=1.5cm, y=1.5cm]
+
+\node [site] (M3) at (2, 0) {$\strut \bm{M}^{(3)}$};
+\node        (Me) at (3, 0) {$\strut \cdots {}$};
+\node [site] (MN) at (4, 0) {$\strut \bm{M}^{(N)}$};
+
+\node [kron, mplblue] (r) at (4.7, 0) {};
+
+\node [site] (M3d) at (2, -1) {$\strut \bm{M}^{(3) \dagger}$};
+\node        (Med) at (3, -1) {$\strut \cdots {}$};
+\node [site] (MNd) at (4, -1) {$\strut \bm{M}^{(N) \dagger}$};
+
+\node [kron, mplblue] (rd) at (4.7, -1) {};
+
+\draw [mplblue] (1, 0) -- (M3);
+\draw [mplblue] (M3) -- (Me);
+\draw [mplblue] (Me) -- (MN);
+
+\draw [mplblue] (MN) -- (r);
+
+\draw [mplblue] (1, -1) -- (M3d);
+\draw [mplblue] (M3d) -- (Med);
+\draw [mplblue] (Med) -- (MNd);
+
+\draw [mplblue] (MNd) -- (rd);
+
+\draw [mplmagenta] (M3) -- (M3d);
+\draw [mplmagenta] (MN) -- (MNd);
+
+\draw [rounded corners, draw=mplblue!80!black, fill=mplblue!20!white] (0.65, 0.35) rectangle (1.35, -1.35);
+\node at (1, -0.5) {$\strut \bm{W}^{(2)}$};
+
+\end{tikzpicture}
+\end{document}
