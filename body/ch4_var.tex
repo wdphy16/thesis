@@ -102,7 +102,7 @@ Moreover, a common practice is to shift the terms in the above gradient estimato
 \tilde{F} &= \bbE_\text{MC}[F_q], \\
 \tilde{\vD} &= \bbE_\text{MC}\left[ \frac{\partial \ln q}{\partial \theta} \right],
 \end{align}
-and we do not take the gradient of $\tilde{F}$ and $\tilde{\vD}$ w.r.t.\ $\theta$. Although $\tilde{F}$ and $\tilde{\vD}$ do not affect the expectation of the estimator, they reduce the variance of the estimator in many practical cases, and thus improve the convergence of SGD. This technique falls in a broader family of control variate methods to reduce variances~\cite{ranganath2014black}.
+and we do not take the gradient of $\tilde{F}$ and $\tilde{\vD}$ w.r.t.\ $\theta$. Although $\tilde{F}$ and $\tilde{\vD}$ do not affect the expectation of the estimator, they reduce the variance of the estimator in many practical cases, and thus improve the convergence of SGD. This technique falls in a broader family of control variate methods to reduce variances~\cite{ranganath2014black, wan2019neural}.
 
 \section{Comparison between MCMC and variational method}
 \label{sec:compare-mcmc}

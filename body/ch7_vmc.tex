@@ -261,42 +261,24 @@ A recent breakthrough has been made by the vision transformer (ViT)~\cite{viteri
 \section{Amplitude and phase of quantum ansatz}
 \label{sec:amp-phase}
 
-To avoid the intricacy of complex-valued functions aforementioned in \cref{sec:cmpl-grad}, especially when using deep neural networks as variational ansatzes, a common practice is to parameterize the amplitude and the phase of the wave function ansatz respectively:
+In the above discussion on quantum ansatzes we did not emphasize that they are complex-valued. We actually have a tendency to avoid the intricacy of complex-valued functions aforementioned in \cref{sec:cmpl-grad}, especially when working with deep neural networks. A common practice is to parameterize the amplitude and the phase\footnote{In this section we refer to the phase of complex number, not the phase of matter.} of the wave function ansatz respectively using real-valued functions:
 \begin{equation}
 \psi(\vs) = \sqrt{q(\vs)} \rme^{\rmi \phi(\vs)},
 \end{equation}
-where $q(\vs)$ can be interpreted as a probability distribution. It is more common to separate the amplitude and the phase rather than the real and the imaginary parts, because we frequently work with the log-gradient in \cref{eq:vmc-grad-cmpl}, and the ratio of two probabilities in MCMC sampling as in \cref{eq:metropolis}. When sampling the configurations $\vs$, we only need to evaluate $q(\vs)$, and not $\phi(\vs)$. In particular, when parameterizing $q(\vs)$ using the autoregressive (AR) model as in \cref{eq:autoreg}, there is no need for $\phi(\vs)$ to also fulfill the AR property.
+where $q(\vs)$ can be interpreted as a probability distribution. It is more common to separate the amplitude and the phase rather than the real and the imaginary parts, because we frequently work with the log-gradient in \cref{eq:vmc-grad-cmpl}, and the ratio of two probabilities in MCMC sampling as in \cref{eq:metropolis}. When sampling the configurations $\vs$, we only need to evaluate $q(\vs)$, and not $\phi(\vs)$. In particular, when parameterizing $q(\vs)$ using an AR model as in \cref{eq:autoreg}, there is no need for $\phi(\vs)$ to also fulfill the AR property.
 
-This separation of the amplitude and the phase has been applied in abundant literature of NQS~\cite{torlai2018neural, hibat2020recurrent, astrakhantsev2021broken}. In particular, Ref.~\cite{bukov2021learning} provides empirical evidence that an ansatz with this separation achieves higher accuracy than the corresponding ansatz with the complex parameterization, and Ref.~\cite{wang2024variational} even shows that the complex parameterization is outperformed by only optimizing the amplitude and fix the phase according to the Marshall sign rule. On the other hand, there is also considerable literature using the complex parameterization to achieve high accuracies on various systems~\cite{roth2020iterative, li2022bridging, viteritti2023transformer}, which typically use deeper networks and more parameters than the formers. Also, it remains an open question whether there is benefit in sharing a part of the parameters between the amplitude and the phase networks.
+This separation of the amplitude and the phase has been applied in a lot of literature on NQS~\cite{torlai2018neural, hibat2020recurrent, astrakhantsev2021broken}. In particular, Ref.~\cite{bukov2021learning} provides empirical evidence that an ansatz with this separation achieves higher accuracy than the corresponding ansatz with the complex parameterization, and Ref.~\cite{wang2024variational} even shows that the complex parameterization is outperformed by only optimizing the amplitude while fixing the phase according to the Marshall sign rule. On the other hand, there is also a lot of literature using the complex parameterization to achieve high accuracies on various systems~\cite{roth2020iterative, li2022bridging, viteritti2023transformer}, which typically use deeper networks and more parameters than the formers. Moreover, it remains an open question whether there is benefit in sharing a part of the parameters between the amplitude and the phase networks.
 
-Amplitude is hard~\cite{bukov2021learning, park2022expressive}
+Although optimizing the amplitude can already be a difficult problem~\cite{bukov2021learning, park2022expressive}, optimizing the phase for non-stoquastic Hamiltonians is more intricate~\cite{westerhout2020generalization, szabo2020neural}. The ground state $\psi_0(\vs)$ must be real if the Hamiltonian is Hermitian, but its sign can have a complicated dependence on $\vs$, which poses challenge to the generalization ability of the neural network, i.e., predicting $\psi_0(\vs)$ of unseen configurations from the sampled configurations in training, even if the sampling is unbiased. This intricacy also comes from the fact that the signs have to be optimized either in the complex plane, or using discrete and combinatorial optimization methods beyond gradient descent (GD). It has been practically shown in many cases that applying the Marshall sign rule is necessary for obtaining the correct sign structure~\cite{carleo2017solving, choo2019two, bukov2021learning, li2022bridging}, and it has been believed that it is more difficult for deeper neural networks to obtain the sign structure~\cite{szabo2020neural}. Only with the recent breakthrough of ViT, it has been achieved to learn the sign structures in disordered systems by GD without manually applying the Marshall sign rule~\cite{viteritti2023transformer, viteritti2023transformer2}.
 
-Sign structure is hard~\cite{westerhout2020generalization, szabo2020neural}
+To ease the optimization of the sign by GD, Ref.~\cite{szabo2020neural} proposes a phasor sum as the last layer of the phase network $\phi(\vs)$:
+\begin{equation}
+\phi(\vs) = \arg \sum_i \exp\left( b + \sum_i w_i \phi_i \right),
+\end{equation}
+where $\{\phi_i\}$ are the outputs of the previous layer, $\{w_i\}$ and $b$ are trainable parameters, and in numerical experiments it outperforms the usual sum
+\begin{equation}
+\phi(\vs) = b + \sum_i w_i \phi_i.
+\end{equation}
+It is also helpful to train the phase and the amplitude separately in a two-stage training procedure~\cite{szabo2020neural}, or alternatively train them for more stages in an ``alternating learning'' procedure~\cite{astrakhantsev2021broken}. To obtain the sign structure in the disordered regime, we can use the known sign structure from the neighboring regime as the initialization in an ``hysteresis optimization'' procedure~\cite{astrakhantsev2021broken}, or fine-tune only a part of the network after such initialization~\cite{rende2024fine}.
 
-Marshall sign rule is necessary~\cite{carleo2017solving, choo2019two, bukov2021learning, li2022bridging}
-
-Deep neural networks are more prone to sign problem~\cite{szabo2020neural}
-
-Vision transformer, no manual Marshall sign rule
-
-Optimize the phases
-
-Phasor sum~\cite{szabo2020neural}
-
-Two-stage training~\cite{szabo2020neural}
-
-fine-tuning~\cite{rende2024fine}
-
-Alternating learning, hysteresis optimization~\cite{astrakhantsev2021broken}
-
-% Optimize the signs~\cite{torlai2020wave}
-
-Optimize the signs by cross entropy~\cite{park2022expressive}
-
-It remains an open question whether this can be used in unsupervised learning, with modern relaxation estimators.
-
-Optimize the signs using combinatorial optimization~\cite{westerhout2023many}
-
-Evolutionary algorithm~\cite{chen2022neural}
-
-The understanding is still limited on the relation between the effectiveness of these methods and the properties of the physical system as well as the neural network.
+Beyond the GD optimization in the usual setting of VMC, the signs can also be optimized in the setting of supervised learning, which uses a cross entropy loss with known results~\cite{park2022expressive}, e.g., from exact diagonalization (ED) or highly accurate QMC on small systems, then generalize to larger systems. It remains an open question whether this method can be used in unsupervised learning, possibly with modern estimators to relax the discrete signs into continuous and trainable variables~\cite{maddison2017concrete, jang2017categorical, tucker2017rebar, grathwohl2018backpropagation}. Alternatively, the signs can be obtained by combinatorial optimization~\cite{westerhout2023many} or evolutionary algorithm~\cite{chen2022neural}. Although these methods have successful results on many physical systems, the understanding is still limited on the relation between the effectiveness of these methods and the properties of the physical system as well as the neural network. We also remark that even if we know the true sign structure, the sign problem aforementioned in \cref{sec:sign-problem} can still occur as the difficulty of reliably estimating the energy in \cref{eq:vmc} with a highly oscillating $E_\text{loc}(\vs)$.

@@ -108,6 +108,7 @@ The resulting \cref{eq:pimc} has a similar form to the weighted summation in \cr
 This method is commonly referred to as the path integral Monte Carlo (PIMC)~\cite{barker1979quantum, raedt1985monte}, and a particular method to sample $\svs$ is known as the reptation Monte Carlo~\cite{baroni1999reptation}. For some physical systems, this kind of QMC computations have successfully achieved numerically exact results~\cite{todo2001cluster}, which can serve as the ground truth to test the correctness of other methods even if the ED result is unavailable.
 
 \section{Sign problem}
+\label{sec:sign-problem}
 
 The above discussion reveals a peculiar caveat in quantum systems: The distribution of a classical ensemble always has $p(\vs) \ge 0$, but the weight in \cref{eq:pimc} may not satisfy $\varPi(\svs) \ge 0$, and the Monte Carlo estimator is invalid in this case, which is known as the sign problem~\cite{loh1990sign, troyer2005computational}. In spin systems, the sign problem is usually a result of the frustrated interactions between the particles~\cite{henelius2000sign}. It is even more prevalent in fermionic systems, where the wave function frequently changes its sign because of the anti-commutation of the particles.
 
