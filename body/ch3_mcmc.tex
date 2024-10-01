@@ -169,10 +169,6 @@ From the perspective of statistical complexity~\cite{lopez1995statistical}, the 
 
 \section{Burn-in stage and Gelman--Rubin statistic}
 
-The autocorrelation time $\tau$ is a crucial metric for the efficiency of an MCMC algorithm when the Markov chain is already in equilibrium. However, at the beginning of MCMC, the configuration is usually initialized ``randomly'', which is from the uniform distribution of all configurations. The Markov chain can take many steps to transition from the initial configuration to a typical one in the target distribution, and these steps are called the burn-in or warm-up stage. The untypical samples in this stage introduce bias in the estimation of observables, unless we have exponentially many samples in total to compensate the exponentially low probabilities of untypical samples. To avoid this bias, we discard these samples and start collecting actual samples after this stage.
-
-In theory, the length of the burn-in stage is at most on the order of magnitude of $\tau$, which lets the new configuration decorrelate with the initial one, but in practice we can estimate $\tau$ only if we already know that the burn-in stage has ended. Therefore, we need another metric to estimate the length of the burn-in stage before collecting samples from the equilibrium distribution, which can only be derived from dynamical properties of the Markov chain.
-
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.7\linewidth]{ch3/multi_chains.pdf}
@@ -184,10 +180,17 @@ Although the chains start from different random initializations, they eventually
 \label{fig:multi-chains}
 \end{figure}
 
-The Gelman--Rubin (GR) statistic~\cite{gelman1992inference, vats2021revisiting} can be used to identify whether the Markov chain has reached the equilibrium. To compute the GR statistic, we generate multiple independent Markov chains starting from different random initial configurations, as shown in \cref{fig:multi-chains}, which is already a common practice to utilize the parallelization capability of modern computers~\cite{lee2010utility}. The samples are denoted by $\vs^{(j, m)}$, where $j \in [1, J]$ identifies the chain and $m \in [1, M]$ identifies the sampling step, and the corresponding observable values are denoted by $O_{j, m} = O\left( \vs^{(j, m)} \right)$. Then we have
+The autocorrelation time $\tau$ is a crucial metric for the efficiency of an MCMC algorithm when the Markov chain is already in equilibrium. However, at the beginning of MCMC, the configuration is usually initialized ``randomly'', which is from the uniform distribution of all configurations. The Markov chain can take many steps to transition from the initial configuration to a typical one in the target distribution, and these steps are called the burn-in or warm-up stage. The untypical samples in this stage introduce bias in the estimation of observables, unless we have exponentially many samples in total to compensate the exponentially low probabilities of untypical samples. To avoid this bias, we discard these samples and start collecting actual samples after this stage.
+
+In theory, the length of the burn-in stage is at most on the order of magnitude of $\tau$, which lets the new configuration decorrelate with the initial one, but in practice we can estimate $\tau$ only if we already know that the burn-in stage has ended. Therefore, we need another metric to estimate the length of the burn-in stage before collecting samples from the equilibrium distribution, which can only be derived from dynamical properties of the Markov chain.
+
+The Gelman--Rubin (GR) statistic~\cite{gelman1992inference, vats2021revisiting} can be used to identify whether the Markov chain has reached the equilibrium. To compute the GR statistic, we generate multiple independent Markov chains starting from different random initial configurations, as shown in \cref{fig:multi-chains}, which is already a common practice to utilize the parallelization capability of modern computers~\cite{lee2010utility}. The samples are denoted by $\vs^{(j, m)}$, where $j \in [1, J]$ identifies the chain and $m \in [1, M]$ identifies the sampling step, and the corresponding observable values are denoted by $O_{j, m} = O\left( \vs^{(j, m)} \right)$. Then we have the mean values
 \begin{align}
 \bar{O}_j &= \frac{1}{M} \sum_{m = 1}^M O_{j, m}, \\
-\bar{O}_* &= \frac{1}{J} \sum_{j = 1}^J \bar{O}_j, \\
+\bar{O}_* &= \frac{1}{J} \sum_{j = 1}^J \bar{O}_j,
+\end{align}
+and the variances
+\begin{align}
 s^2_j &= \frac{1}{M - 1} \sum_{m = 1}^M (O_{j, m} - \bar{O}_j)^2, \\
 s^2_* &= \frac{1}{J} \sum_{j = 1}^J W_j,
 \end{align}

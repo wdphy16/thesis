@@ -1,5 +1,6 @@
 Abrikosov
 AFQMC
+AKLT
 Ansätze
 ansatzes
 approximators
@@ -54,9 +55,11 @@ Lanczos
 Langevin
 Leibler
 Levenberg
+Lieb
 loc
 Magnetizations
 magnetizations
+Majumdar
 Marquardt
 MaskedLin
 McGroundstate
@@ -102,6 +105,8 @@ spinons
 Steger
 Stoquasticity
 stoquastic
+Tasaki
+TEBD
 tensorial
 Tikhonov
 TODO
