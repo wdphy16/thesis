@@ -90,11 +90,11 @@ Algorithms have been proposed to exactly or approximately construct an MPO from 
 \end{align}
 where the matrix and the vectors have bond indices, while the operators have spin indices. Substitute this definition into \cref{fig:mps-mpo}~(b) and contract the tensor network, the original Hamiltonian will be recovered.
 
-Before modern numerical approaches were possible, MPS with small $\chi$ has been successfully applied in the analytical solutions to the ground states of many one-dimensional systems, including the renowned Affleck--Kennedy--Lieb--Tasaki (AKLT) model of the spin-$1$ Heisenberg chain~\cite{affleck1987rigorous, klumper1991equivalence, fannes1992finitely}, and the Majumdar--Gosh model with the addition of next-nearest-neighbor frustrated interaction~\cite{majumdar1969next}. It has been proven that if we cut an MPS into two parts, the entanglement entropy between them scales at most by $O(\ln \chi)$, therefore MPS is suitable for representing states with low entanglement\cite{verstraete2008matrix}. Moreover, the spatial correlation of any single-site operator
+Before modern numerical approaches were possible, MPS with small $\chi$ has been successfully applied in the analytical solutions to the ground states of many one-dimensional systems, including the renowned Affleck--Kennedy--Lieb--Tasaki (AKLT) model of the spin-$1$ Heisenberg chain~\cite{affleck1987rigorous, klumper1991equivalence, fannes1992finitely}, and the Majumdar--Gosh model with the addition of next-nearest-neighbor frustrated interaction~\cite{majumdar1969next}. It has been proven that if we cut an MPS into two parts, then the entanglement entropy $S$ between them scales at most by $S = O(\ln \chi)$, therefore MPS is suitable for representing states with low entanglement\cite{verstraete2008matrix}. Moreover, the spatial correlation of any single-site operator
 \begin{equation}
 C(r) = \frac{1}{N - r} \sum_{i = 1}^{N - r} \ev{\hat{O}_i \hat{O}_{i + r}} - \ev{\hat{O}_i} \ev{\hat{O}_{i + r}}
 \end{equation}
-decays exponentially: $C(r) \sim \rme^{-\frac{r}{\xi}}$, where $\xi$ is the correlation length. This is exactly the case for the ground states of 1D gapped non-critical systems, so it is possible for MPS to exactly represent them.
+decays exponentially: $C(r) \sim \rme^{-\frac{r}{\xi}}$, where $\xi$ is the correlation length. This is exactly the case for the ground states of 1D gapped systems, so it is possible for MPS to exactly represent them.
 
 \section{Density matrix renormalization group (DMRG)}
 \label{sec:dmrg}
@@ -125,33 +125,56 @@ with the smallest eigenvalue $\lambda$, and can be solved in $O(\chi^4)$ time an
 
 After obtaining $\vx$, it needs to be decomposed into the updated sites $\mM^{(i)}$ and $\mM^{(i + 1)}$, as shown in \cref{fig:dmrg}~(c). We can view $\vx$ as a $2 \chi \times 2 \chi$ matrix, whose rank is at most $2 \chi$, so in general the dimension of the index $b$ after the decomposition can also be $2 \chi$. If we want $\mM^{(i)}$ and $\mM^{(i + 1)}$ to have the same size as before, we can use singular value decomposition (SVD) to obtain the best approximation of them, where we only keep the first $\chi$ singular values. Alternatively, we can control the new bond dimension $\chi'$ between $\mM^{(i)}$ and $\mM^{(i + 1)}$ by discarding the singular values below a threshold, therefore the size of the ansatz is dynamically adapted during the DMRG procedure, which depends on the amount of entanglement in the physical system.
 
-The above step of DMRG can only update parameters of two sites. We usually apply $(N - 1)$ steps on all sites sequentially, and call it a ``sweep''. After sufficiently many sweeps, the parameters of all sites will converge to the best approximation. This algorithm is also known as alternating least square (ALS) in other fields of optimization problems~\cite{comon2009tensor, dolgov2015corrected}. As a second-order optimization algorithm, it can have faster convergence speed than the gradient descent (GD) optimizer, and avoid some local minima and saddle points that the latter is prone to. The extensions to second-order optimizers discussed in \cref{sec:ngd} can also be applied to DMRG, including the damping to improve stability and the low-rank updates to reduce memory usage.
+The above step of DMRG can only update parameters of two sites. We usually apply $N - 1$ steps on all sites sequentially, and call it a ``sweep''. After sufficiently many sweeps, the parameters of all sites will converge to the best approximation. This algorithm is also known as alternating least square (ALS) in other fields of optimization problems~\cite{comon2009tensor, dolgov2015corrected}. As a second-order optimization algorithm, it can have faster convergence speed than the gradient descent (GD) optimizer, and avoid some local minima and saddle points that the latter is prone to. The extensions to second-order optimizers discussed in \cref{sec:ngd} can also be applied to DMRG, including the damping to improve stability and the low-rank updates to reduce memory usage.
 
-It is worth noting that the above MPS also supports evaluating $\psi(\vs)$ given a configuration $\vs$, i.e., specifying a spin value at each spin index and contracting the remaining tensor network, which takes $O(\chi^3)$ time and $O(\chi^2)$ space. In principle, MPS can be optimized by GD in the framework of VMC, instead of DMRG, especially when PBC is imposed and the computational complexity of DMRG is polynomially higher~\cite{sandvik2007variational}. Moreover, it supports exact sampling in the autoregressive form~\cite{ferris2012perfect, han2018unsupervised, wei2022sequential}, which we will discuss in more depth in \cref{ch:tensor-rnn}. Besides DMRG, another optimization algorithm arisen from the physical properties of MPS is the time-evolving block decimation (TEBD) algorithm~\cite{vidal2003efficient}, which decomposes the Hamiltonian into one- or two-site blocks and apply them to the MPS sequentially. It can be more efficient than DMRG for systems with PBC or higher-dimensional geometries, as it avoids contracting the environment tensors~\cite{jiang2008accurate}.
+It is worth noting that the above MPS also supports evaluating $\psi(\vs)$ given a configuration $\vs$, i.e., specifying a spin value at each spin index and contracting the remaining tensor network, which takes $O(\chi^3)$ time and $O(\chi^2)$ space. In principle, MPS can be optimized by GD in the framework of VMC, instead of DMRG, especially when PBC is imposed and the computational complexity of DMRG is polynomially higher~\cite{sandvik2007variational}. The gradients through tensor contractions and SVD truncations can be obtained by automatic differentiation~\cite{liu2017gradient, liao2019differentiable}. Moreover, MPS supports exact sampling in the autoregressive form~\cite{ferris2012perfect, han2018unsupervised, wei2022sequential}, which we will discuss in more depth in \cref{ch:tensor-rnn}.
+
+Besides DMRG, another optimization algorithm arisen from the physical properties of MPS is the time-evolving block decimation (TEBD) algorithm~\cite{vidal2003efficient}, which decomposes the Hamiltonian into one- or two-site blocks and apply them to the MPS sequentially. It can be more efficient than DMRG for systems with PBC or higher-dimensional geometries, as it avoids contracting the environment tensors~\cite{jiang2008accurate}.
 
 \section{Tensor networks with higher-dimensional geometries}
 
+In the previous sections, we have seen that MPS can be analytical or numerically exact solutions to the ground states of many 1D systems, and it only requires polynomial time and space to exactly evaluate observables. However, it is no longer so efficient for systems on 2D or higher-dimensional geometries.
+
+The applicability of MPS can be examined by the area law of entanglement entropy~\cite{srednicki1993entropy, verstraete2006criticality, hastings2007area, eisert2010colloquium}: For gapped and locally interacting systems, when we cut out a region from it, the entanglement entropy $S$ between the region and the environment is asymptotically proportional to the area of the boundary, rather than the volume of the region. For 1D systems, the boundary consists of only two sites, so we have $S = O(1)$, which can be captured by an MPS if its bond dimension $\chi$ is large enough.
+
+For a 2D system with $N$ sites, we have $S = O(L)$, where $L = O(N^\frac{1}{2})$ is the linear size of the system. When applying an MPS to it, we need to arrange it in an 1D order of the sites, and some possible choices are sketched in \cref{fig:mps-order}. Regardless of how we choose the order, we can always cut the MPS into two parts, i.e., divide the system into $\vs_{\le k} = \{s_i \mid 1 \le i \le k\}$ and $\vs_{> k} = \{s_i \mid k < i \le N\}$, where the index $i$ follows the order of the MPS, and the bond between the sites $k$ and $k + 1$ is cut. Therefore, the entanglement entropy between $\vs_{\le k}$ and $\vs_{> k}$ produced by the MPS is $S = O(\ln \chi)$, and we can obtain the expected area law only if the bond dimension $\chi = O(\rme^L)$, which is considered intractable when $L$ is large.
+
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.5\linewidth]{ch8/peps.pdf}
-\caption[Projected entangled pair states (PEPS)]{
-Projected entangled pair states (PEPS)
+\hspace*{\fill}
+\subfloat[]{\includegraphics[width=0.2\linewidth]{ch8/mps_order_zigzag.pdf}}
+\hspace*{\fill}
+\subfloat[]{\includegraphics[width=0.2\linewidth]{ch8/mps_order_snake.pdf}}
+\hspace*{\fill}
+\subfloat[]{\includegraphics[width=0.2\linewidth]{ch8/mps_order_spiral.pdf}}
+\hspace*{\fill}
+\subfloat[]{\includegraphics[width=0.2\linewidth]{ch8/mps_order_hilbert.pdf}}
+\hspace*{\fill}
+\caption[Orders of MPS on 2D lattice]{
+Different orders of MPS on 2D lattices, where a $4 \times 4$ lattice is shown as an example: (a) zigzag order, (b) snake order, (c) spiral order, (d) Hilbert space-filling curve~\cite{hilbert1891uber}.
+}
+\label{fig:mps-order}
+\end{figure}
+
+The lack of entanglement in MPS is also shown in the correlations of observables. The correlations in MPS decay by $C(r) \sim \rme^{-\frac{r}{\xi}}$, where $r$ is the distance in the 1D order. However, the 1D order breaks the locality of the 2D distance. For example, when we use the zigzag order as in \cref{fig:mps-order}~(a), every pair of vertically adjacent sites have spatial distance $1$, but their distance in the 1D order is as large as $L$, which makes it difficult for the MPS to capture their correlation. One may attempt to arrange the MPS in a more complicated order with better locality, such as the Hilbert space-filling curve~\cite{hilbert1891uber} in \cref{fig:mps-order}~(d), but it has been proven that no 1D order is significantly better than the most naive zigzag order for preserving the distances of all pairs of sites on the 2D lattice~\cite{xu2012lower}.
+
+These difficulties motivate us to propose ansatzes with 2D geometries natively for 2D systems, and a relatively simple and prevalent choice is the projected entangled-pair state (PEPS)~\cite{verstraete2004renormalization, verstraete2008matrix}. While it originated from the representation of two-site entanglements, in the context of variational ansatzes it usually refers to the most intuitive generalization of MPS to 2D, as shown in \cref{fig:peps}.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.6\linewidth]{ch8/peps.pdf}
+\caption[Projected entangled-pair state (PEPS)]{
+Projected entangled-pair state (PEPS) as the generalization of MPS to 2D, on a $4 \times 4$ lattice as an example.
+A tensor of size $2 \times \chi \times \chi \times \chi \times \chi$ is placed on each site.
+The vectors on the boundaries are omitted for clarity.
 }
 \label{fig:peps}
 \end{figure}
 
-Area law~\cite{srednicki1993entropy, verstraete2006criticality, hastings2007area, eisert2010colloquium}
+When we cut out a region from a PEPS, there are always $O(L)$ bonds across the boundary, or we can view the whole boundary as a thick bond of size $\chi^{O(L)}$. Therefore, the entanglement entropy produced by the MPS is $S = O(L \ln \chi)$, which can achieve the area law. It has also been shown by construction that PEPS can exactly represent some states with the area law, such as the resonating valence bond (RVB) state~\cite{schuch2012resonating} to describe spin liquids, and the Toric code~\cite{kitaev2003fault, schuch2010peps} useful in quantum computing. Moreover, PEPS can produce algebraically\footnote{Here ``algebraic'' means decaying in a power law, as opposed to exponentially decaying.} decaying correlations~\cite{verstraete2006criticality}, which is a property of 2D critical systems.
 
-~\cite{verstraete2004renormalization, verstraete2008matrix}
+However, the main drawback of PEPS is that we cannot exactly contract $\ip{\psi}$ or evaluate $\psi(\vs)$ in polynomial time and space. It is impossible to sequentially contract a PEPS and keep a fixed number of free indices in the intermediate result, as in \cref{fig:mps-contract}, while a growing number of free indices leads to exponentially growing time and space complexities. It has been proven that contracting a general PEPS belongs to the \#P-hard class of computational complexity~\cite{schuch2007computational}, which is considered intractable for large systems.
 
-\chapter{Tensor-RNN: bridge between tensor networks and neural networks}
-\label{ch:tensor-rnn}
+A practical approach is to approximately contract the PEPS and use SVD to truncate the intermediate result, such that the time and the space complexities remain polynomial. When optimizing a PEPS using DMRG, the environment tensors can be contracted in this approach, which has been successfully applied to systems with more than $1000$ spins~\cite{stoudenmire2012annual, lubasch2014algorithms, vanderstraeten2022variational}. Besides regular lattices, this approach can also contract more complicated tensor networks on unstructured graphs~\cite{jermyn2020automatic, pan2020contracting, sahu2022efficient}, which is useful in disordered systems with random interactions, as well as quantum circuits. Alternatively, tensor networks contracted in this approach can be optimized by GD in the framework of VMC~\cite{schuch2008simulation, mezzacapo2009ground, vanderstraeten2016gradient}.
 
-Another architecture~\cite{hibat2021variational, hibat2022supplementing}
-
-Mixture of neural and tensorial layers~\cite{chen2023antn}
-
-Recurrent arithmetic circuits~\cite{levine2017long, levine2019quantum}
-
-\chapter{VarBench: variational benchmarks for quantum many-body systems}
-\label{ch:varbench}
+The difficulty of contracting PEPS is caused by the loops in the 2D grid, and other tensor networks with loop-free and tree-like architectures have been proposed~\cite{shi2006classical, silvi2010homogeneous, cheng2019tree, felser2021efficient}. Some of them can be exactly contracted, at the cost of reduced expressiveness. A renowned architecture is the multiscale entanglement renormalization ansatz (MERA)~\cite{vidal2007entanglement, qian2022tree}, which can produce algebraically decaying correlations, but not the 2D area law. Numerically, they have been optimized to higher accuracies than MPS ever achieved on 2D systems.

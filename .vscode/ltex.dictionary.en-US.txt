@@ -23,6 +23,7 @@ decorrelate
 diagonalize
 diagonalizes
 diagonalizing
+DMRG
 eigenstate
 eigenstates
 entropies
@@ -63,6 +64,7 @@ Majumdar
 Marquardt
 MaskedLin
 McGroundstate
+MERA
 MinSR
 Monasson
 MPO
@@ -110,6 +112,9 @@ TEBD
 tensorial
 Tikhonov
 TODO
+Toric
+toric
+truncations
 TwoBo
 unnormalized
 VarBench
