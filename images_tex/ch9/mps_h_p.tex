@@ -1,0 +1,52 @@
+\documentclass[tikz]{standalone}
+\usepackage{bm}
+\usepackage{stix}
+
+\usetikzlibrary{calc}
+
+\definecolor{mplblue}{HTML}{1f77b4}
+\definecolor{mplorange}{HTML}{ff7f0e}
+\definecolor{mplgreen}{HTML}{2ca02c}
+\definecolor{mplred}{HTML}{d62728}
+\definecolor{mplmagenta}{HTML}{e377c2}
+
+\tikzstyle{site}=[rectangle, rounded corners, minimum size=1cm]
+\tikzstyle{siteg}=[site, draw=mplred!80!black, fill=mplred!20!white]
+\tikzstyle{siteh}=[site, draw=mplgreen!80!black, fill=mplgreen!20!white]
+\tikzstyle{sitem}=[site, draw=mplblue!80!black, fill=mplblue!20!white]
+\tikzstyle{sitep}=[site, draw=mplorange!80!black, fill=mplorange!20!white]
+\tikzstyle{annot}=[inner sep=2pt]
+
+\newcommand{\arr}[1]{{\bm{#1}}}
+
+\begin{document}
+\begin{tikzpicture}[x=2cm, y=2cm]
+
+\node [siteh] (h2) at (0, 0) {$\arr{h}^{(2)}$};
+
+\draw [mplblue] (h2) -- ++(0.5, 0);
+
+\node [annot] at (0.75, 0) {$=$};
+
+\node [siteh] (h1) at (1.25, 0) {$\arr{h}^{(1)}$};
+\node [sitem] (M2) at (2, 0) {$\arr{M}^{(2)}$};
+
+\node [annot, text=mplmagenta] (si2) at ($(M2) + (0.5, -0.5)$) {$s_2$};
+
+\draw [mplblue] (h1) -- (M2);
+\draw [mplblue] (M2) -- ++(0.5, 0);
+\draw [mplmagenta] ($(M2.south east) + (-0.02, 0.02)$) -- (si2);
+
+\node [sitep] (p) at (0, -1) {$p(s_2 | s_0, s_1)$};
+
+\node [annot] at (0.75, -1) {$\propto$};
+
+\node [siteh] (h2l) at (1.25, -1) {$\arr{h}^{(2) \dagger}$};
+\node [siteg] (ga) at (2, -1) {$\arr{\gamma}^{(2)}$};
+\node [siteh] (h2r) at (2.75, -1) {$\arr{h}^{(2)}$};
+
+\draw [mplblue] (h2l) -- (ga);
+\draw [mplblue] (ga) -- (h2r);
+
+\end{tikzpicture}
+\end{document}

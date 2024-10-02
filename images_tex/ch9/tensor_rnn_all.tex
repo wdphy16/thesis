@@ -1,0 +1,35 @@
+\documentclass[tikz]{standalone}
+\usepackage{bm}
+\usepackage{stix}
+
+\tikzstyle{img}=[inner sep=0pt]
+
+\definecolor{mplorange}{HTML}{ff7f0e}
+\definecolor{mplgreen}{HTML}{2ca02c}
+\definecolor{mplmagenta}{HTML}{e377c2}
+
+\newcommand{\arr}[1]{{\bm{#1}}}
+
+\begin{document}
+\begin{tikzpicture}[x=2cm, y=2cm]
+
+\node [img] at (0, 0) {\includegraphics[width=6cm]{tensor_rnn.pdf}};
+\node [img] at (3, 0) {\includegraphics[width=3cm]{tensor_rnn_cell.pdf}};
+% \node [img] at (1.2, -2.5) {\includegraphics[width=8cm]{tensor_rnn_h_3.pdf}};
+
+\node at (0.03, 0.75) {$\prod \sqrt{\phantom{=}}$};
+\node at (0.03, 1.2) {$\psi$};
+
+\node [text=mplgreen] at (2.2, 0.05) {$\arr{h}^{(x - 1, y)}$};
+\node [text=mplgreen] at (2.4, -0.7) {$\arr{h}^{(x, y - 1)}$};
+\node [text=mplgreen] at (3.8, 0.05) {$\arr{h}^{(x, y)}$};
+\node [text=mplgreen] at (3.6, 0.6) {$\arr{h}^{(x, y)}$};
+\node [text=mplmagenta] at (3, -0.8) {$s_{x, y}$};
+\node [text=mplorange] at (2.6, 0.8) {$p(s_{x, y} | \arr{s}_{< (x, y)})$};
+
+\node at (-1.4, 1.2) {(a)};
+\node at (1.95, 1.2) {(b)};
+% \node at (-1.4, -1.3) {(c)};
+
+\end{tikzpicture}
+\end{document}

@@ -92,9 +92,9 @@ where the matrix and the vectors have bond indices, while the operators have spi
 
 Before modern numerical approaches were possible, MPS with small $\chi$ has been successfully applied in the analytical solutions to the ground states of many one-dimensional systems, including the renowned Affleck--Kennedy--Lieb--Tasaki (AKLT) model of the spin-$1$ Heisenberg chain~\cite{affleck1987rigorous, klumper1991equivalence, fannes1992finitely}, and the Majumdar--Gosh model with the addition of next-nearest-neighbor frustrated interaction~\cite{majumdar1969next}. It has been proven that if we cut an MPS into two parts, then the entanglement entropy $S$ between them scales at most by $S = O(\ln \chi)$, therefore MPS is suitable for representing states with low entanglement\cite{verstraete2008matrix}. Moreover, the spatial correlation of any single-site operator
 \begin{equation}
-C(r) = \frac{1}{N - r} \sum_{i = 1}^{N - r} \ev{\hat{O}_i \hat{O}_{i + r}} - \ev{\hat{O}_i} \ev{\hat{O}_{i + r}}
+C(d) = \frac{1}{N - d} \sum_{i = 1}^{N - d} \ev{\hat{O}_i \hat{O}_{i + d}} - \ev{\hat{O}_i} \ev{\hat{O}_{i + d}}
 \end{equation}
-decays exponentially: $C(r) \sim \rme^{-\frac{r}{\xi}}$, where $\xi$ is the correlation length. This is exactly the case for the ground states of 1D gapped systems, so it is possible for MPS to exactly represent them.
+decays exponentially: $C(d) \sim \rme^{-\frac{d}{\xi}}$, where $\xi$ is the correlation length. This is exactly the case for the ground states of 1D gapped systems, so it is possible for MPS to exactly represent them.
 
 \section{Density matrix renormalization group (DMRG)}
 \label{sec:dmrg}
@@ -156,7 +156,7 @@ Different orders of MPS on 2D lattices, where a $4 \times 4$ lattice is shown as
 \label{fig:mps-order}
 \end{figure}
 
-The lack of entanglement in MPS is also shown in the correlations of observables. The correlations in MPS decay by $C(r) \sim \rme^{-\frac{r}{\xi}}$, where $r$ is the distance in the 1D order. However, the 1D order breaks the locality of the 2D distance. For example, when we use the zigzag order as in \cref{fig:mps-order}~(a), every pair of vertically adjacent sites have spatial distance $1$, but their distance in the 1D order is as large as $L$, which makes it difficult for the MPS to capture their correlation. One may attempt to arrange the MPS in a more complicated order with better locality, such as the Hilbert space-filling curve~\cite{hilbert1891uber} in \cref{fig:mps-order}~(d), but it has been proven that no 1D order is significantly better than the most naive zigzag order for preserving the distances of all pairs of sites on the 2D lattice~\cite{xu2012lower}.
+The lack of entanglement in MPS is also shown in the correlations of observables. The correlations in MPS decay by $C(d) \sim \rme^{-\frac{r}{\xi}}$, where $r$ is the distance in the 1D order. However, the 1D order breaks the locality of the 2D distance. For example, when we use the zigzag order as in \cref{fig:mps-order}~(a), every pair of vertically adjacent sites have spatial distance $1$, but their distance in the 1D order is as large as $L$, which makes it difficult for the MPS to capture their correlation. One may attempt to arrange the MPS in a more complicated order with better locality, such as the Hilbert space-filling curve~\cite{hilbert1891uber} in \cref{fig:mps-order}~(d), but it has been proven that no 1D order is significantly better than the most naive zigzag order for preserving the distances of all pairs of sites on the 2D lattice~\cite{xu2012lower}.
 
 These difficulties motivate us to propose ansatzes with 2D geometries natively for 2D systems, and a relatively simple and prevalent choice is the projected entangled-pair state (PEPS)~\cite{verstraete2004renormalization, verstraete2008matrix}. While it originated from the representation of two-site entanglements, in the context of variational ansatzes it usually refers to the most intuitive generalization of MPS to 2D, as shown in \cref{fig:peps}.
 

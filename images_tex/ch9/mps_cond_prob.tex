@@ -1,0 +1,81 @@
+\documentclass[tikz]{standalone}
+\usepackage{bm}
+\usepackage{stix}
+
+\usetikzlibrary{calc, fit}
+
+\definecolor{mplblue}{HTML}{1f77b4}
+\definecolor{mplgreen}{HTML}{2ca02c}
+\definecolor{mplmagenta}{HTML}{e377c2}
+
+\tikzstyle{site}=[rectangle, rounded corners, draw=mplblue!80!black, fill=mplblue!20!white, minimum size=1.2cm, inner sep=0]
+\tikzstyle{kron}=[circle, draw, fill, minimum size=0.1cm, inner sep=0]
+\tikzstyle{annot}=[inner sep=2pt]
+
+\newcommand{\arr}[1]{{\bm{#1}}}
+
+\begin{document}
+\begin{tikzpicture}[x=2cm, y=2cm]
+
+\node [site] (M0) at (0, 1) {$\arr{M}^{(0)}$};
+\node [site] (M1) at (1, 1) {$\arr{M}^{(1)}$};
+\node [site] (M2) at (2, 1) {$\arr{M}^{(2)}$};
+\node [site] (M3) at (3, 1) {$\arr{M}^{(3)}$};
+\node [site] (M4) at (4, 1) {$\arr{M}^{(4)}$};
+\node [site] (M5) at (5, 1) {$\arr{M}^{(5)}$};
+
+\node [site] (M0d) at (0, 0) {$\arr{M}^{(0) \dagger}$};
+\node [site] (M1d) at (1, 0) {$\arr{M}^{(1) \dagger}$};
+\node [site] (M2d) at (2, 0) {$\arr{M}^{(2) \dagger}$};
+\node [site] (M3d) at (3, 0) {$\arr{M}^{(3) \dagger}$};
+\node [site] (M4d) at (4, 0) {$\arr{M}^{(4) \dagger}$};
+\node [site] (M5d) at (5, 0) {$\arr{M}^{(5) \dagger}$};
+
+\node [kron, mplblue] (s0) at ($(M0) + (-0.5, 0)$) {};
+\node [kron, mplblue] (s6) at ($(M5) + (0.5, 0)$) {};
+\node [kron, mplblue] (t0) at ($(M0d) + (-0.5, 0)$) {};
+\node [kron, mplblue] (t6) at ($(M5d) + (0.5, 0)$) {};
+\node [kron, mplmagenta] (si0) at ($(M0)!.5!(M0d)$) {};
+\node [kron, mplmagenta] (si1) at ($(M1)!.5!(M1d)$) {};
+\node [kron, mplmagenta] (si2) at ($(M2)!.5!(M2d)$) {};
+
+\node [draw=mplgreen, dashed, fit=(s0) (M2)] (h) {};
+\node [draw, dashed, fit=(M3) (M5d) (t6)] (gamma) {};
+
+\draw [mplblue] (s0) -- (M0);
+\draw [mplblue] (M0) -- (M1);
+\draw [mplblue] (M1) -- (M2);
+\draw [mplblue] (M2) -- (M3);
+\draw [mplblue] (M3) -- (M4);
+\draw [mplblue] (M4) -- (M5);
+\draw [mplblue] (M5) -- (s6);
+
+\draw [mplblue] (t0) -- (M0d);
+\draw [mplblue] (M0d) -- (M1d);
+\draw [mplblue] (M1d) -- (M2d);
+\draw [mplblue] (M2d) -- (M3d);
+\draw [mplblue] (M3d) -- (M4d);
+\draw [mplblue] (M4d) -- (M5d);
+\draw [mplblue] (M5d) -- (t6);
+
+\draw [mplmagenta] (M0) -- (M0d);
+\draw [mplmagenta] (M1) -- (M1d);
+\draw [mplmagenta] (M2) -- (M2d);
+\draw [mplmagenta] (M3) -- (M3d);
+\draw [mplmagenta] (M4) -- (M4d);
+\draw [mplmagenta] (M5) -- (M5d);
+
+\draw [mplmagenta] (si0) -- ++(-0.25, 0);
+\draw [mplmagenta] (si1) -- ++(-0.25, 0);
+\draw [mplmagenta] (si2) -- ++(-0.25, 0);
+
+\node [annot, above, mplblue] at ($(M2)!.45!(M3)$) {$a_3$};
+\node [annot, above, mplblue] at ($(M2d)!.45!(M3d)$) {$b_3$};
+\node [annot, left, mplmagenta] at ($(si0) + (-0.25, 0)$) {$\uparrow$};
+\node [annot, left, mplmagenta] at ($(si1) + (-0.25, 0)$) {$\downarrow$};
+\node [annot, left, mplmagenta] at ($(si2) + (-0.25, 0)$) {$s_2$};
+\node [annot, above, text=mplgreen] at (h.north) {$\arr{h}^{(2)}$};
+\node [annot, below] at (gamma.south) {$\arr{\gamma}^{(2)}$};
+
+\end{tikzpicture}
+\end{document}
