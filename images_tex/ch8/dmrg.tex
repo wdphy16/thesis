@@ -2,8 +2,6 @@
 \usepackage{bm}
 \usepackage{stix}
 
-\newcommand{\transpose}{\top}
-
 \begin{document}
 \begin{tikzpicture}[x=0.8cm, y=-0.8cm]
 
@@ -12,8 +10,8 @@
 \node [inner sep=0pt] at (-4.5, 8  ) {\includegraphics{dmrg_svd.pdf}};
 \node [inner sep=0pt] at ( 2  , 8  ) {\includegraphics{dmrg_svd_2.pdf}};
 
-\node at (-6   , 0  ) {$\strut \bm{x}^\transpose \bm{H}_\mathrm{env} \bm{x}$};
-\node at (-6   , 4.5) {$\strut \bm{x}^\transpose \bm{I}_\mathrm{env} \bm{x}$};
+\node at (-6   , 0  ) {$\strut \bm{x}^\dagger \bm{H}_\mathrm{env} \bm{x}$};
+\node at (-6   , 4.5) {$\strut \bm{x}^\dagger \bm{I}_\mathrm{env} \bm{x}$};
 \node at (-4.7 , 0  ) {$\strut = {}$};
 \node at (-4.7 , 4.5) {$\strut = {}$};
 \node at (-1.25, 7.5) {$\strut \approx {}$};

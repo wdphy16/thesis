@@ -9,7 +9,7 @@
 \definecolor{mplgreen}{HTML}{2ca02c}
 \definecolor{mplmagenta}{HTML}{e377c2}
 
-\tikzstyle{site}=[rectangle, rounded corners, minimum size=1cm, inner sep=0pt]
+\tikzstyle{site}=[rectangle, rounded corners, minimum size=1cm, inner sep=0pt, font=\vphantom{Ag}]
 \tikzstyle{siteh}=[site, draw=mplgreen!80!black, fill=mplgreen!20!white]
 \tikzstyle{sitem}=[site, draw=mplblue!80!black, fill=mplblue!20!white]
 \tikzstyle{annot}=[inner sep=2pt]
@@ -28,7 +28,7 @@
 \node [sitem] (T22) at (1.75, 0) {$\arr{T}^{(2, 2)}$};
 \node [siteh] (h12a) at ($(T22) + (-0.75, 0)$) {$\arr{h}^{(1, 2)}$};
 \node [siteh] (h21a) at ($(T22) + (0, -0.75)$) {$\arr{h}^{(2, 1)}$};
-\node [annot, text=mplmagenta] (sia) at ($(T22) + (0.5, -0.5)$) {$s_{2, 2}$};
+\node [annot, mplmagenta] (sia) at ($(T22) + (0.5, -0.5)$) {$s_{2, 2}$};
 
 \draw [mplblue] (h12a) -- (T22);
 \draw [mplblue] (h21a) -- (T22);
@@ -39,7 +39,7 @@
 
 \node [sitem] (M22y) at (3, 0) {$\arr{M}^{(2, 2)}_\text{y}$};
 \node [siteh] (h21b) at ($(M22y) + (0, -0.75)$) {$\arr{h}^{(2, 1)}$};
-\node [annot, text=mplmagenta] (sic) at ($(M22y) + (0.5, -0.5)$) {$s_{2, 2}$};
+\node [annot, mplmagenta] (sic) at ($(M22y) + (0.5, -0.5)$) {$s_{2, 2}$};
 
 \draw [mplblue] (h21b) -- (M22y);
 \draw [mplblue] (M22y) -- ++(0.5, 0);
@@ -49,7 +49,7 @@
 
 \node [sitem] (M22x) at (5, 0) {$\arr{M}^{(2, 2)}_\text{x}$};
 \node [siteh] (h12b) at ($(M22x) + (-0.75, 0)$) {$\arr{h}^{(1, 2)}$};
-\node [annot, text=mplmagenta] (sib) at ($(M22x) + (0.5, -0.5)$) {$s_{2, 2}$};
+\node [annot, mplmagenta] (sib) at ($(M22x) + (0.5, -0.5)$) {$s_{2, 2}$};
 
 \draw [mplblue] (h12b) -- (M22x);
 \draw [mplblue] (M22x) -- ++(0.5, 0);
@@ -58,7 +58,7 @@
 \node [annot] at (5.75, 0) {$+$};
 
 \node [sitem] (v22) at (6.25, 0) {$\arr{v}^{(2, 2)}$};
-\node [annot, text=mplmagenta] (sid) at ($(v22) + (0.5, -0.5)$) {$s_{2, 2}$};
+\node [annot, mplmagenta] (sid) at ($(v22) + (0.5, -0.5)$) {$s_{2, 2}$};
 
 \draw [mplblue] (v22) -- ++(0.5, 0);
 \draw [mplmagenta] ($(v22.south east) + (-0.02, 0.02)$) -- (sid);

@@ -78,6 +78,7 @@ NIS
 NN
 non-abelian
 non-stoquastic
+NQSs
 observables
 partons
 Pfaffian
@@ -111,6 +112,7 @@ Tasaki
 TEBD
 tensorial
 Tikhonov
+TNs
 TODO
 Toric
 toric
