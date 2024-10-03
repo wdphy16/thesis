@@ -30,6 +30,7 @@ entropies
 equivariance
 equivariant
 ergodic
+ESCs
 exaFLOPS
 ferrimagnetic
 fM
@@ -80,6 +81,7 @@ non-abelian
 non-stoquastic
 NQSs
 observables
+ODEs
 partons
 Pfaffian
 Phasor
@@ -89,8 +91,10 @@ PixelCNN
 plaquette
 plaquettes
 polynomially
+PRNGs
 pseudoinverse
 pseudorandom
+RBMs
 ReLU
 reparameterization
 reparameterize
@@ -100,6 +104,7 @@ RG
 RRGs
 Runge
 SciPost
+semidefinite
 Sessak
 Shanno
 Sherrington
@@ -119,6 +124,7 @@ toric
 truncations
 TwoBo
 unnormalized
+VANs
 VarBench
 ViT
 WaveNet

@@ -1,13 +1,13 @@
 \chapter{Tensor-RNN: bridge between tensor networks and neural networks}
 \label{ch:tensor-rnn}
 
-Comparing tensor network (TN) quantum states in \cref{ch:tn} and neural quantum states (NQS) in \cref{sec:nqs}, we can see that TNs have deeper background in physics, as their representations of the ground states of some important physical systems are found by construction, and their analytical properties such as the entanglement entropy and the spatial correlations are proven. They are also more controllable, in the sense that we can systematically improve the accuracy of variational approximation by increasing their bond dimensions. Their relatively simple multilinear architectures are suitable for second-order optimizations, which have better convergence properties to the ground state than the first-order optimizations usually used for neural networks. However, the 1D matrix product state (MPS) is not expressive enough for 2D and higher-dimensional systems, and the 2D projected entangled-pair state (PEPS) cannot be efficiently contracted.
+Comparing tensor network (TN) quantum states in \cref{ch:tn} and neural quantum states (NQSs) in \cref{sec:nqs}, we can see that TNs have deeper background in physics, as their representations of the ground states of some important physical systems are found by construction, and their analytical properties such as the entanglement entropy and the spatial correlations are proven. They are also more controllable, in the sense that we can systematically improve the accuracy of variational approximation by increasing their bond dimensions. Their relatively simple multilinear architectures are suitable for second-order optimizations, which have better convergence properties to the ground state than the first-order optimizations usually used for neural networks. However, the 1D matrix product state (MPS) is not expressive enough for 2D and higher-dimensional systems, and the 2D projected entangled-pair state (PEPS) cannot be efficiently contracted.
 
 On the contrary, NQSs are proven to have the expressiveness of universal approximation, and they are practically successful in representing complicated ground states, such as spin liquids, with high accuracy and efficiency. However, their interpretability and controllability are worse than TNs. Their analytical properties, the relation between the accuracy of variational approximation and their hyperparameters, such as the numbers of layers and channels, as well as the optimization methods to fully exploit their expressiveness, are all under research.
 
-Since the initial proposal of NQSs, there has been continuing research on their ability to represent certain classes of quantum states~\cite{gao2017efficient, carleo2018constructing, sharir2022neural}. Exact mappings have been constructed between TNs and NQSs, especially restricted Boltzmann machines (RBM) with relatively simple architectures~\cite{glasser2018neural, chen2018equivalence}. Meanwhile, the mapping from TNs to recurrent neural networks (RNN) has been studied with the concept of recurrent arithmetic circuits~\cite{levine2017long, levine2019quantum}, which suggests that the extra expressiveness of RNNs over TNs can be attributed to their reuse of information between sites.
+Since the initial proposal of NQSs, there has been continuing research on their ability to represent certain classes of quantum states~\cite{gao2017efficient, carleo2018constructing, sharir2022neural}. Exact mappings have been constructed between TNs and NQSs, especially restricted Boltzmann machines (RBMs) with relatively simple architectures~\cite{glasser2018neural, chen2018equivalence}. Meanwhile, the mapping from TNs to recurrent neural networks (RNNs) has been studied from the viewpoint of recurrent arithmetic circuits~\cite{levine2017long, levine2019quantum}, which suggests that the extra expressiveness of RNNs over TNs can be attributed to their reuse of information between sites. There are also attempts to incorporate the multilinear contractions of TNs into NQSs in various ways, which can produce greater expressiveness than the usual linear layers~\cite{hibat2021variational, hibat2022supplementing, chen2023antn}.
 
-In the following, we present a series of NQS architectures, namely MPS-RNN and tensor-RNN~\cite{wu2023tensor}, which combine the strengths of TNs and RNNs. They can achieve higher numerical accuracy than MPS and PEPS, show the desired analytical properties of entanglement entropy and spatial correlations, and get systematically improved by increasing the bond dimension, which is the only hyperparameter for their architectures. Moreover, they support exact sampling and efficient evaluation, which lead to reduced practical computational time compared to PEPS.
+In the following, we present a series of NQS architectures, namely MPS-RNN and tensor-RNN~\cite{wu2023tensor}, which combine the strengths of TNs and RNNs. They can achieve higher numerical accuracy than MPS and PEPS on 2D systems, show the desired analytical properties of entanglement entropy and spatial correlations, and get systematically improved by increasing the bond dimension, which is the only hyperparameter for their architectures. Moreover, they support exact sampling and efficient evaluation, which lead to reduced practical computational time compared to PEPS.
 
 \section{Vanilla MPS-RNN}
 
@@ -23,15 +23,16 @@ q(\vs) = \prod_{i = 1}^N q_i(s_i \mid \vs_{< i}),
 \end{equation}
 which are suitable for exact sampling. Each conditional probability is formally written as:
 \begin{align}
-q_i(s_i \mid \vs_{< i}) &= \frac
-{\vh^{(i) \dagger}(s_i, \vs_{< i}) \mga^{(i)} \vh^{(i)}(s_i, \vs_{< i})}
-{\vh^{(i) \dagger}(\vs_{< i}) \mga^{(i)} \vh^{(i)}(\vs_{< i})}, \label{eq:mps-cond-prob} \\
+q_i(s_i \mid \vs_{< i}) &=
+\frac{\tilde{q}_i(s_i \mid \vs_{< i})}{\sum_s \tilde{q}_i(s \mid \vs_{< i})}, \\
+\tilde{q}_i(s_i \mid \vs_{< i}) &=
+\vh^{(i) \dagger}(s_i, \vs_{< i})\,\mga^{(i)} \vh^{(i)}(s_i, \vs_{< i}), \label{eq:mps-cond-prob} \\
 h^{(i)}_{a_i}(\vs_{\le i}) &=
 \sum_{a_1, \ldots, a_{i - 1}}
 \prod_{j = 1}^i M^{(j)}_{s_j; a_j, a_{j - 1}}, \\
 \gamma^{(i)}_{b_i, a_i} &=
 \sum_{\substack{a_{i + 1}, \ldots, a_V \\ b_{i + 1}, \ldots, b_V \\ s_{i + 1}, \ldots, s_V}}
-\prod_{j = i + 1}^V M^{(j) *}_{s_j; b_j, b_{j - 1}} M^{(j)}_{s_j; a_j, a_{j - 1}},
+\prod_{j = i + 1}^V M^{(j) *}_{s_j; b_j, b_{j - 1}} M^{(j)}_{s_j; a_j, a_{j - 1}}, \label{eq:mps-gamma}
 \end{align}
 where $\vh^{(i)}$ is a vector of size $\chi$, denoting the partially contracted sites up to the site $i$, and depending on the spins $\vs_{\le i}$, while $\mga^{(i)}$ is a $\chi \times \chi$ matrix, denoting the partially contracted sites and their conjugates after the site $i$.
 
@@ -45,7 +46,7 @@ This figure is reproduced from Fig.~S1 in the supplemental material of Ref.~\cit
 \label{fig:mps-cond-prob}
 \end{figure}
 
-The tensor diagram for the numerator of \cref{eq:mps-cond-prob} is shown in \cref{fig:mps-cond-prob}. Note that the solid dot with $r$ indices denotes the rank-$r$ Kronecker tensor
+The tensor diagram for the unnormalized conditional probability in \cref{eq:mps-cond-prob} is shown in \cref{fig:mps-cond-prob}. Note that the solid dot with $r$ indices denotes the rank-$r$ Kronecker tensor
 \begin{equation}
 \delta_{i_1, \ldots, i_r} = \begin{cases}
 1, & i_1 = \cdots = i_r \\
@@ -62,34 +63,36 @@ which is just the top leftmost solid dot, and
 \end{equation}
 which is the direct product of the rightmost two solid dots.
 
-When sampling from $q(\vs)$ in the AR order, we precompute $\mga^{(N - 1)}, \ldots, \mga^{(1)}$ during the usual contraction of $\ip{\psi}$, which are independent of the input spins. Then in each AR sampling step $i$, we update $\vh^{(i)}$ by
+The MPS can be optimized using VMC with AR sampling. At the beginning of each optimization step of VMC, we precompute $\mga^{(N - 1)}, \ldots, \mga^{(1)}$ sequentially during a usual contraction of $\ip{\psi}$, which are independent of the input spins. Then in each AR sampling step $i$, we update $\vh^{(i)}$ by
 \begin{equation}
-\vh^{(i)} = \mM^{(i)}_{s_i} \vh^{(i - 1)},
+\vh^{(i)}(s_i) = \mM^{(i)}_{s_i} \vh^{(i - 1)},
 \label{eq:mps-rnn-h}
 \end{equation}
-which can be interpreted as updating the hidden memory in an RNN, although in the MPS we do not share parameters $\mM^{(i)}$ between different sites $i$. After obtaining $\vh^{(i)}$, we compute the unnormalized probability
+which can be interpreted as updating the hidden memory in an RNN as in \cref{eq:rnn-update}. Note that the spin $s_i$ is a free variable at this point, while all previous spins $\vs_{< i}$ that are input to $\vh^{(i)}$ are already determined. Also, unlike the conventional RNN, in the MPS we do not share parameters $\mM^{(i)}$ between different sites $i$. After obtaining $\vh^{(i)}(s_i)$, we compute the unnormalized conditional probability
 \begin{equation}
-\tilde{q}_i(s_i \mid \vs_{< i}) = \vh^{(i) \dagger} \mga^{(i)} \vh^{(i)},
+\tilde{q}_i(s_i \mid \vs_{< i}) = \vh^{(i) \dagger}(s_i)\,\mga^{(i)} \vh^{(i)}(s_i),
 \label{eq:mps-rnn-q}
 \end{equation}
-and normalize it if needed, which can be interpreted as the output layer of the RNN. The tensor diagrams for this AR sampling step are shown in \cref{fig:mps-h-p}.
+and normalize it if needed, which can be interpreted as the output layer of the RNN as in \cref{eq:rnn-output}. The tensor diagrams for this AR sampling step are shown in \cref{fig:mps-h-p}.
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.5\linewidth]{ch9/mps_h_p.pdf}
 \caption[Tensor diagrams for an AR sampling step of MPS]{
-Tensor diagrams for updating the memory $\vh^{(i)}$ and computing the conditional probability $q_i(s_i \mid \vs_{< i})$ in an AR sampling step of MPS.
+Tensor diagrams for updating the memory $\vh^{(i)}$ as in \cref{eq:mps-rnn-h}, and computing the conditional probability $q_i(s_i \mid \vs_{< i})$ as in \cref{eq:mps-rnn-q}, in an AR sampling step of MPS.
 This figure is reproduced from Fig.~1~(b) in Ref.~\cite{wu2023tensor}.
 }
 \label{fig:mps-h-p}
 \end{figure}
 
-Therefore, the MPS is exactly mapped into an RNN architecture with memory size $\chi$, linear updates of the memory in \cref{eq:mps-rnn-h}, and a bilinear output layer in \cref{eq:mps-rnn-q}. We refer to this architecture as the vanilla MPS-RNN. We also mention that besides the probability $q(\vs)$, the complete definition of the wave function includes the phase $\phi(\vs)$:
+Therefore, the MPS is exactly mapped to an RNN architecture with memory size $\chi$, linear updates of the memory in \cref{eq:mps-rnn-h}, and a bilinear output layer in \cref{eq:mps-rnn-q}. To avoid precomputing $\{\mga^{(i)}\}$ from $\{\mM^{(i)}\}$, and make a generalization from the MPS, we treat $\{\mga^{(i)}\}$ as variational parameters besides $\{\mM^{(i)}\}$, where each $\{\mM^{(i)}\}$ and $\{\mga^{(i)}\}$ is independent of each other. Therefore, the RNN architecture has greater expressiveness than the MPS, but not every trained RNN can be mapped back to an MPS. In the following, we refer to this architecture as the vanilla MPS-RNN.
+
+Besides the probability $q(\vs)$, the complete definition of the wave function includes the phase $\phi(\vs)$:
 \begin{equation}
 \psi(\vs) = \sqrt{q(\vs)} \rme^{\rmi \phi(\vs)}.
 \tag{\ref{eq:psi-q-phi}}
 \end{equation}
-After the AR sampling of MPS, $\phi(\vs)$ is obtained by
+After the AR sampling of the vanilla MPS-RNN, $\phi(\vs)$ is obtained by
 \begin{equation}
 \phi(\vs) = \arg \sum_{a} h^{(N)}_a.
 \label{eq:mps-rnn-phase}
@@ -100,23 +103,94 @@ The computational graph for the vanilla MPS-RNN to evaluate $\psi(\vs)$ is shown
 \centering
 \includegraphics[width=0.7\linewidth]{ch9/rnn_psi.pdf}
 \caption[Computational graph for vanilla MPS-RNN]{
+Computational graph for the vanilla MPS-RNN to evaluate the wave function $\psi(\vs)$, where three sites are shown as an example.
+Every site $i$ has the variational parameters $\mM^{(i)}$ and $\mga^{(i)}$, takes the spin $s_i$ and the previous memory $\vh^{(i - 1)}$ as inputs, and outputs the conditional probability $q(s_i \mid \vs_{< i})$ and the updated memory $\vh^{(i)}$.
+The phase part is omitted for simplicity.
 This figure is reproduced from Fig.~1~(a) in Ref.~\cite{wu2023tensor}.
 }
 \label{fig:rnn-psi}
 \end{figure}
 
+It is worth noting that MPS can exactly represent the ground states of 1D gapped systems, and every MPS can be exactly mapped to a vanilla MPS-RNN, so the nonlinear activation functions in the update rules of conventional RNNs are unnecessary to represent these states.
+
 \section{1D MPS-RNN}
 
-\section{2D MPS-RNN and tensor-RNN}
+We make a few modifications to the vanilla MPS-RNN to reduce its computation time and improve its training stability, while also slightly increase its expressiveness. Each matrix $\mga^{(i)}$ in \cref{eq:mps-gamma} is positive semidefinite, so we diagonalize it by
+\begin{equation}
+\mga^{(i)} = \mU^{(i)} \diag\left( \vet^{(i)} \right) \mU^{(i) \dagger},
+\end{equation}
+where $\mU^{(i)}$ is a unitary matrix, and $\vet^{(i)}$ is a real and positive vector, which is further parameterized by the real vector $\log \vet^{(i)}$. In the following, we absorb $\mU^{(i)}$ into the definition of $\mM^{(i)}$, and also the resulting $\vh^{(i)}$:
+\begin{align}
+\mM^{(i)} &\gets \mU^{(i)} \mM^{(i)} \mU^{(i - 1) \dagger}, \\
+\vh^{(i)} &\gets \mU^{(i)} \vh^{(i)}.
+\end{align}
+Therefore, the probability in \cref{eq:mps-cond-prob} is simplified to
+\begin{equation}
+\tilde{q}_i(s_i \mid \vs_{< i}) = \sum_s \eta^{(i)}_s \left| h^{(i)}_s \right|^2,
+\label{eq:mps-rnn-p-eta}
+\end{equation}
+where the number of parameters and the computation time are reduced without loss of expressiveness.
+
+Then we generalize the update rule \cref{eq:mps-rnn-h} by adding a term $\vv^{(i)}_{s_i}$, which is a vector of size $\chi$ and depends on the spin $s_i$, i.e., it is a $2 \times \chi$ tensor when we view $s_i$ as a free variable. Then the update rule becomes
+\begin{equation}
+\tilde{\vh}^{(i)}(s_i) = \mM^{(i)}_{s_i} \vh^{(i - 1)} + \vv^{(i)}_{s_i}.
+\label{eq:mps-rnn-h-v}
+\end{equation}
+The expressiveness of the architecture with the term $\vv^{(i)}$ and with bond dimension $\chi$ is not greater than that without the term $\vv^{(i)}$ and with bond dimension $\chi + 1$, because $\vv^{(i)}$ can be absorbed into $\mM^{(i)}$ as an extra row. Moreover, we normalize the intermediate result after each AR sampling step:
+\begin{equation}
+\vh^{(i)}(s_i) = \frac
+{\tilde{\vh}^{(i)}(s_i)}
+{\sqrt{\sum_s \tilde{\vh}^{(i) \dagger}(s) \tilde{\vh}^{(i)}(s)}},
+\end{equation}
+which acts similarly to the sigmoid function in conventional RNN architectures to bound the intermediate result and avoid gradient explosion~\cite{pascanu2013difficulty}. When analyzing a trained ansatz, we can always absorb the normalization into $\mM^{(i)}$.
+
+We also generalize the phase in \cref{eq:mps-rnn-phase} to a sum of ``local phases'':
+\begin{align}
+\phi(\vs) &= \sum_i \phi^{(i)}(\vs_{\le i}), \label{eq:mps-rnn-phase-sum} \\
+\phi^{(i)}(\vs_{\le i}) &= \arg\left( \vw^{(i) \transpose}_{s_i} \vh^{(i)}(\vs_{\le i}) + c^{(i)}_{s_i} \right), \label{eq:mps-rnn-phase-local}
+\end{align}
+where each local phase $\phi^{(i)}(\vs_{\le i})$ is obtained from a linear transformation of the memory $\vh^{(i)}(\vs_{\le i})$, whose parameters $\vw^{(i)}_{s_i}$ and $c^{(i)}_{s_i}$ depend on the spin $s_i$. Therefore, the gradient information from every site, rather than only the last site, can more directly affect the phase during training. It is worth noting that the phasor sum in \cref{eq:phasor-sum} can be an alternative choice to the simple sum in \cref{eq:mps-rnn-phase-sum}.
+
+The RNN architecture defined by the update rule in \cref{eq:mps-rnn-h-v}, the output layer in \cref{eq:mps-rnn-p-eta}, and the phase in \cref{eq:mps-rnn-phase-local} is named 1D MPS-RNN, which is more suitable for practical computations than the vanilla one, in terms of the computation time and the numerical stability in training.
+
+\section{2D MPS-RNN}
+
+Next, we investigate the generalization of the MPS-RNN to 2D lattices, which should ideally capture the area law of entanglement entropy and the algebraically decaying correlations in the 2D systems of interest, while still support efficient evaluation in polynomial time and space, as well as AR sampling. An intuitive attempt is to include the memories from two previous neighboring sites as inputs for the update rule in \cref{eq:mps-rnn-h-v}:
+\begin{equation}
+\tilde{\vh}^{(x, y)}(s_{x, y}) =
+\mM^{(x, y)}_{\text{y} s_{x, y}} \vh^{(x, y - 1)}
++ \mM^{(x, y)}_{\text{x} s_{x, y}} \vh^{(x - 1, y)}
++ \vv^{(x, y)}_{s_{x, y}},
+\label{eq:mps-rnn-h-2d}
+\end{equation}
+where we use the 2D indexing $(x, y)$ instead of the 1D indexing $i$ for the sites. In all the reported results we use the snake order as in \cref{fig:mps-order}~(b), and for simplicity we assume $y$ is odd in \cref{eq:mps-rnn-h-2d}, so $x$ increases in the snake order. On each site, there are two matrices $\mM^{(x, y)}_\text{x}$ and $\mM^{(x, y)}_\text{y}$ to transform the two input memory vectors. The RNN architecture defined by \cref{eq:mps-rnn-h-2d} and the previous \cref{eq:mps-rnn-p-eta,eq:mps-rnn-phase-local} is named 2D MPS-RNN. The tensor diagram for its update rule is shown in \cref{fig:mps-rnn-h-2d}, and the computational graph for its wave function is shown in \cref{fig:tensor-rnn-all}.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.8\linewidth]{ch9/tensor_rnn_all.pdf}
-\caption[Computational graph for tensor-RNN]{
+\includegraphics[width=0.7\linewidth]{ch9/mps_rnn_2d_h.pdf}
+\caption[Tensor diagram for memory update of 2D MPS-RNN]{
+Tensor diagram for updating the memory $\vh^{(2, 2)}$ of the 2D MPS-RNN as in \cref{eq:mps-rnn-h-2d}. The memories from the two previous neighboring sites $\vh^{(1, 2)}$ and $\vh^{(2, 1)}$ are taken as inputs.
+}
+\label{fig:mps-rnn-h-2d}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.7\linewidth]{ch9/tensor_rnn_all.pdf}
+\caption[Computational graph for 2D MPS-RNN]{
+Computational graph for the 2D MPS-RNN to evaluate the wave function $\psi(\vs)$.
+In (a), four sites arranged in the snake ordering are shown as an example, and the phase part is omitted for simplicity.
+In (b), we focus on one site at $(x, y)$, assuming $x$ increases in the snake order.
+The site has the variational parameters $\mM^{(x, y)}_\text{x}$, $\mM^{(x, y)}_\text{y}$, and $\vet^{(x, y)}$, takes the spin $s_{x, y}$ and the memories $\vh^{(x - 1, y)}$ and $\vh^{(x, y - 1)}$ as inputs, and outputs the conditional probability $q(s_{x, y} \mid \vs_{< (x, y)})$ and the updated memory $\vh^{(x, y)}$.
+The updated memory will be used in two future neighboring sites.
 This figure is reproduced from Fig.~2 in Ref.~\cite{wu2023tensor}.
 }
 \label{fig:tensor-rnn-all}
 \end{figure}
+
+Compared to the 1D MPS-RNN, the vertical connections in the 2D MPS-RNN make it more suitable for capturing the isotropic correlations in 2D systems, because the correlations between vertically neighboring sites no longer need to propagate $O(L)$ steps with exponential decay, which we will show in \cref{sec:tensor-rnn-corr}. However, this does not give the 2D MPS-RNN exponentially greater expressiveness than the 1D MPS-RNN to asymptotically produce the area law of entanglement entropy. It is proven that every 2D MPS-RNN with bond dimension $\chi$ can be exactly represented by a 1D MPS-RNN with bond dimension $L \chi$, because each memory $\vh^{(x, y)}$ is a linear combination of the memories in the previous row.
+
+\section{Tensor-RNN}
 
 \begin{figure}[htb]
 \centering
@@ -127,11 +201,9 @@ This figure is reproduced from Fig.~3 in Ref.~\cite{wu2023tensor}.
 \label{fig:tensor-rnn-h}
 \end{figure}
 
-Another architecture~\cite{hibat2021variational, hibat2022supplementing}
-
-Mixture of neural and tensorial layers~\cite{chen2023antn}
-
 \section{Numerical results}
+
+\subsection{Variational energy}
 
 \begin{figure}[htb]
 \centering
@@ -153,6 +225,9 @@ This figure is reproduced from Fig.~S3 in the supplemental material of Ref.~\cit
 \label{fig:tensor-rnn-energy-param}
 \end{figure}
 
+\subsection{Spatial correlations}
+\label{sec:tensor-rnn-corr}
+
 \begin{figure}[htb]
 \centering
 \hspace*{-0.05\linewidth}
@@ -162,6 +237,9 @@ This figure is reproduced from Fig.~S4 in the supplemental material of Ref.~\cit
 }
 \label{fig:tensor-rnn-corr}
 \end{figure}
+
+\subsection{Magnitudes of tensor, matrix, and vector terms}
+\label{sec:tensor-rnn-magnitude}
 
 \begin{figure}[htb]
 \centering

@@ -15,6 +15,7 @@
 \tikzstyle{siteh}=[site, draw=mplgreen!80!black, fill=mplgreen!20!white]
 \tikzstyle{sitem}=[site, draw=mplblue!80!black, fill=mplblue!20!white]
 \tikzstyle{sitep}=[site, draw=mplorange!80!black, fill=mplorange!20!white]
+\tikzstyle{kron}=[circle, draw, fill, minimum size=0.1cm, inner sep=0]
 \tikzstyle{annot}=[inner sep=2pt]
 
 \newcommand{\arr}[1]{{\bm{#1}}}
@@ -23,14 +24,15 @@
 \begin{tikzpicture}[x=2cm, y=2cm]
 
 \node [siteh] (h2) at (0, 0) {$\arr{h}^{(3)}$};
+\node [annot, mplmagenta] (si2) at ($(h2) + (0.5, -0.5)$) {$s_3$};
 
 \draw [mplblue] (h2) -- ++(0.5, 0);
+\draw [mplmagenta] ($(h2.south east) + (-0.02, 0.02)$) -- (si2);
 
 \node [annot] at (0.75, 0) {$=$};
 
 \node [siteh] (h1) at (1.25, 0) {$\arr{h}^{(2)}$};
 \node [sitem] (M2) at (2, 0) {$\arr{M}^{(3)}$};
-
 \node [annot, mplmagenta] (si2) at ($(M2) + (0.5, -0.5)$) {$s_3$};
 
 \draw [mplblue] (h1) -- (M2);
@@ -44,9 +46,14 @@
 \node [siteh] (h2l) at (1.25, -1) {$\arr{h}^{(3) \dagger}$};
 \node [siteg] (ga) at (2, -1) {$\arr{\gamma}^{(3)}$};
 \node [siteh] (h2r) at (2.75, -1) {$\arr{h}^{(3)}$};
+\node [kron, mplmagenta] (kron) at (2, -1.5) {};
+\node [annot, mplmagenta] (si2) at (2, -1.8) {$s_3$};
 
 \draw [mplblue] (h2l) -- (ga);
 \draw [mplblue] (ga) -- (h2r);
+\draw [mplmagenta] (h2l.south) to [bend right=15] (kron);
+\draw [mplmagenta] (h2r.south) to [bend left=15] (kron);
+\draw [mplmagenta] (kron) -- (si2);
 
 \end{tikzpicture}
 \end{document}
