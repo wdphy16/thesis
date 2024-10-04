@@ -123,7 +123,7 @@ The Hamiltonian in \cref{eq:cl-ising} can be written as the sum of each spin $s_
 H(\vs) &= J \sum_{\langle i, j \rangle} s_i s_j
 = \frac{1}{2} J \sum_i h_{\text{loc}\,i} s_i, \\
 h_{\text{loc}\,i} &= \sum_{j \in \partial i} s_j,
-\end{align}
+\end{align}\rrc{is the mean-field approximation, generally, equivalent to the Weiss model? I am not sure, especially when you have nontrivial $J_{ij}$}
 where $\partial i$ denotes the set of nearest neighbors of the site $i$. To find an ansatz whose free energy can be analytically studied, we start from replacing $h_{\text{loc}\,i}$ by an approximate mean field produced by all spins:
 \begin{equation}
 h_{\text{loc}\,i} \approx h_\text{MF} = \frac{2 d}{N} \sum_i s_i,
