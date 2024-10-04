@@ -1,4 +1,6 @@
 Abrikosov
+adaptively
+AFHM
 AFQMC
 AKLT
 Ansätze
@@ -116,6 +118,7 @@ stoquastic
 Tasaki
 TEBD
 tensorial
+TFIM
 Tikhonov
 TNs
 TODO

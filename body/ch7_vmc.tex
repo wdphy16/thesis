@@ -263,7 +263,7 @@ A recent breakthrough has been made by the vision transformer (ViT)~\cite{viteri
 
 In the above discussion on quantum ansatzes we did not emphasize that they are complex-valued. We actually have a tendency to avoid the intricacy of complex-valued functions aforementioned in \cref{sec:cmpl-grad}, especially when working with deep neural networks. A common practice is to parameterize the amplitude and the phase\footnote{In this section we refer to the phase of complex number, not the phase of matter.} of the wave function ansatz respectively using real-valued functions:
 \begin{equation}
-\psi(\vs) = \sqrt{q(\vs)} \rme^{\rmi \phi(\vs)},
+\psi(\vs) = \sqrt{q(\vs)}\,\rme^{\rmi \phi(\vs)},
 \label{eq:psi-q-phi}
 \end{equation}
 where $q(\vs)$ can be interpreted as a probability distribution. It is more common to separate the amplitude and the phase rather than the real and the imaginary parts, because we frequently work with the log-gradient in \cref{eq:vmc-grad-cmpl}, and the ratio of two probabilities in MCMC sampling as in \cref{eq:metropolis}. When sampling the configurations $\vs$, we only need to evaluate $q(\vs)$, and not $\phi(\vs)$. In particular, when parameterizing $q(\vs)$ using an AR model as in \cref{eq:autoreg}, there is no need for $\phi(\vs)$ to also fulfill the AR property.

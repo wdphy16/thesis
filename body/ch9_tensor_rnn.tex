@@ -1,13 +1,13 @@
 \chapter{Tensor-RNN: bridge between tensor networks and neural networks}
 \label{ch:tensor-rnn}
 
-Comparing tensor network (TN) quantum states in \cref{ch:tn} and neural quantum states (NQSs) in \cref{sec:nqs}, we can see that TNs have deeper background in physics, as their representations of the ground states of some important physical systems are found by construction, and their analytical properties such as the entanglement entropy and the spatial correlations are proven. They are also more controllable, in the sense that we can systematically improve the accuracy of variational approximation by increasing their bond dimensions. Their relatively simple multilinear architectures are suitable for second-order optimizations, which have better convergence properties to the ground state than the first-order optimizations usually used for neural networks. However, the 1D matrix product state (MPS) is not expressive enough for 2D and higher-dimensional systems, and the 2D projected entangled-pair state (PEPS) cannot be efficiently contracted.
+Comparing tensor network (TN) quantum states in \cref{ch:tn} and neural quantum states (NQSs) in \cref{sec:nqs}, we can see that TNs have deeper background in physics, as their representations of the ground states of some important physical systems are found by construction, and their analytical properties such as the entanglement entropy and the spatial correlations are proven. They are also more controllable, in the sense that we can systematically improve the accuracy of variational approximation by increasing their bond dimensions. Their relatively simple multilinear architectures are suitable for second-order optimizations, which have better convergence properties towards the ground state than the first-order optimizations usually used for neural networks. However, the 1D matrix product state (MPS) is not expressive enough for 2D and higher-dimensional systems, and the 2D projected entangled-pair state (PEPS) cannot be efficiently contracted.
 
 On the contrary, NQSs are proven to have the expressiveness of universal approximation, and they are practically successful in representing complicated ground states, such as spin liquids, with high accuracy and efficiency. However, their interpretability and controllability are worse than TNs. Their analytical properties, the relation between the accuracy of variational approximation and their hyperparameters, such as the numbers of layers and channels, as well as the optimization methods to fully exploit their expressiveness, are all under research.
 
-Since the initial proposal of NQSs, there has been continuing research on their ability to represent certain classes of quantum states~\cite{gao2017efficient, carleo2018constructing, sharir2022neural}. Exact mappings have been constructed between TNs and NQSs, especially restricted Boltzmann machines (RBMs) with relatively simple architectures~\cite{glasser2018neural, chen2018equivalence}. Meanwhile, the mapping from TNs to recurrent neural networks (RNNs) has been studied from the viewpoint of recurrent arithmetic circuits~\cite{levine2017long, levine2019quantum}, which suggests that the extra expressiveness of RNNs over TNs can be attributed to their reuse of information between sites. There are also attempts to incorporate the multilinear contractions of TNs into NQSs in various ways, which can produce greater expressiveness than the usual linear layers~\cite{hibat2021variational, hibat2022supplementing, chen2023antn}.
+Since the initial proposal of NQSs, there has been continuing research on their ability to represent certain classes of quantum states~\cite{gao2017efficient, carleo2018constructing, sharir2022neural}. Exact mappings have been constructed between TNs and NQSs, especially restricted Boltzmann machines (RBMs)~\cite{glasser2018neural, chen2018equivalence} with relatively simple architectures in NQSs. Meanwhile, the mapping from TNs to recurrent neural networks (RNNs) has been studied from the viewpoint of recurrent arithmetic circuits~\cite{levine2017long, levine2019quantum}, which suggests that the extra expressiveness of RNNs over TNs can be attributed to their reuse of information between sites. There have also been attempts to incorporate the multilinear contractions of TNs into NQSs in various ways, which can produce greater expressiveness than the usual linear layers~\cite{hibat2021variational, hibat2022supplementing, chen2023antn}.
 
-In the following, we present a series of NQS architectures, namely MPS-RNN and tensor-RNN~\cite{wu2023tensor}, which combine the strengths of TNs and RNNs. They can achieve higher numerical accuracy than MPS and PEPS on 2D systems, show the desired analytical properties of entanglement entropy and spatial correlations, and get systematically improved by increasing the bond dimension, which is the only hyperparameter for their architectures. Moreover, they support exact sampling and efficient evaluation, which lead to reduced practical computational time compared to PEPS.
+In the following, we present a series of NQS architectures, namely MPS-RNN and tensor-RNN~\cite{wu2023tensor}, which combine the strengths of TNs and RNNs. They can achieve higher numerical accuracy than MPS and PEPS on 2D systems, show the desired analytical properties of entanglement entropy and spatial correlations, and get systematically improved by increasing the bond dimension, which is the only hyperparameter for their architectures. Moreover, they support exact sampling and efficient evaluation, which lead to the reduction of practical computation time compared to PEPS.
 
 \section{Vanilla MPS-RNN}
 
@@ -87,7 +87,7 @@ This figure is reproduced from Fig.~1~(b) in Ref.~\cite{wu2023tensor}.
 
 Therefore, the MPS is exactly mapped to an RNN architecture with memory size $\chi$, linear updates of the memory in \cref{eq:mps-rnn-h}, and a bilinear output layer in \cref{eq:mps-rnn-q}. To avoid precomputing $\{\mga^{(i)}\}$ from $\{\mM^{(i)}\}$, and make a generalization from the MPS, we treat $\{\mga^{(i)}\}$ as variational parameters besides $\{\mM^{(i)}\}$, where each $\{\mM^{(i)}\}$ and $\{\mga^{(i)}\}$ is independent of each other. Therefore, the RNN architecture has greater expressiveness than the MPS, but not every trained RNN can be mapped back to an MPS. In the following, we refer to this architecture as the vanilla MPS-RNN.
 
-Besides the probability $q(\vs)$, the complete definition of the wave function includes the phase $\phi(\vs)$:
+Besides the probability $q(\vs)$, the complete definition of the wave function also includes the phase $\phi(\vs)$:
 \begin{equation}
 \psi(\vs) = \sqrt{q(\vs)} \rme^{\rmi \phi(\vs)}.
 \tag{\ref{eq:psi-q-phi}}
@@ -119,7 +119,7 @@ We make a few modifications to the vanilla MPS-RNN to reduce its computation tim
 \begin{equation}
 \mga^{(i)} = \mU^{(i)} \diag\left( \vet^{(i)} \right) \mU^{(i) \dagger},
 \end{equation}
-where $\mU^{(i)}$ is a unitary matrix, and $\vet^{(i)}$ is a real and positive vector, which is further parameterized by the real vector $\log \vet^{(i)}$. In the following, we absorb $\mU^{(i)}$ into the definition of $\mM^{(i)}$, and also the resulting $\vh^{(i)}$:
+where $\mU^{(i)}$ is a unitary matrix, and $\vet^{(i)}$ is a real and positive vector, which is further parameterized by the real vector $\ln \vet^{(i)}$. In the following, we absorb $\mU^{(i)}$ into the definition of $\mM^{(i)}$, and also the resulting $\vh^{(i)}$:
 \begin{align}
 \mM^{(i)} &\gets \mU^{(i)} \mM^{(i)} \mU^{(i - 1) \dagger}, \\
 \vh^{(i)} &\gets \mU^{(i)} \vh^{(i)}.
@@ -154,6 +154,7 @@ where each local phase $\phi^{(i)}(\vs_{\le i})$ is obtained from a linear trans
 The RNN architecture defined by the update rule in \cref{eq:mps-rnn-h-v}, the output layer in \cref{eq:mps-rnn-p-eta}, and the phase in \cref{eq:mps-rnn-phase-local} is named 1D MPS-RNN, which is more suitable for practical computations than the vanilla one, in terms of the computation time and the numerical stability in training.
 
 \section{2D MPS-RNN}
+\label{sec:2d-mps-rnn}
 
 Next, we investigate the generalization of the MPS-RNN to 2D lattices, which should ideally capture the area law of entanglement entropy and the algebraically decaying correlations in the 2D systems of interest, while still support efficient evaluation in polynomial time and space, as well as AR sampling. An intuitive attempt is to include the memories from two previous neighboring sites as inputs for the update rule in \cref{eq:mps-rnn-h-v}:
 \begin{equation}
@@ -184,7 +185,7 @@ However, the 2D MPS-RNN does not have exponentially greater expressiveness than 
 \includegraphics[width=0.7\linewidth]{ch9/tensor_rnn_all.pdf}
 \caption[Computational graph for 2D MPS-RNN]{
 Computational graph for the 2D MPS-RNN to evaluate the wave function $\psi(\vs)$.
-In (a), four sites arranged in the snake ordering are shown as an example, and the phase part is omitted for simplicity.
+In (a), four sites arranged in the snake order are shown as an example, and the phase part is omitted for simplicity.
 In (b), we focus on one site at $(x, y)$, assuming $x$ increases in the snake order.
 The site has the variational parameters $\mM^{(x, y)}_\text{x}$, $\mM^{(x, y)}_\text{y}$, and $\vet^{(x, y)}$, takes the spin $s_{x, y}$ and the memories $\vh^{(x - 1, y)}$ and $\vh^{(x, y - 1)}$ as inputs, and outputs the conditional probability $q(s_{x, y} \mid \vs_{< (x, y)})$ and the updated memory $\vh^{(x, y)}$.
 The updated memory will be used in two future neighboring sites.
@@ -194,6 +195,7 @@ This figure is reproduced from Fig.~2 in Ref.~\cite{wu2023tensor}.
 \end{figure}
 
 \section{Tensor-RNN}
+\label{sec:tensor-rnn}
 
 We continue to seek for other update rules that are expressive enough to produce the area law. Inspired by the higher-rank tensors in PEPS, we add a tensor term to the update rule in \cref{eq:mps-rnn-h-2d}, then it can be written in components as
 \begin{align}
@@ -217,16 +219,16 @@ This figure is reproduced from Fig.~3 in Ref.~\cite{wu2023tensor}.
 
 The tensor-RNN takes $O(N \chi^3)$ time and space to sample the configuration $\vs$ and evaluate the wave function $\psi(\vs)$, which avoids the exponential computational complexity of PEPS. It can actually produce the area law, as proven by construction in Section~S5 of the supplemental material for Ref.~\cite{wu2023tensor}. This is also supported by numerical evidence in systems more common than that artificial construction, which we will show in \cref{sec:tensor-rnn-magnitude}.
 
-When the $O(\chi^3)$ time and space complexities introduced by the tensor term $\mT$ are undesired for large systems, we can parameterize it using the Tucker decomposition~\cite{tucker1966some}, which becomes
+When the $O(\chi^3)$ time and space complexities introduced by the tensor term $\mT$ are undesired for large systems, we can further parameterize it by
 \begin{equation}
 T_{a, b, c} = \sum_{a', b', c' = 1}^{\chi'} K_{a', b', c'} U_{\text{o}; a, a'}  U_{\text{x}; b, b'} U_{\text{y}; c, c'},
 \label{eq:tensor-decomp}
 \end{equation}
-where $\mK$ is a smaller ``kernel'' tensor of size $\chi' \times \chi' \times \chi'$, $\mU_\text{x}$, $\mU_\text{y}$, and $\mU_\text{o}$ are $\chi \times \chi'$ matrices to transform the $x$-directional input, the $y$-directional input, and the output respectively, and we omit the spatial and the spin indices for clarity. The parameter $\chi'$ controls the balance between the expressiveness and the computational cost of the decomposed tensors, and in the reported results we choose $\chi' = \chi^\frac{2}{3}$, rounded up to an integer, so the time and the space complexities to contract $\mT$ are kept to $O(\chi^2)$. The resulting architecture is referred to as the compressed tensor-RNN.
+which is known as the Tucker decomposition~\cite{tucker1966some}, where $\mK$ is a smaller ``kernel'' tensor of size $\chi' \times \chi' \times \chi'$, $\mU_\text{x}$, $\mU_\text{y}$, and $\mU_\text{o}$ are $\chi \times \chi'$ matrices to transform the $x$-directional input, the $y$-directional input, and the output respectively, and we omit the spatial and the spin indices for clarity. The parameter $\chi'$ controls the balance between the expressiveness and the computational cost of the decomposed tensors, and in the reported results we choose $\chi' = \chi^\frac{2}{3}$, rounded up to an integer, so the time and the space complexities to contract $\mT$ are kept to $O(\chi^2)$. The resulting architecture is referred to as the compressed tensor-RNN.
 
 \section{Hierarchical initialization}
 
-The ansatzes we have introduced above form a hierarchy: MPS $\subsetneq$ 1D MPS-RNN $\subsetneq$ 2D MPS-RNN $\subsetneq$ compressed tensor-RNN $\subsetneq$ tensor-RNN, where each architecture can exactly represent any architecture to its left with the same bond dimension. This property can be utilized in the training of the ansatzes. We first optimize an MPS using DMRG, then convert it to a 1D MPS-RNN, which represents the same wave function but has more potential expressiveness, and continue to train all its parameters. When the 1D MPS-RNN is sufficiently trained, we convert it to a 2D MPS-RNN and repeat the procedure, until we obtain the tensor-RNN.
+The ansatzes we have introduced form a hierarchy: MPS $\subsetneq$ 1D MPS-RNN $\subsetneq$ 2D MPS-RNN $\subsetneq$ compressed tensor-RNN $\subsetneq$ tensor-RNN, where each architecture can exactly represent any architecture to its left with the same bond dimension. This property can be utilized in the training of the ansatzes. We first optimize an MPS using DMRG, then convert it to a 1D MPS-RNN, which represents the same wave function but has more potential expressiveness, and continue to train all its parameters. When the 1D MPS-RNN is sufficiently trained, we convert it to a 2D MPS-RNN and repeat the procedure, until we obtain the tensor-RNN.
 
 This procedure is referred to as the hierarchical initialization. It provides the initial parameters at reasonably low energies for each ansatz, and prevents them from getting stuck in local minima and saddle points with high energies. For non-stoquastic Hamiltonians, it also provides reasonable sign structures from DMRG, which can be hard to obtain by gradient-based optimizers, as discussed in \cref{sec:amp-phase}. This procedure is a particular advantage from our approach of exact mappings, which cannot be performed in other hybrid architectures of TN and RNN~\cite{hibat2021variational, hibat2022supplementing, chen2023antn}.
 
@@ -234,38 +236,54 @@ This procedure is referred to as the hierarchical initialization. It provides th
 
 \subsection{Variational energy}
 
+The performances of the above ansatzes are demonstrated in numerical experiments using the antiferromagnetic Heisenberg model (AFHM) and the transverse field Ising model (TFIM) on 2D square and triangular lattices with open boundary conditions (OBC), as defined in \cref{sec:qu-sys}.
+
+We first investigate the variational energy as a function of the bond dimension which is the only hyperparameter in the architectures of these ansatzes and controls their overall sizes, as shown in \cref{fig:tensor-rnn-energy-chi}. We can clearly see that the 2D ansatzes reach the same error as the 1D ones with bond dimensions less by one to two orders of magnitude, which is attributed to the vertical connections. Moreover, the error can be systematically reduced as the bond dimension increases. For the tensor-RNN, the reduction of the error particularly exhibits a power law, which can be fitted by a straight line on the log-log plot, and on the square lattice it eventually outperforms the best result of PEPS~\cite{liu2017gradient} to the author's knowledge.
+
 \begin{figure}[htb]
 \centering
 \hspace*{-0.05\linewidth}
 \includegraphics[width=1.1\linewidth]{ch9/tensor_rnn_energy_chi.pdf}
 \caption[Variational energy vs. bond dimension for tensor-RNN]{
+Variational energy as a function of the bond dimension $\chi$, for the antiferromagnetic Heisenberg model (AFHM) on (a) square and (b) triangular lattice with $10 \times 10$ sites and open boundary conditions (OBC). The comparison is made between MPS (optimized by DMRG) and the ansatzes in this chapter (optimized by VMC with hierarchical initialization). The results are shown as the relative error from (a) QMC~\cite{sandvik1997finite} and (b) DMRG with $\chi = 4096$. For the square lattice, the result of PEPS with $\chi = 10$~\cite{liu2017gradient} is also taken into comparison.
 This figure is reproduced from Fig.~4 in Ref.~\cite{wu2023tensor}.
 }
 \label{fig:tensor-rnn-energy-chi}
 \end{figure}
+
+We also present the plots of the variational energy as a function of the number of parameters in \cref{fig:tensor-rnn-energy-param}, which better represents the computational costs of different ansatzes than the bond dimension. From this perspective, the 2D ansatzes can reach the same error as the 1D ones with parameters fewer by more than two orders of magnitude, and the error still decays by the power law.
 
 \begin{figure}[htb]
 \centering
 \hspace*{-0.05\linewidth}
 \includegraphics[width=1.1\linewidth]{ch9/tensor_rnn_energy_param.pdf}
 \caption[Variational energy vs. number of parameters for tensor-RNN]{
+Variational energy as a function of the number of parameters, in the same setting as \cref{fig:tensor-rnn-energy-chi}.
 This figure is reproduced from Fig.~S3 in the supplemental material for Ref.~\cite{wu2023tensor}.
 }
 \label{fig:tensor-rnn-energy-param}
 \end{figure}
 
+The tensor-RNN has better parameter efficiency than the original MPS on both the square and the triangular lattices. However, we remark that the relative error on the triangular lattice is higher than that on the square lattice by an order of magnitude for all ansatzes in the plot, which means the frustrated sign structure is still a challenge for the tensor-RNN.
+
 \subsection{Spatial correlations}
 \label{sec:tensor-rnn-corr}
 
-\begin{figure}[htb]
+\begin{figure}[!b]
 \centering
 \hspace*{-0.05\linewidth}
 \includegraphics[width=1.05\linewidth]{ch9/tensor_rnn_corr.pdf}
 \caption[Spin correlations in MPS-RNN]{
+(a) Correlations of all spins $s_{x, y}$ with the spin $s_{5, 5}$ (left column) and $s_{1, 5}$ (right column) for the AFHM on the $10 \times 10$ square lattice with OBC, given by the 1D MPS-RNN (top row) and the 2D MPS-RNN (bottom row) with bond dimension $\chi = 10$. \\
+(b) Correlation $C(d)$ as a function of the distance $d$ in \cref{eq:corr-d} for the TFIM at its critical point $\Gamma = 3$, on the $20 \times 20$ square lattice with OBC, in horizontal and vertical directions, given by the 1D MPS-RNN and the 2D MPS-RNN.
 This figure is reproduced from Fig.~S4 in the supplemental material for Ref.~\cite{wu2023tensor}.
 }
 \label{fig:tensor-rnn-corr}
 \end{figure}
+
+Next, we examine the ability of our ansatzes to capture spatial correlations in 2D systems. A qualitative visualization of the correlations with a certain spin is shown in \cref{fig:tensor-rnn-corr}~(a) for the AFHM. The 2D MPS-RNN successfully produces isotropic and long-range correlations, as expected in \cref{sec:2d-mps-rnn}, while the 1D one fails to do so.
+
+To demonstrate the particularly interesting case of algebraically decaying correlations in 2D critical systems, we use the TFIM at its critical point $\Gamma = 3$, and increase the lattice size to $20 \times 20$ to better investigate the asymptotic behavior. As shown in \cref{fig:tensor-rnn-corr}~(b), the 2D MPS-RNN correctly captures the algebraically decaying correlations in both horizontal and vertical directions, which can be fitted by a straight line on the log-log plot, while the 1D one can only produce constant correlations in the long range.
 
 \subsection{Magnitudes of tensor, matrix, and vector terms}
 \label{sec:tensor-rnn-magnitude}
@@ -273,11 +291,35 @@ This figure is reproduced from Fig.~S4 in the supplemental material for Ref.~\ci
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch9/tensor_rnn_h_comp.pdf}
-\caption[Magnitudes of tensor, matrix, and vector terms in tensor-RNN]{
+\caption[Contributions of tensor, matrix, and vector terms in tensor-RNN]{
+Contributions of the tensor term $\tilde{T}^{(x, y)}$ (areas of {\color[HTML]{d62728} red} triangles), the matrix terms $\tilde{M}^{(x, y)}_\text{x}$, $\tilde{M}^{(x, y)}_\text{y}$ (areas of rectangles), and the vector term $\tilde{v}^{(x, y)}$ (areas of {\color[HTML]{1f77b4} blue} circles) to the memory $\vh^{(x, y)}$ at each site, in (a) 1D MPS-RNN, (b) 2D MPS-RNN, and (c) tensor-RNN with bond dimension $\chi = 10$, trained for the AFHM on the $10 \times 10$ square lattice with OBC.
+In the matrix terms, the {\color[HTML]{2ca02c} green} rectangles are along the snake order, and the {\color[HTML]{9467bd} purple} ones are not.
 This figure is reproduced from Fig.~S5 in the supplemental material for Ref.~\cite{wu2023tensor}.
 }
 \label{fig:tensor-rnn-h-comp}
 \end{figure}
 
-\chapter{VarBench: variational benchmarks for quantum many-body systems}
-\label{ch:varbench}
+When evaluating the above ansatzes, the memory $\vh^{(x, y)}$ at each site can consist of contributions from the tensor terms, the matrix terms, and the vector term, and it is worth investigating their respective magnitudes. Considering how $\vh^{(x, y)}$ is used in \cref{eq:mps-rnn-p-eta} to compute the probability, we define the $2$-norms weighted by $\vet^{(x, y)}$:
+\begin{align}
+\norm{T}^{(x, y)}(\vs) &= \sqrt{\sum_a \eta^{(x, y)}_a \left| \sum_{b, c} T^{(x, y)}_{s_{x, y}; a, b, c} h^{(x - 1, y)}_b h^{(x, y - 1)}_c \right|^2}, \\
+\norm{M}^{(x, y)}_\text{x}(\vs) &= \sqrt{\sum_a \eta^{(x, y)}_a \left| \sum_b M^{(x, y)}_{\text{x}; s_{x, y}; a, b} h^{(x - 1, y)}_b \right|^2}, \\
+\norm{M}^{(x, y)}_\text{y}(\vs) &= \sqrt{\sum_a \eta^{(x, y)}_a \left| \sum_b M^{(x, y)}_{\text{y}; s_{x, y}; a, b} h^{(x, y - 1)}_b \right|^2}, \\
+\norm{v}^{(x, y)}(\vs) &= \sqrt{\sum_a \eta^{(x, y)}_a \left| v^{(x, y)}_{s_{x, y}; b} \right|^2},
+\end{align}
+assuming $x$ increases in the snake order. As they are functions of the spin configuration $\vs$, we further define the averages
+\begin{equation}
+\overline{\norm{T}}^{(x, y)} = \sum_\vs q(\vs) \norm{T}^{(x, y)}(\vs),
+\end{equation}
+and similarly $\overline{\norm{M}}^{(x, y)}_\text{x}$, $\overline{\norm{M}}^{(x, y)}_\text{y}$, and $\overline{\norm{v}}^{(x, y)}$, which are all estimated by Monte Carlo sampling. To ease the visualization, we normalize them at each site:
+\begin{equation}
+\tilde{T}^{(x, y)} = \frac{\overline{\norm{T}}^{(x, y)}}{\overline{\norm{T}}^{(x, y)} + \overline{\norm{M}}^{(x, y)}_\text{x} + \overline{\norm{M}}^{(x, y)}_\text{y} + \overline{\norm{v}}^{(x, y)}},
+\end{equation}
+and similarly $\tilde{M}^{(x, y)}_\text{x}$, $\tilde{M}^{(x, y)}_\text{y}$, and $\tilde{v}^{(x, y)}$.
+
+The results are visualized in \cref{fig:tensor-rnn-h-comp}. In the 1D MPS RNN, the matrix terms are particularly large near the ends of rows, because they need to transfer all information about the current row to the next row. While in the 2D MPS RNN, most matrix terms have the same order of magnitude regardless of their directions. In the tensor-RNN, the interesting phenomenon is that the tensor terms are particularly large only in the last row, which are essential to produce the area law of entanglement entropy, as expected in \cref{sec:tensor-rnn}. On the contrary, if there is a large tensor term on every site, then a volume law would be produced.
+
+\section{Conclusion}
+
+In conclusion, the tensor-RNN ansatz is a hybrid architecture between TN and RNN taking both advantages. Compared to MPS which can only produce $O(\ln \chi)$ entanglement entropy and exponentially decaying correlations, there are both analytical and numerical evidence for tensor-RNN to produce the 2D area law of entanglement entropy, as well as numerical evidence for the algebraically decaying correlations in 2D critical systems. Compared to PEPS which has exponentially computational complexity, tensor-RNN supports efficient evaluation in polynomial time, as well as exact sampling in the AR order. As a result, tensor-RNN has higher parameter efficiency than MPS, and also achieves better accuracy of variational approximation than PEPS in a practical computation time.
+
+On the other hand, compared to conventional RNN architectures which are difficult to analytically study and adaptively scale up, the simple multilinear architecture of tensor-RNN allows us to investigate its analytical properties, and systematically improve its accuracy by increasing the bond dimension. The exact mapping from MPS to tensor-RNN leads to the hierarchical initialization, which makes it possible to optimize tensor-RNN with numerous parameters. It remains an open question to exactly construct more 2D states of interest using tensor-RNN, such as the RVB state and the toric code, or provide analytical evidence for the algebraically decaying correlations.
