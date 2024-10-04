@@ -29,7 +29,7 @@ ARNN is an excellent ansatz for variational inference in \cref{eq:fq}, because i
 \centering
 \includegraphics[width=0.9\linewidth]{ch5/arnn_arch.pdf}
 \caption[Architectures of autoregressive neural networks (ARNNs)]{
-Architectures of dense and convolutional autoregressive neural networks (ARNNs) for variational inference.
+Architectures of dense and convolutional ARNNs for variational inference.
 The spins $\vs$ are the inputs to the network.
 The values $\hat{\vs}$ are the outputs from the network, which become parameters of the Bernoulli distributions.
 The values $\vh_i$ are intermediate results in the network.
@@ -111,13 +111,13 @@ This figure is reproduced from Fig.~3 in Ref.~\cite{wu2019solving}.
 
 An experiment to qualitatively study the ability of ARNN to capture multiple ground states is on the Hopfield model in \cref{sec:hopfield}. We construct a Hopfield model with $N = 100$ spins and $n_\text{pat} = 2$ random orthogonal patterns, and train a dense ARNN that only consists of a single layer. Then we generate $10^4$ samples from the ARNN, and compute their probabilities and their overlaps with the two patterns respectively. \Cref{fig:arnn-hop} shows that the ARNN successfully samples the memorized patterns with exponentially higher probabilities than other states, in the retrieval phase with high $\beta$. This indicates the capability of ARNN to avoid mode collapse and capture all the modes separated by exponentially high energy barriers in this Hamiltonian.
 
-\subsubsection{SK model}
+\subsubsection{Sherrington--Kirkpatrick (SK) model}
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=\linewidth]{ch5/arnn_sk.pdf}
 \caption[ARNN results of Sherrington--Kirkpatrick (SK) model and inverse SK problem]{
-(a) Free energy per site $F / N$ for a random instance of the Sherrington--Kirkpatrick (SK) model with $N = 20$ spins, at varying inverse temperature $\beta$, given by a dense ARNN, compared to the exact result by enumeration, the NMF ansatz, and the Bethe ansatz. The inset shows the relative error of the numerical results compared to the exact result.
+(a) Free energy per site $F / N$ for a random instance of the SK model with $N = 20$ spins, at varying inverse temperature $\beta$, given by a dense ARNN, compared to the exact result by enumeration, the NMF ansatz, and the Bethe ansatz. The inset shows the relative error of the numerical results compared to the exact result.
 The iterative solution of the Bethe ansatz converges only when $\beta \le 1.5$. \\
 (b) Reconstruction error of the inverse SK problem with $N = 20$ spins, given by a dense ARNN, compared to the NMF ansatz~\cite{roudi2009ising}, the Sessak--Monasson (SM) expansion~\cite{sessak2009small}, and the Bethe ansatz~\cite{ricci2012bethe}.
 This figure is reproduced from Fig.~4 in Ref.~\cite{wu2019solving}.
@@ -293,7 +293,7 @@ In the following, we present a sampling method proposed in Ref.~\cite{wu2021unbi
 
 \begin{algorithm}[H]
 \caption[Neural cluster updates with symmetries (NCUS)]{
-A sampling step in the neural cluster updates with symmetries (NCUS) for a system of $N$ spins on a square lattice with translation, $D_4$ lattice reflection, and $\bbZ_2$ spin flipping symmetries.
+A sampling step in NCUS for a system of $N$ spins on a square lattice with translation, $D_4$ lattice reflection, and $\bbZ_2$ spin flipping symmetries.
 }
 \label{alg:ncus}
 \begin{algorithmic}[1]
@@ -312,7 +312,7 @@ A sampling step in the neural cluster updates with symmetries (NCUS) for a syste
 \centering
 \includegraphics[width=0.6\linewidth]{ch5/ncus_proc.png}
 \caption[Procedure of neural cluster updates with symmetries (NCUS)]{
-Example of three steps of NCUS applied to a system on the $4 \times 4$ square lattice. The operations in several lines of \cref{alg:ncus} are visualized by colors.
+Examples of three steps of NCUS applied to a system on the $4 \times 4$ square lattice. The operations in several lines of \cref{alg:ncus} are visualized by colors.
 In line $2$, the last $k$ spins chosen are highlighted in {\color[HTML]{1f77b4} blue}.
 In line $3$, some of them are flipped in the proposal.
 Then in line $4$, if the proposal is actually accepted, the flipped spins are shown in {\color[HTML]{d62728} red}.
@@ -340,7 +340,7 @@ The construction of the above clusters introduces an obvious bias that the spins
 \centering
 \includegraphics[width=\linewidth]{ch5/ncus_ising_autocorr.pdf}
 \caption[NCUS results of Ising model]{
-(a) Autocorrelation time $\tau$ for the Ising model on the $16 \times 16$ square lattice, at varying inverse temperature $\beta$, given by different sampling methods.
+(a) Autocorrelation time $\tau$ for the Ising model on the $16 \times 16$ square lattice, at varying inverse temperature $\beta$, given by the sampling methods in this section.
 The inset focuses on their behaviors around the critical point and uses the logarithmic scale on the $y$-axis. \\
 (b) Normalized autocorrelation $r(t)$ at $\beta = 0.44$ around the critical point.
 The inset uses the logarithmic scale on the $x$-axis to focus on their behaviors at small $t$.
@@ -361,7 +361,7 @@ As shown in \cref{fig:ncus-ising-autocorr}~(a), around the critical point, NCUS 
 \centering
 \includegraphics[width=\linewidth]{ch5/ncus_fpm_autocorr.pdf}
 \caption[NCUS results of FPM]{
-(a) Autocorrelation time $\tau$ for the frustrated plaquette model (FPM) on the $32 \times 32$ square lattice, at varying inverse temperature $\beta$, given by different sampling methods.
+(a) Autocorrelation time $\tau$ for the FPM on the $32 \times 32$ square lattice, at varying inverse temperature $\beta$, given by the sampling methods in this section.
 The inset focuses on their behaviors around the critical point and uses the logarithmic scale on the $y$-axis. \\
 (b) Normalized autocorrelation $r(t)$ at $\beta = 0.2$ around the critical point.
 The inset uses the logarithmic scale on the $x$-axis to focus on their behaviors at small $t$.

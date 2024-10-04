@@ -106,7 +106,7 @@ decays exponentially: $C(d) \sim \rme^{-\frac{d}{\xi}}$, where $\xi$ is the corr
 \centering
 \includegraphics[width=0.7\linewidth]{ch8/dmrg.pdf}
 \caption[Density matrix renormalization group (DMRG)]{
-Tensor diagrams used in the density matrix renormalization group (DMRG) algorithm. We show six sites as an example, and omit the vectors on the boundaries for clarity. \\
+Tensor diagrams used in DMRG. We show six sites as an example, and omit the vectors on the boundaries for clarity. \\
 (a) Obtaining the environment tensor $\mH_\text{env}$ by contracting $\mel{\psi}{\hat{H}}{\psi}$ apart from the two sites $\vx$ to be updated. \\
 (b) Obtaining the environment tensor $\mI_\text{env}$ by contracting $\ip{\psi}$ apart from $\vx$. \\
 (c) Decomposing the updated $\vx$ into two sites, where the thick green index $b$ can have a dimension $\chi'$ different from the original $\chi$.
@@ -167,8 +167,8 @@ These difficulties motivate us to propose ansatzes with 2D geometries natively f
 \centering
 \includegraphics[width=0.6\linewidth]{ch8/peps.pdf}
 \caption[Projected entangled-pair state (PEPS)]{
-Projected entangled-pair state (PEPS) as the generalization of MPS to 2D, on a $4 \times 4$ lattice as an example.
-A tensor of size $2 \times \chi \times \chi \times \chi \times \chi$ is placed on each site.
+PEPS as the generalization of MPS to 2D, on a $4 \times 4$ lattice as an example.
+On each site, there is a tensor of size $2 \times \chi \times \chi \times \chi \times \chi$, which is contracted with four neighboring sites and has a free index of spin.
 The vectors on the boundaries are omitted for clarity.
 }
 \label{fig:peps}
