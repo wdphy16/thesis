@@ -295,9 +295,12 @@
     #1
     \end{mdframed}
 }
+\usepackage[normalem]{ulem}
+\newcommand{\rr}[1]{{\color{violet} #1}}
+\newcommand{\rrs}[2]{{\color{violet} \sout{#1} #2}}
+\newcommand{\rrc}[1]{{\color{violet} \it [[#1]]}}
 \newcommand{\comment}[1]{}
 \newcommand{\printpublication}[1]{\AtNextCite{\defcounter{maxnames}{99}}\fullcite{#1}}
-
 \renewcommand{\algorithmiccomment}[1]{\hfill\textcolor{gray}{// #1}}
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
