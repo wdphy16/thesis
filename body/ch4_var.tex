@@ -116,14 +116,15 @@ In classical statistical physics, certain variational ansatzes have been constru
 \section{Naive mean-field ansatz}
 \label{sec:nmf}
 
-An early practice of mean-field theory, known as the Curie--Weiss model~\cite{weiss1907hypothese, nishimori2001statistical}, was proposed to study the phase transition of the classical Ising model. Here we review its derivation and reformulate it in the framework of variational inference.
+In the mean-field approach, we construct an approximated Hamiltonian in which all spins are independent. The original interactions between the spins are represented by the ``mean fields'' interacting with the spins, which are not summed over when evaluating the observables. An early practice of this approach was applied to the Curie--Weiss model~\cite{weiss1907hypothese, nishimori2001statistical}, which is able to describe the phase transition of the classical Ising model. Here we review its derivation and reformulate it in the framework of variational inference.
 
 The Hamiltonian in \cref{eq:cl-ising} can be written as the sum of each spin $s_i$ in its local magnetic field $h_{\text{loc}\,i}$ produced by adjacent spins:
 \begin{align}
 H(\vs) &= J \sum_{\langle i, j \rangle} s_i s_j
 = \frac{1}{2} J \sum_i h_{\text{loc}\,i} s_i, \\
 h_{\text{loc}\,i} &= \sum_{j \in \partial i} s_j,
-\end{align}\rrc{is the mean-field approximation, generally, equivalent to the Weiss model? I am not sure, especially when you have nontrivial $J_{ij}$}
+\end{align}
+\rrc{Is the mean-field approximation, generally, equivalent to the Weiss model? I am not sure, especially when you have nontrivial $J_{i j}$}
 where $\partial i$ denotes the set of nearest neighbors of the site $i$. To find an ansatz whose free energy can be analytically studied, we start from replacing $h_{\text{loc}\,i}$ by an approximate mean field produced by all spins:
 \begin{equation}
 h_{\text{loc}\,i} \approx h_\text{MF} = \frac{2 d}{N} \sum_i s_i,

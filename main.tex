@@ -295,12 +295,10 @@
     #1
     \end{mdframed}
 }
-\usepackage[normalem]{ulem}
-\newcommand{\rr}[1]{{\color{violet} #1}}
-\newcommand{\rrs}[2]{{\color{violet} \sout{#1} #2}}
-\newcommand{\rrc}[1]{{\color{violet} \it [[#1]]}}
+
 \newcommand{\comment}[1]{}
 \newcommand{\printpublication}[1]{\AtNextCite{\defcounter{maxnames}{99}}\fullcite{#1}}
+
 \renewcommand{\algorithmiccomment}[1]{\hfill\textcolor{gray}{// #1}}
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
@@ -347,6 +345,11 @@
 
 \AtEveryBibitem{\clearfield{pages}}
 
+\usepackage[normalem]{ulem}
+\newcommand{\rr}[1]{{\color{violet} #1}}
+\newcommand{\rrs}[2]{{\color{violet} \sout{#1} #2}}
+\newcommand{\rrc}[1]{{\color{violet} \it [[#1]]}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% HEAD: Book-Begin
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -381,11 +384,11 @@
 \part{Introduction}
 \include{body/ch1_intro}
 \include{body/ch2_systems}
-\part{Computational techniques for classical systems}
+\part{Computational studies of classical systems}
 \include{body/ch3_mcmc}
 \include{body/ch4_var}
 \include{body/ch5_arnn}
-\part{Computational techniques for quantum systems}
+\part{Computational studies of quantum systems}
 \include{body/ch6_qmc}
 \include{body/ch7_vmc}
 \include{body/ch8_tn}
