@@ -101,7 +101,7 @@ In this appendix, we present the derivation of the SR formula in \cref{eq:sr-eq}
 \ip{\psi} - \dta \ev{\hat{H}}{\psi} &= \alpha \ip{\psi} + \sum_i \dth_i \ip{\psi}{\pp_i \psi}, \label{eq:sr-eq-1-dtau} \\
 \ip{\pp_j \psi}{\psi} - \dta \mel{\pp_j \psi}{\hat{H}}{\psi} &= \alpha \ip{\pp_j \psi}{\psi} + \sum_i \dth_i \ip{\pp_j \psi}{\pp_i \psi}. \label{eq:sr-eq-2-dtau}
 \end{align}
-We define the operator $\hat{D}_i \ket{\psi}$ = $\diag(\pp_i \ln \psi) \ket{\psi}$, and its adjoint $\bra{\psi} \hat{D}^\dagger_i$ = $\bra{\psi} \diag(\pp_i \ln \psi)$. It can be used as
+We define the operator $\hat{D}_i \ket{\psi}$ = $\diag(\pp_i \ln \psi) \ket{\psi}$, and its adjoint $\bra{\psi} \hat{D}^\dagger_i$ = $\bra{\psi} \diag(\pp_i \ln \psi^*)$. It can be used as
 \begin{align}
 \fpsps{\ip{\psi}{\pp_i \psi}}
 &= \fpsps{\sum_\vs \psi^*(\vs) \pp_i \psi(\vs)} \\
@@ -133,7 +133,7 @@ Using the notations in the main text, we obtain
 \end{equation}
 where
 \begin{align}
-\mS &= \ev{\hat{\vD} \hat{\vD}^\dagger} - \ev{\hat{\vD}} \ev{\hat{\vD}^\dagger}, \\
-\vf &= 2 \left( \ev{\hat{H} \hat{\vD}} - \ev{\hat{H}} \ev{\hat{\vD}} \right),
+S_{i j} &= \evbig{\hat{D}^\dagger_i \hat{D}_j} - \evbig{\hat{D}^\dagger_i} \evbig{\hat{D}_j}, \\
+f_i &= 2 \left( \evbig{\hat{D}^\dagger_i \hat{H}} - \evbig{\hat{D}^\dagger_i} \evbig{\hat{H}} \right),
 \end{align}
-$\dth$ is a vector of the updates to all the parameters, $\vf$ is the gradient vector in \cref{eq:vmc-grad-real}, $\hat{\vD}$ is a vector of all the derivatives $\{\hat{D}_i\}$, and the conjugate transpose $\hat{\vD}^\dagger$ is defined on the index $i$ in the parameter space, unlike the adjoint $\hat{\vD}^\dagger$ defined on the index $\vs$ in the configuration space.
+$\dth$ is a vector of the updates to all the parameters, and $\vf$ is the gradient vector in \cref{eq:vmc-grad-real}.

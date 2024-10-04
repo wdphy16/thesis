@@ -1,7 +1,7 @@
 \chapter{VarBench: variational benchmarks for quantum many-body systems}
 \label{ch:varbench}
 
-\todo{Work in progress}
+In the previous chapters,
 
 \begin{figure}[htb]
 \centering
@@ -21,7 +21,7 @@ This figure is reproduced from Fig.~2 in Ref.~\cite{wu2023variational}.
 \includegraphics[width=1.05\linewidth]{ch10/v_score_polar_doubly_log.pdf}
 \caption[Overview of VarBench results]{
 Overview of the complete benchmark results.
-Each radial slice shows the results for a given Hamiltonian. The bold marker in the slice shows the method with the lowest variational energy (rather than the lowest V-score) for that Hamiltonian, and its V-score determines the clockwise ranking of that Hamiltonian.
+Each slice in the radial direction contains different variational methods for a given Hamiltonian. The bold marker indicates the method with the lowest variational energy (rather than the lowest V-score), which defines the V-score for the Hamiltonian and determines its clockwise ranking.
 The radial axis uses the doubly log scale to show the results across a wide range of V-score magnitude.
 The results with V-scores less than $10^{-16}$ are indistinguishable from the exact solutions due to limited numerical precision.
 The label outside each slice is the name of the Hamiltonian in the dataset, which describes the lattice geometry, the lattice size $N_\text{s}$, the boundary conditions (BC), and the Hamiltonian parameters such as the interaction strength ($\Gamma$, $J_2$, $V$, $U$) and the number of particles ($N_\mathrm{f}$, $N_{\uparrow}$, $N_\mathrm{b}$).
