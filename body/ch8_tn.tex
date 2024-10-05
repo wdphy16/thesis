@@ -1,7 +1,7 @@
 \chapter{Tensor networks (TN)}
 \label{ch:tn}
 
-Quantum many-body systems are naturally represented in spaces of high-rank tensors, and the demand to decompose them into smaller tensors has arisen in studies of their entanglement properties~\cite{white1992density}. The diagrammatic notations of tensors, namely Penrose graphical notations~\cite{penrose1971applications}, have greatly eased the construction and reasoning of complicated contractions with multiple tensors, known as tensor networks (TN)~\cite{bridgeman2017hand, orus2014practical}. Their use has been widely promoted in various fields of physics besides condensed matters, including quantum computing~\cite{feynman1986quantum, nielsen2010quantum, cerezo2021variational}, high-energy physics~\cite{banuls2018tensor, banuls2020review}, and quantum gravity~\cite{perez2013spin, you2016entanglement, hayden2016holographic, asaduzzaman2020tensor}.
+Quantum many-body systems are naturally represented in spaces of high-rank tensors, and the demand to decompose them into smaller tensors has arisen in studies of their entanglement properties~\cite{white1992density}. The diagrammatic notations of tensors, namely Penrose graphical notations~\cite{penrose1971applications}, have greatly eased the construction and reasoning of complicated contractions with multiple tensors, known as tensor networks (TN)~\cite{bridgeman2017hand, orus2014practical}. Their use has been widely promoted in various fields of physics besides condensed matters, including quantum computing~\cite{nielsen2010quantum, cerezo2021variational}, high-energy physics~\cite{banuls2018tensor, banuls2020review}, and quantum gravity~\cite{perez2013spin, you2016entanglement, hayden2016holographic, asaduzzaman2020tensor}.
 
 TNs can also be used as variational ansatzes, which enable exact and efficient summation over exponentially many configurations, instead of Monte Carlo sampling. Compared to neural networks, TNs are usually more controllable and systematically improvable, in the sense that they have few hyperparameters prone to manual tuning, and by tuning these hyperparameters, we can continuously improve the accuracy of variational approximation at the cost of more computation, which may allow extrapolating the variational results to the limit of infinite expressiveness.
 
@@ -56,7 +56,7 @@ Note that we have imposed the open boundary conditions (OBC) in the MPS, where t
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.6\linewidth]{ch8/mps_contract.pdf} \hspace{2cm}
+\includegraphics[width=0.6\linewidth]{ch8/mps_contract.pdf} \hspace*{0.1\linewidth}
 \caption[Sequential contraction of MPS]{
 Sequential contraction of an MPS and its conjugate, where $\mW^{(i)}$ is the intermediate result after the $i$-th step. In each step, we contract $\mW^{(i - 1)}$ and $\mM^{(i)}$, then contract the result with $\mM^{(i) \dagger}$ to obtain $\mW^{(i)}$, which takes $O(\chi^3)$ time and $O(\chi^2)$ space.
 }

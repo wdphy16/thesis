@@ -12,7 +12,7 @@ It has been widely observed that when a variational state is sufficiently close 
 E  - E_0 = A \Var E + O\left( (\Var E)^2 \right),
 \label{eq:var-linear}
 \end{equation}
-where $A$ is a coefficient depending on the properties of the Hamiltonian $\hat{H}$ and the variational state $\ket{psi}$. For example, in a simple two-state system as discussed in \cref{eq:var-two-states}, we have
+where $A$ is a coefficient depending on the properties of the Hamiltonian $\hat{H}$ and the variational state $\ket{\psi}$. For example, in a simple two-state system as discussed in \cref{eq:var-two-states}, we have
 \begin{equation}
 A = \frac{1}{E_1 - E_0}.
 \end{equation}
@@ -28,7 +28,7 @@ and the correlations between these terms decay quickly enough with the spatial d
 \end{equation}
 where $A_\text{corr}$ is a constant for all $i, j$, $d(i, j)$ is the distance between the sites $i, j$, $D$ is the spatial dimension, and $\epsilon$ is a small positive number for all $i, j$. All physical systems of our interest has this clustering property, and we note that for non-critical systems the correlations decay exponentially with the distance. Therefore, we scale the variance by $N$ and obtain $\frac{N\,\Var E}{E^2}$, which is asymptotically independent of $N$.
 
-A remaining issue is that we can arbitrarily shift the Hamiltonian by a constant: $\hat{H} \gets \hat{H} + C$, which does not change any physical property of the system, and our metric should be invariant under this shift. Therefore, we define a zero point of energy $E_\infty$, and replace $E$ by $E - E_\infty$. For spin and fermionic systems with a finite number of energy levels per site, $E_\infty$ is defined to be the expected energy of a random state in the Hilbert space, and we are sure that a variational state after optimization typically has a lower energy than a random state. It is equivalent to the expected energy of a thermal state at infinite temperature, which can be derived from the trace of the Hamiltonian:
+A remaining issue is that we can arbitrarily shift the Hamiltonian by a constant: $\hat{H} \gets \hat{H} + C$, which does not change any physical property of the system, and our metric should be invariant under this shift. To achieve this, we define a zero point of energy $E_\infty$, and replace $E$ by $E - E_\infty$. For spin and fermionic systems with a finite number of energy levels per site, $E_\infty$ is defined to be the expected energy of a random state in the Hilbert space, and we are sure that a variational state after optimization typically has a lower energy than a random state. It is equivalent to the expected energy of a thermal state at infinite temperature, which can be derived from the trace of the Hamiltonian:
 \begin{equation}
 E_\infty = \frac{\Tr \hat{H}}{\dim \calH},
 \label{eq:E-infty-trace}
@@ -49,16 +49,16 @@ where $A$ has the dimension of $E^{-1}$ and is asymptotically independent of $N$
 
 It is worth discussing the possibilities for the V-score to underestimate or overestimate the energy relative error. An intuitive case of the underestimation is when the variational state converges to an excited state, as $\Var E$ under any excited state is zero. This situation can be detected by applying the symmetries of the ground state, or repeating the optimization with different initial parameters. Another case is the mode collapse discussed in \cref{sec:vmc-var}, where we estimate $\Var E$ using $|E_\text{loc}(\vs)|^2$, and it can be detected by actually evaluating the matrix elements of $\hat{H}^2$.
 
-For the extent that the V-score can overestimate the energy relative error, it is proven that
+If the V-score overestimates the energy relative error, an upper bound of their ratio is proven that
 \begin{equation}
 \frac{\text{V-score}}{(E - E_0) / (E_\infty - E_0)} \le N \frac{(E_\infty - E_0) (E_\text{M} - E)}{(E_\infty - E)^2},
 \label{eq:v-score-bound}
 \end{equation}
-where $E_\text{M}$ is the highest energy level of the system, and the variational state can be an arbitrary linear combination of the eigenstates. This upper bound is not very ideal as it is linear in $N$, and it remains an open question to find a tighter bound under more assumptions such as the variational state is close to the ground state.
+where $E_\text{M}$ is the highest energy level of the system, and the variational state can be an arbitrary linear combination of the eigenstates. This upper bound is not very ideal as it is linear in $N$, and it remains an open question to find a tighter bound under more assumptions, such as the variational state is close to the ground state.
 
 \section{Hamiltonians and variational methods in the benchmark}
 
-To demonstrate the universal applicability of V-score, in the VarBench dataset we have collected numerical experiments with many kinds of variational methods on spin and fermionic Hamiltonians. The Hamiltonians mainly include:
+To demonstrate the universal applicability of V-score, in the VarBench project we have collected more than $400$ numerical studies with many kinds of variational methods on spin and fermionic Hamiltonians. The Hamiltonians mainly include:
 \begin{enumerate}
 \item The spin-$\frac{1}{2}$ transverse-field Ising model (TFIM)
 \begin{equation}
@@ -66,7 +66,7 @@ To demonstrate the universal applicability of V-score, in the VarBench dataset w
 + \Gamma \sum_i \hat{\sigma}^x_i,
 \tag{\ref{eq:qu-ising}}
 \end{equation}
-where $\langle i, j \rangle$ runs over nearest neighbors, $\Gamma$ is the transverse field strength, and $\hat{\sigma}^x, \hat{\sigma}^y, \hat{\sigma}^z$ are Pauli matrices. In the dataset we set $J = 1$.
+where $\langle i, j \rangle$ runs over nearest neighbors, $\Gamma$ is the transverse field strength, and $\hat{\sigma}^x, \hat{\sigma}^y, \hat{\sigma}^z$ are Pauli matrices. We always set $J = 1$.
 
 \item The spin-$\frac{1}{2}$ Heisenberg model
 \begin{equation}
@@ -80,14 +80,14 @@ where $\hat{\vsi}_i \cdot \hat{\vsi}_j = \hat{\sigma}^x_i \hat{\sigma}^x_j + \ha
 \hat{H} = J_1 \sum_{\langle i, j \rangle} \hat{\vsi}_i \cdot \hat{\vsi}_j
 + J_2 \sum_{\llangle i, j \rrangle} \hat{\vsi}_i \cdot \hat{\vsi}_j,
 \end{equation}
-where $\llangle i, j \rrangle$ runs over next-nearest neighbors (diagonals if the lattice is a 2D grid), and $J_2$ is the next-nearest neighbor interaction strength. In the dataset we set $J_1 = 1$.
+where $\llangle i, j \rrangle$ runs over next-nearest neighbors (diagonals if the lattice is a 2D grid), and $J_2$ is the next-nearest neighbor interaction strength. We always set $J_1 = 1$.
 
 \item The spinless fermionic $t$-$V$ model
 \begin{equation}
 \hat{H} = -t \sum_{\langle i, j \rangle} \left( \hat{c}^\dagger_i \hat{c}_j + \hat{c}^\dagger_j \hat{c}_i \right)
 + V \sum_{\langle i, j \rangle} \hat{n}_i \hat{n}_j,
 \end{equation}
-where $V$ is the Coulomb repulsive interaction strength, $\hat{c}^\dagger_i$ and $\hat{c}_i$ are the fermionic creation and annihilation operators respectively, $\hat{n}_i = \hat{c}^\dagger_i \hat{c}_i$ is the number operator, and the number of fermions is fixed to $N_\text{f}$. In the dataset we set $t = 1$.
+where $V$ is the Coulomb repulsive interaction strength, $\hat{c}^\dagger_i$ and $\hat{c}_i$ are the fermionic creation and annihilation operators respectively, $\hat{n}_i = \hat{c}^\dagger_i \hat{c}_i$ is the number operator, and the number of fermions is fixed to $N_\text{f}$. We always set $t = 1$.
 
 \item The spin-$\frac{1}{2}$ fermionic Hubbard model
 \begin{equation}
@@ -96,11 +96,9 @@ where $V$ is the Coulomb repulsive interaction strength, $\hat{c}^\dagger_i$ and
 \end{equation}
 where $U$ is the on-site interaction strength, and the numbers of fermions are fixed to $N_\spinup$ and $N_\spindown$. We only consider the case of $N_\spinup = N_\spindown$.
 \end{enumerate}
-These Hamiltonians can be defined on all kinds of lattice geometries, namely 1D chains, 2D grids, the frustrated 2D triangular, kagome, and shuriken (square kagome) lattices, as well as 3D pyrochlore lattices. In addition, we include the Anderson impurity models~\cite{anderson1961localized, kanamori1963electron, kondo1964resistance, lu2019natural, cao2021tree, cao2024vision}.
+These Hamiltonians can be defined on all kinds of lattice geometries, namely 1D chains, 2D grids, the frustrated 2D triangular, kagome, and shuriken (square kagome) lattices, as well as 3D pyrochlore lattices. The boundary conditions of these lattices also affect the results. In addition, we include the Anderson impurity models~\cite{anderson1961localized, kanamori1963electron, kondo1964resistance, lu2019natural, cao2021tree, cao2024vision}.
 
-\vfill
-
-The variational methods in the dataset are categorized by:
+The variational methods benchmarked are categorized by:
 \begin{enumerate}
 \item VMC with physically motivated ansatzes (PMAs) in \cref{sec:jastrow,sec:gutz}.
 \item VMC with neural quantum states (NQSs) in \cref{sec:nqs}.
@@ -109,32 +107,11 @@ The variational methods in the dataset are categorized by:
 \item Variational auxiliary-field quantum Monte Carlo (VAFQMC)~\cite{sorella2021phase} for the Hubbard model.
 \end{enumerate}
 
-\vfill
+An overview of the complete benchmark results is visualized in \cref{fig:v-score}.
 
-\section{Benchmark results}
+\newpage
 
-
-
-
-
-
-
-
-
-
-\begin{figure}[htb]
-\centering
-\includegraphics[width=0.8\linewidth]{ch10/v_score_rel_err.pdf}
-\caption[Comparison of V-score and energy relative error]{
-Comparison of V-score and energy relative error for systems whose exact solutions from ED or QMC are available.
-The black dashed line is the least-squares fit.
-The inset focuses on PQC results simulated on classical hardware without noise.
-This figure is reproduced from Fig.~2 in Ref.~\cite{wu2023variational}.
-}
-\label{fig:v-score-rel-err}
-\end{figure}
-
-\begin{figure}[htb]
+\begin{figure}[!h]
 \centering
 \hspace*{-0.05\linewidth}
 \includegraphics[width=1.05\linewidth]{ch10/v_score_polar_doubly_log.pdf}
@@ -151,21 +128,41 @@ This figure is reproduced from Fig.~3 in Ref.~\cite{wu2023variational}.
 \label{fig:v-score}
 \end{figure}
 
+\newpage
+
+\section{Benchmark results}
+
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.8\linewidth]{ch10/v_score_method_doubly_log.pdf}
+\includegraphics[width=0.75\linewidth]{ch10/v_score_rel_err.pdf}
+\caption[Comparison of V-score and energy relative error]{
+Comparison of V-score and energy relative error for systems whose exact solutions from ED or QMC are available.
+The black dashed line is the least-squares fit.
+The inset focuses on PQC results simulated on classical hardware without noise.
+This figure is reproduced from Fig.~2 in Ref.~\cite{wu2023variational}.
+}
+\label{fig:v-score-rel-err}
+\end{figure}
+
+We first compare the V-scores with the known energy relative errors, for small systems whose ground state energies are obtained by exact diagonalization (ED), and simple systems for which quantum Monte Carlo (QMC) methods produce numerically exact results. As shown in \cref{fig:v-score-rel-err}, the results on the log-log plot can be fitted with high confidence using least-squares regression where the slope is fixed to $1$. This validates their linear relation in \cref{eq:v-score-rel-err}, where the magnitude of the coefficient $B$ does not substantially change between Hamiltonians and variational methods. Therefore, we can use the V-score to predict the energy relative error, at least up to the order of magnitude, for systems whose ground state energies cannot be practically obtained in other ways.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.75\linewidth]{ch10/v_score_method_doubly_log.pdf}
 \caption[V-scores of different methods]{
-V-scores classified by variational methods, including matrix product state (MPS), physically motivated ansatz (PMA), neural quantum state (NQS), and parameterized quantum circuit (PQC), on (a) 1D chains and (b) 2D $J_1$-$J_2$ models.
+V-scores classified by variational methods, including matrix product state (MPS), physically motivated ansatz (PMA), neural quantum state (NQS), and parameterized quantum circuit (PQC), for (a) all Hamiltonians on 1D chains and (b) the $J_1$-$J_2$ model on 2D grids.
 The $x$-axis uses the doubly log scale to show the results across a wide range of V-score magnitude.
 }
 \label{fig:v-score-method}
 \end{figure}
 
-\section{Difficulty of Hamiltonian}
+Then we select some Hamiltonians of interest and compare different kinds of variational methods on them. It is generally agreed that for 1D systems, MPSs can solve them to high accuracy, and the more complicated NQSs and PQCs are unnecessary, which is shown in \cref{fig:v-score-method}~(a). On the contrary, for the 2D $J_1$-$J_2$ model with frustrated interactions, especially in the supposed spin liquid phase~\cite{dagotto1989phase, schulz1996magnetic, hu2013direct, liang2018solving, liu2018gapless, choo2019two, nomura2021dirac}, the most accurate records are produced by NQSs. Therefore, the V-score can clearly demonstrate the appropriate use cases of different variational methods.
+
+\section{Hardness of Hamiltonian}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.8\linewidth]{ch10/v_score_ham_no_ed_doubly_log.pdf}
+\includegraphics[width=0.75\linewidth]{ch10/v_score_ham_no_ed_doubly_log.pdf}
 \caption[V-scores of different Hamiltonians]{
 V-scores classified by Hamiltonian types and lattice geometries.
 A Hamiltonian's V-score is defined as the V-score of the available variational method with the lowest energy on this Hamiltonian.
@@ -176,3 +173,17 @@ This figure is reproduced from Fig.~4 in Ref.~\cite{wu2023variational}.
 }
 \label{fig:v-score-ham}
 \end{figure}
+
+The V-score can not only assess the accuracy of a variational method, but also the hardness to simulate a Hamiltonian. If we have applied all available methods, but still cannot obtain a low V-score, then we consider the Hamiltonian to be hard, so the V-score of the best method (with the lowest variational energy, rather than the lowest V-score) is practically defined to be the V-score of the Hamiltonian.
+
+The V-scores of the Hamiltonians benchmarked are plotted in \cref{fig:v-score-ham}. The easy Hamiltonians include the stoquastic Ising and Heisenberg models on the non-frustrated chains and grids, as well as small-sized systems, which are already well solved with V-scores lower than $10^{-4}$. On the contrary, the hard Hamiltonians include the non-stoquastic $J_1$-$J_2$ and Hubbard models, as well as the frustrated lattices, whose V-scores remain higher than $10^{-2}$.
+
+These hard Hamiltonians can serve as aims for the development of more advanced computational methods, particularly quantum computers. In the theory of quantum computing, the random circuit sampling~\cite{lund2017quantum, boixo2018characterizing, arute2019quantum} is a traditional task to demonstrate the quantum advantage, but the current development of quantum computing platforms cannot actually outperform large-scale classical computers on this task~\cite{gao2021limitations, aharonov2022polynomial, pan2022solving, zhao2024leapfrogging}. Meanwhile, the demonstration of quantum advantage on tasks with more practical impact is still under active research~\cite{daley2022practical}. The hard Hamiltonians identified by the V-score are exactly a kind of tasks promising for quantum computers to solve~\cite{feynman1982simulating}, with practical impact in physics.
+
+In the inset of \cref{fig:v-score-rel-err}, we provide the initial insights of small-scale PQCs simulated on classical hardware without noise, where their V-scores reliably predict their energy relative errors. While the larger-scale simulations of PQCs and the noisy intermediate-scale quantum (NISQ) platforms are under active development, the V-score will be a useful metric to track their progress.
+
+\section{Conclusion}
+
+In conclusion, the V-score is a universal metric for the accuracy of variational approximation, which can be compared both between variational methods and between Hamiltonians. It also measures the hardness of simulating a Hamiltonian, and identifies the hard ones that are not yet solved by any available method. These Hamiltonians are the aims for the future development of computational methods, especially the demonstration of quantum advantage. The generalization of V-score to bosonic and molecular systems is still under research, which would further extend its universality.
+
+The VarBench project is an extensive collection of benchmarks for many kinds of variational methods and quantum many-body systems. Besides witnessing the previous development of methods, it also provides a framework to test new methods on a collection of Hamiltonians, which helps thoroughly and orthogonally assess their performances. We plan to continuously update it with the development of new methods and computing power, especially experimental results of quantum computing platforms, and possibly set up a website like PubChem and PapersWithCode to ease the collaboration of the community. A topic not covered by the VarBench project is the computational costs of all these methods, and it would be another huge challenge to systematically measure them and quantify their relation to the accuracies of the methods.

@@ -81,12 +81,14 @@ NetKet
 NGU
 NGUS
 NIS
+NISQ
 NN
 non-abelian
 non-stoquastic
 NQSs
 observables
 ODEs
+PapersWithCode
 partons
 Pfaffian
 Phasor
@@ -101,6 +103,7 @@ PQCs
 PRNGs
 pseudoinverse
 pseudorandom
+PubChem
 pyrochlore
 RBMs
 ReLU
