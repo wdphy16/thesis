@@ -26,6 +26,7 @@ diagonalize
 diagonalizes
 diagonalizing
 DMRG
+eigensolver
 eigenstate
 eigenstates
 entropies
@@ -50,6 +51,7 @@ Hopfield
 initializations
 Ising
 Jastrow
+kagome
 Khinchin
 Kolmogorov
 Kullback
@@ -71,6 +73,7 @@ MERA
 MinSR
 Monasson
 MPO
+MPSs
 MQLib
 NCU
 NCUS
@@ -92,10 +95,13 @@ PIMC
 PixelCNN
 plaquette
 plaquettes
+PMAs
 polynomially
+PQCs
 PRNGs
 pseudoinverse
 pseudorandom
+pyrochlore
 RBMs
 ReLU
 reparameterization
@@ -110,6 +116,7 @@ semidefinite
 Sessak
 Shanno
 Sherrington
+shuriken
 spinon
 spinons
 Steger
@@ -127,9 +134,11 @@ toric
 truncations
 TwoBo
 unnormalized
+VAFQMC
 VANs
 VarBench
 ViT
+VQE
 WaveNet
 Wirtinger
 Wormald

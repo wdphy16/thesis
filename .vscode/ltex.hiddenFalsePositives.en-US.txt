@@ -1,1 +1,3 @@
+{"rule":"A_RB_NN","sentence":".*doubly log.*"}
 {"rule":"COPYRIGHT","sentence":".*"}
+{"rule":"MISSING_GENITIVE","sentence":".*Anderson impurity.*"}

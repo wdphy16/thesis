@@ -196,6 +196,7 @@ After the above introduction to the general framework of VMC, in the following w
 \section{Variational ansatzes for quantum systems}
 
 \subsection{Jastrow ansatz}
+\label{sec:jastrow}
 
 The Jastrow ansatz~\cite{jastrow1955many} was originally proposed to model the interactions between particles depending on their relative distances. In the context of spin systems, it is a quadratic form of the input configuration, without the normalization~\cite{huse1988simple}:
 \begin{equation}
@@ -204,6 +205,7 @@ The Jastrow ansatz~\cite{jastrow1955many} was originally proposed to model the i
 where $\mW^\text{J}$ is an $N \times N$ matrix of tunable parameters. Despite its simplicity, it is capable of modeling two-spin correlations and providing some initial insights about the system. The symmetries of the system can be imposed in the structure of $\mW^\text{J}$.
 
 \subsection{Gutzwiller projected states}
+\label{sec:gutz}
 
 Quantum many-body systems can exhibit a plethora of collective and emergent behaviors beyond two-spin correlations, such as spinons and fractional excitations in spin liquids~\cite{misguich2010quantum, balents2010spin, mila2015frustrated}. Although we mainly focus on spin systems in this thesis, an approach to study these systems is to transform the Hamiltonian of spins to an equivalent Hamiltonian of fermions, then it is possible to construct highly entangled states using the anti-commutation relations of fermions, which produce the necessary many-body correlations to model the aforementioned intricate behaviors, while can be evaluated in polynomial time. These introduced fermions are known as partons, namely Abrikosov fermions~\cite{abrikosov1965electron} in the following case. The transformation is given by
 \begin{equation}

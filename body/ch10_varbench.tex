@@ -1,9 +1,9 @@
 \chapter{VarBench: variational benchmarks for quantum many-body systems}
 \label{ch:varbench}
 
-The previous chapters have introduced multiple variational methods for quantum many-body systems, including variational Monte Carlo (VMC) in \cref{ch:vmc} and tensor networks (TNs) in \cref{ch:tn}, each with its own appropriate use cases, as well as trade off between accuracy and computational cost. When different methods are applied to the same physical system, there is a simple criterion to assess their performances: A lower variational energy indicates that the method approximates the true ground state more accurately. Besides that, it is also attempting to compare the performances of one method on different physical systems, or compare the universal applicability of two methods on multiple systems. Therefore, we require a metric that can be compared both between methods and between systems.
+The previous chapters have introduced multiple variational methods for quantum many-body systems, including variational Monte Carlo (VMC) in \cref{ch:vmc} and tensor networks (TNs) in \cref{ch:tn}, each with its own appropriate use cases, as well as trade off between accuracy and computational cost. When different methods are applied to the same physical system, there is a simple criterion to assess their performances: A lower variational energy indicates that the method approximates the true ground state more accurately. Besides that, it is also attempting to compare the accuracies of one method on different physical systems, or compare the universal applicability of two methods on multiple systems. Therefore, we require a metric that can be compared both between methods and between systems.
 
-In the following, we present the metric proposed in Ref.~\cite{wu2023variational}, namely V-score, which is used in an extensive project to benchmark the performances of variational methods on a diverse variety of physical systems. Moreover, it can measure the hardness of simulating a physical system, which identifies certain hard systems that are not yet solved by available computational techniques.
+In the following, we present the metric proposed in Ref.~\cite{wu2023variational}, namely V-score. It is used in the VarBench project, an extensive collection of benchmarks for the accuracies of variational methods on a diverse variety of quantum many-body systems. Moreover, the V-score can measure the hardness of simulating a physical system, which identifies certain hard systems that are not yet solved by available computational techniques.
 
 \section{V-score: universal metric for variational accuracy}
 
@@ -45,7 +45,7 @@ It is dimensionless, asymptotically independent of the system size, and invarian
 \frac{E - E_0}{|E_0 - E_\infty|} &= B\,\text{V-score} + O(\text{V-score}^2), \label{eq:v-score-rel-err} \\
 B &= \frac{A (E - E_\infty)^2}{N |E_0 - E_\infty|},
 \end{align}
-where $A$ has the dimension of $E^{-1}$ and is asymptotically independent of $N$. For any Hamiltonian with the clustering property and any variational state converging to the ground state, the magnitude of $B$ will not be too far from $1$. Therefore, the V-score can be a universal metric to predict the energy relative error in variational approximation.
+where $A$ has the dimension of $E^{-1}$ and is asymptotically independent of $N$. For any Hamiltonian with the clustering property and any variational state converging to the ground state, the magnitude of $B$ will not be too far from $1$. Therefore, the V-score can be a universal metric to predict the energy relative error in variational approximation, which will be visualized in \cref{fig:v-score-rel-err}.
 
 It is worth discussing the possibilities for the V-score to underestimate or overestimate the energy relative error. An intuitive case of the underestimation is when the variational state converges to an excited state, as $\Var E$ under any excited state is zero. This situation can be detected by applying the symmetries of the ground state, or repeating the optimization with different initial parameters. Another case is the mode collapse discussed in \cref{sec:vmc-var}, where we estimate $\Var E$ using $|E_\text{loc}(\vs)|^2$, and it can be detected by actually evaluating the matrix elements of $\hat{H}^2$.
 
@@ -56,13 +56,71 @@ For the extent that the V-score can overestimate the energy relative error, it i
 \end{equation}
 where $E_\text{M}$ is the highest energy level of the system, and the variational state can be an arbitrary linear combination of the eigenstates. This upper bound is not very ideal as it is linear in $N$, and it remains an open question to find a tighter bound under more assumptions such as the variational state is close to the ground state.
 
+\section{Hamiltonians and variational methods in the benchmark}
+
+To demonstrate the universal applicability of V-score, in the VarBench dataset we have collected numerical experiments with many kinds of variational methods on spin and fermionic Hamiltonians. The Hamiltonians mainly include:
+\begin{enumerate}
+\item The spin-$\frac{1}{2}$ transverse-field Ising model (TFIM)
+\begin{equation}
+\hat{H} = J \sum_{\langle i, j \rangle} \hat{\sigma}^z_i \hat{\sigma}^z_j
++ \Gamma \sum_i \hat{\sigma}^x_i,
+\tag{\ref{eq:qu-ising}}
+\end{equation}
+where $\langle i, j \rangle$ runs over nearest neighbors, $\Gamma$ is the transverse field strength, and $\hat{\sigma}^x, \hat{\sigma}^y, \hat{\sigma}^z$ are Pauli matrices. In the dataset we set $J = 1$.
+
+\item The spin-$\frac{1}{2}$ Heisenberg model
+\begin{equation}
+\hat{H} = J \sum_{\langle i, j \rangle} \hat{\vsi}_i \cdot \hat{\vsi}_j,
+\tag{\ref{eq:heis}}
+\end{equation}
+where $\hat{\vsi}_i \cdot \hat{\vsi}_j = \hat{\sigma}^x_i \hat{\sigma}^x_j + \hat{\sigma}^y_i \hat{\sigma}^y_j + \hat{\sigma}^z_i \hat{\sigma}^z_j$ is the dot product of two 3D vectors of Pauli operators.
+
+\item The spin-$\frac{1}{2}$ $J_1$-$J_2$ model
+\begin{equation}
+\hat{H} = J_1 \sum_{\langle i, j \rangle} \hat{\vsi}_i \cdot \hat{\vsi}_j
++ J_2 \sum_{\llangle i, j \rrangle} \hat{\vsi}_i \cdot \hat{\vsi}_j,
+\end{equation}
+where $\llangle i, j \rrangle$ runs over next-nearest neighbors (diagonals if the lattice is a 2D grid), and $J_2$ is the next-nearest neighbor interaction strength. In the dataset we set $J_1 = 1$.
+
+\item The spinless fermionic $t$-$V$ model
+\begin{equation}
+\hat{H} = -t \sum_{\langle i, j \rangle} \left( \hat{c}^\dagger_i \hat{c}_j + \hat{c}^\dagger_j \hat{c}_i \right)
++ V \sum_{\langle i, j \rangle} \hat{n}_i \hat{n}_j,
+\end{equation}
+where $V$ is the Coulomb repulsive interaction strength, $\hat{c}^\dagger_i$ and $\hat{c}_i$ are the fermionic creation and annihilation operators respectively, $\hat{n}_i = \hat{c}^\dagger_i \hat{c}_i$ is the number operator, and the number of fermions is fixed to $N_\text{f}$. In the dataset we set $t = 1$.
+
+\item The spin-$\frac{1}{2}$ fermionic Hubbard model
+\begin{equation}
+\hat{H} = -t \sum_{\langle i, j \rangle, \sigma} \left( \hat{c}^\dagger_{i \sigma} \hat{c}_{j \sigma} + \hat{c}^\dagger_{j \sigma} \hat{c}_{i \sigma} \right)
++ U \sum_i \hat{n}_{i \spinup} \hat{n}_{i \spindown},
+\end{equation}
+where $U$ is the on-site interaction strength, and the numbers of fermions are fixed to $N_\spinup$ and $N_\spindown$. We only consider the case of $N_\spinup = N_\spindown$.
+\end{enumerate}
+These Hamiltonians can be defined on all kinds of lattice geometries, namely 1D chains, 2D grids, the frustrated 2D triangular, kagome, and shuriken (square kagome) lattices, as well as 3D pyrochlore lattices. In addition, we include the Anderson impurity models~\cite{anderson1961localized, kanamori1963electron, kondo1964resistance, lu2019natural, cao2021tree, cao2024vision}.
+
+\vfill
+
+The variational methods in the dataset are categorized by:
+\begin{enumerate}
+\item VMC with physically motivated ansatzes (PMAs) in \cref{sec:jastrow,sec:gutz}.
+\item VMC with neural quantum states (NQSs) in \cref{sec:nqs}.
+\item TNs in \cref{ch:tn}, most of which are matrix product states (MPSs) optimized using density matrix renormalization group (DMRG).
+\item Parameterized quantum circuits (PQCs)~\cite{cerezo2021variational, wecker2015progress} optimized using variational quantum eigensolver (VQE)~\cite{peruzzo2014variational, seki2020symmetry, astrakhantsev2023phenomenological}.
+\item Variational auxiliary-field quantum Monte Carlo (VAFQMC)~\cite{sorella2021phase} for the Hubbard model.
+\end{enumerate}
+
+\vfill
+
 \section{Benchmark results}
 
 
 
 
 
-Anderson impurity models~\cite{anderson1961localized, kanamori1963electron, kondo1964resistance, lu2019natural, cao2021tree, cao2024vision}
+
+
+
+
 
 \begin{figure}[htb]
 \centering

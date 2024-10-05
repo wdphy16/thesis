@@ -168,7 +168,8 @@ QMA-complete~\cite{kempe2006complexity, oliveira2008complexity}
 \subsection{Quantum Ising model}
 
 \begin{equation}
-\hat{H} = J \sum_{\langle i, j \rangle} \hat{\sigma}^z_i \hat{\sigma}^z_j + \Gamma \sum_i \hat{\sigma}^x_i,
+\hat{H} = J \sum_{\langle i, j \rangle} \hat{\sigma}^z_i \hat{\sigma}^z_j
++ \Gamma \sum_i \hat{\sigma}^x_i,
 \label{eq:qu-ising}
 \end{equation}
 where the Pauli operators for spin-$\frac{1}{2}$ particles are represented by
@@ -177,7 +178,6 @@ where the Pauli operators for spin-$\frac{1}{2}$ particles are represented by
 \hat{\sigma}^y = \begin{pmatrix} 0 & -i \\ i & 0 \end{pmatrix}, \quad
 \hat{\sigma}^z = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix}.
 \end{equation}
-\dwcomment{Let's use $\sigma$ rather than $S$, and plus sign before $J$ and $\Gamma$, to be consistent with the VarBench paper.}
 
 Stoquasticity, Marshall sign rule
 
@@ -185,5 +185,6 @@ Stoquasticity, Marshall sign rule
 
 \begin{equation}
 \hat{H} = J \sum_{\langle i, j \rangle} \hat{\vsi}_i \cdot \hat{\vsi}_j,
+\label{eq:heis}
 \end{equation}
 where $\hat{\vsi}_i \cdot \hat{\vsi}_j = \hat{\sigma}^x_i \hat{\sigma}^x_j + \hat{\sigma}^y_i \hat{\sigma}^y_j + \hat{\sigma}^z_i \hat{\sigma}^z_j$ is the dot product of two 3D vectors of Pauli operators.
