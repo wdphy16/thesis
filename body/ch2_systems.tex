@@ -56,7 +56,7 @@ However, the efficiency of numerical methods is impeded by the sheer high dimens
 \subsection{Geometrical frustration and residual entropy}
 \label{sec:frustrate}
 
-A difficulty in solving the Ising model comes from the lattice geometry, as shown in \cref{fig:frustrate}. If the system is ferromagnetic (FM) with $J < 0$ in \cref{eq:cl-ising}, where every pair of interacting spins tend to align in the same direction to produce lower energy, then the ground state is intuitively obtained when all spins are aligned. On the contrary, if the system is antiferromagnetic (AFM) with $J > 0$, and the lattice contains odd-length cycles, then there is no longer an intuitive way to obtain the ground state, and even a simple system of three spins has as many as six different ground states with the same energy. This phenomenon is known as the geometrical frustration.
+A difficulty in solving the Ising model comes from the lattice geometry, as shown in \cref{fig:frustrate}. If the system is ferromagnetic (FM) with $J < 0$ in \cref{eq:cl-ising}, where every pair of interacting spins tend to align in the same direction to produce lower energy, then the ground state is intuitively obtained when all spins are aligned. On the contrary, if the system is antiferromagnetic (AFM) with $J > 0$, and the lattice contains odd-length cycles, then there is no longer an intuitive way to obtain the ground state, and even a simple system of three spins has as many as six degenerate ground states with the same energy. This phenomenon is known as the geometrical frustration.
 
 \begin{figure}[htb]
 \centering
@@ -67,7 +67,7 @@ Comparison between the non-frustrated FM and the frustrated AFM interactions for
 \label{fig:frustrate}
 \end{figure}
 
-On a triangular lattice of $N$ spins, the number of ground states $N_\text{GS}$ grows exponentially with $N$, which poses challenge for analytical and numerical methods to accurately evaluate the observables, or merely count the order of magnitude of $N_\text{GS}$. Besides the triangular lattice~\cite{li2015rare}, other kinds of frustrated lattices also appear in the modeling of materials, such as the kagome lattice~\cite{norman2016colloquium} and the pyrochlore (tetrahedral) lattice~\cite{harris1997geometrical}. The disordered ground states can lead to the spin liquid phase in the quantum description of these systems, which is an active topic of research.
+On a triangular lattice of $N$ spins, the number of degenerate ground states $N_\text{GS}$ grows exponentially with $N$, which poses challenge for analytical and numerical methods to accurately evaluate the observables, or merely count the order of magnitude of $N_\text{GS}$. Besides the triangular lattice~\cite{li2015rare}, other kinds of frustrated lattices also appear in the modeling of materials, such as the kagome lattice~\cite{norman2016colloquium} and the pyrochlore (tetrahedral) lattice~\cite{harris1997geometrical}. The disordered ground states can lead to the spin liquid phase in the quantum description of these systems, which is an active topic of research.
 
 At zero temperature, only the ground states contribute to the entropy:
 \begin{equation}
@@ -105,64 +105,43 @@ H(\vs) = J \sum_{\langle i, j \rangle} J_{i j} s_i s_j.
 \end{equation}
 The interaction strength $J_{i j}$ is conventionally sampled from a Gaussian distribution, and in \cref{sec:twobo-results} we will study a variant with binary interactions, where each $J_{i j}$ randomly takes $\pm 1$. In the limit of large system size with the average over random interactions, they can be studied using the replica method~\cite{parisi1979infinite}, and the cases with finite system sizes and specific interactions are still of practical interest.
 
-Besides modeling a variety of non-uniform alloys and compounds~\cite{mydosh2015spin}, spin glasses also appear in the boarder fields of mathematics and computer sciences. Finding the ground state of a spin glass model with specific interactions is equivalent to several combinatorial optimization problems that are known to be hard, such as the quadratic unconstrained binary optimization (QUBO), the maximum cut of graphs (max-cut), and the boolean satisfiability with three literals (3-SAT)~\cite{karp1972reducibility}. In particular, while it has been proven that finding the ground state only has polynomial computational complexity on 2D lattices without external fields, it is NP-hard on 2D lattices with external fields, and on 3D lattices~\cite{barahona1982computational}. Moreover, computing the partition function is \#P-hard~\cite{fefferman2017exact, peters2020location}, which is also highly unlikely to achieve in polynomial time. This means if we aim to exactly and provably find the ground state or its energy in the general case, then any smart algorithm is unlikely to be substantially faster than the brute-force enumeration. Therefore, we are further motivated to develop non-deterministic and heuristic approximation methods for this kind of problems.
+Besides modeling a variety of non-uniform alloys and compounds~\cite{mydosh2015spin}, spin glasses also appear in the boarder fields of mathematics and computer sciences. Finding the ground state of a spin glass model with specific interactions is equivalent to several combinatorial optimization problems that are known to be hard, such as the quadratic unconstrained binary optimization (QUBO), the maximum cut of graphs (max-cut), and the boolean satisfiability with three literals (3-SAT)~\cite{karp1972reducibility}. In particular, while it has been proven that finding the ground state only has polynomial computational complexity on 2D lattices without external fields, it is NP-hard on 2D lattices with external fields, and on 3D lattices~\cite{barahona1982computational}. Moreover, computing the partition function is \#P-hard on general graphs~\cite{fefferman2017exact, peters2020location}, which is also highly unlikely to achieve in polynomial time. This means if we aim to exactly and provably find the ground state or its energy in the general case, then any smart algorithm is unlikely to be substantially faster than the brute-force enumeration. Therefore, we are further motivated to develop non-deterministic and heuristic approximation methods for this kind of problems.
 
 \subsection{Associative memory}
 \label{sec:hopfield}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-The Hopfield model~\cite{hopfield1982neural, amit1985spin} is a model of associative memory. It is defined by the fully connected Ising model in \cref{eq:cl-ising-general} with the interactions
+Ising models also manifest in the studies of associative memory, in the sense that we can encode data in its parameters and retrieve the data by sampling from it. An example is the Hopfield model~\cite{hopfield1982neural, amit1985spin}, which we will study in \cref{sec:arnn-hop}. It is defined by the fully connected Ising model in \cref{eq:cl-ising-general} with the interactions
 \begin{equation}
 J_{i j} = -\frac{1}{N} \sum_{p = 1}^{n_\text{pat}} \xi^{(p)}_i \xi^{(p)}_j,
 \label{eq:hopfield}
 \end{equation}
-where $\{\vxi^{(1)}, \vxi^{(2)}, \ldots, \vxi^{(n_\text{pat})}\}$ are some special spin configurations, known as the ``patterns'', and $n_\text{pat}$ is the number of patterns. We define the overlap between two configurations:
+where $\{\vxi^{(1)}, \vxi^{(2)}, \ldots, \vxi^{(n_\text{pat})}\}$ are some special spin configurations, known as the ``patterns'', and $n_\text{pat}$ is the number of patterns. The patterns are usually orthogonal:
+\begin{equation}
+\ip{\vxi^{(p)}}{\vxi^{(q)}} = 0 \quad \forall p, q,
+\label{eq:cl-ortho}
+\end{equation}
+where the overlap between two configurations is defined by
 \begin{equation}
 \ip{\vs}{\vs'} = \frac{1}{N} \sum_i s_i s'_i.
 \label{eq:cl-overlap}
 \end{equation}
-The patterns need to be orthogonal:
+For any configuration $\vs$ and two orthogonal patterns $\vxi^{(1)}$ and $\vxi^{(2)}$, we have
 \begin{equation}
-\ip{\vxi^{(p)}}{\vxi^{(q)}} = 0, \quad \forall p, q.
-\label{eq:cl-ortho}
+\Big| \ip{\vs}{\vxi^{(1)}} \Big| + \Big| \ip{\vs}{\vxi^{(2)}} \Big| \le 1,
 \end{equation}
-For any configuration $\vs$ and two orthogonal configurations $\vt_1$ and $\vt_2$, we have
-\begin{equation}
-|\ip{\vs}{\vt_1} + \ip{\vs}{\vt_2}| \le 1.
-\end{equation}
-The model has $2 n_\text{pat}$ degenerate ground states: $\vs_0 = \pm \vxi^{(p)}$, $H(\vs_0) = -N$. Therefore, we say the model ``memorizes'' the patterns.
+which will be seen in \cref{fig:arnn-hop}. The model has $2 n_\text{pat}$ degenerate ground states: $\vs_0 = \pm \vxi^{(p)}$, $H(\vs_0) = -N$. Therefore, we say the model ``memorizes'' the patterns.
 
-\subsection{Frustrated plaquette model}
+\subsection{Frustrated plaquette model (FPM)}
 \label{sec:fpm}
 
-The 2D frustrated plaquette model (FPM) we consider in this work is defined as
+While the previous models only have second-order phase transitions, one way to produce first-order phase transitions is to include interactions between more spins. We have constructed a frustrated plaquette model (FPM) as an example of first-order phase transition, which we will study in \cref{sec:ncus-fpm}. It is defined on an $L \times L$ lattice of the spins $s_{x, y}$, with nearest-neighbor $J_1$, third-nearest-neighbor $J_3$, and plaquette $K$ interactions:
 \begin{align}
-H(\vs) = &\phantom{{}+{}} J_1 \sum_{i, j = 1}^L s_{i, j} (s_{i + 1, j} + s_{i, j + 1}) \nonumber \\
-&+ J_3 \sum_{i, j = 1}^L s_{i, j} (s_{i + 2, j} + s_{i, j + 2}) \nonumber \\
-&+ K \sum_{i, j = 1}^L s_{i, j} \, s_{i + 1, j} \, s_{i, j + 1} \, s_{i + 1, j + 1},
+H(\vs) = &\phantom{{}+{}} J_1 \sum_{i, j = 1}^L s_{i, j} (s_{i + 1, j} + s_{i, j + 1})
++ J_3 \sum_{i, j = 1}^L s_{i, j} (s_{i + 2, j} + s_{i, j + 2}) \nonumber \\
+&+ K \sum_{i, j = 1}^L s_{i, j} \, s_{i + 1, j} \, s_{i, j + 1} \, s_{i + 1, j + 1}.
 \label{eq:fpm}
 \end{align}
+When $J_1 = J_3 = -1$, its phase diagram with varying $K$ and $T$ is shown in \cref{fig:fpm-phase}. Besides the paramagnetic (PM) phase at high $T$, it has a ferromagnetic (FM) phase at low $T$ and low $K$, and a ferrimagnetic (fM) phase at low $T$ and high $K$. In the fM phase, the ground state breaks the spin-inversion symmetry and the one-site translational symmetry, which is the result of the competing $J_1$, $J_3$, and $K$ interactions.
 
 \begin{figure}[htb]
 \centering
@@ -170,13 +149,13 @@ H(\vs) = &\phantom{{}+{}} J_1 \sum_{i, j = 1}^L s_{i, j} (s_{i + 1, j} + s_{i, j
 \caption[Phase diagram of frustrated plaquette model (FPM)]{
 Sketch of the phase diagram for the FPM with varying plaquette interaction strength $K$ and temperature $T$, at $J_1 = J_3 = -1$.
 Examples of the ground state in the ferromagnetic (FM) and the ferrimagnetic (fM) phases are shown respectively.
-The first-order phase transition at $K = 2$ is studied in Ref.~\cite{wu2021unbiased}, as indicated by the dashed vertical line.
+The case of $K = 2$ as indicated by the dashed vertical line is studied in Ref.~\cite{wu2021unbiased}, with a first-order phase transition between the fM and the paramagnetic (PM) phases.
 This figure is reproduced from Fig.~3~(a) in Ref.~\cite{wu2021unbiased}.
 }
 \label{fig:fpm-phase}
 \end{figure}
 
-It is worth mentioning that the Wishart planted ensemble~\cite{hamze2020wishart, hibat2021variational} can be a more controllable example of first-order phase transition, as well as a more modern example of associative memory.
+Although not covered by our research, it is worth mentioning that the Wishart planted ensemble~\cite{hamze2020wishart, hibat2021variational} has been proposed to be a more controllable example of first-order phase transition, as well as a more modern example of associative memory.
 
 \section{Quantum systems}
 \label{sec:qu-sys}

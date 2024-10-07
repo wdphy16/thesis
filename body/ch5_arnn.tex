@@ -92,6 +92,7 @@ In particular, the results from the convolutional ARNN are generally more accura
 Then we apply the convolutional ARNN to the more complicated problem of antiferromagnetic (AFM) Ising model on the triangular lattice with PBC, which is geometrically frustrated. As discussed in \cref{sec:frustrate}, the frustration leads to exponentially many degenerate ground states and a non-zero residual entropy, which poses challenge for MCMC and previous variational ansatzes. In \cref{fig:arnn-ising}~(b), the ARNN produces entropies that exponentially decay to a constant as $\beta \to \infty$ for each system size $L$, and converge around the analytical result as $L \to \infty$. These results demonstrate the rich expressiveness of ARNN, which has the potential to accurately approximate exponentially complex target distributions using polynomial computation time and number of parameters.
 
 \subsubsection{Hopfield model}
+\label{sec:arnn-hop}
 
 \begin{figure}[htb]
 \centering
@@ -355,6 +356,7 @@ In all the neural sampling methods, we use a same neural network trained using t
 As shown in \cref{fig:ncus-ising-autocorr}~(a), around the critical point, NCUS produces autocorrelation times lower by orders of magnitude than the previous neural sampling methods, while the autocorrelation times from NGU and NIS are pathologically high. A closer look at the normalized autocorrelation functions in \cref{fig:ncus-ising-autocorr}~(b) confirms these results, where the samples from NCUS quickly decorrelate in less than $10^3$ steps, while those from NGU cannot decorrelate after as many as $10^5$ steps. Moreover, the autocorrelation times from NCUS is comparable to those from the Wolff algorithm, even though the latter is specifically designed for the Ising model. These results illustrate the advantage of cluster updates and symmetry operations in alleviating the problem of critical slowing down, as discussed in \cref{sec:critical-slow}.
 
 \subsubsection{Frustrated plaquette model (FPM)}
+\label{sec:ncus-fpm}
 
 \begin{figure}[htb]
 \centering
