@@ -113,10 +113,12 @@ Moreover, there is no straightforward way to improve the accuracy of variational
 
 In classical statistical physics, certain variational ansatzes have been constructed for specific physical systems, such as variants of the Heisenberg model~\cite{tsallis1976classical, castro2007free, carvalho2012variational}. However, before neural networks became popular, it had been difficult to construct ansatzes that are generalizable to more complicated systems and expressive enough to capture the rich variety of their physical properties. In the following, we discuss some commonly used ansatzes for classical spin systems. They may be easier to sample from than the target Boltzmann distribution, thus can be applied with MCMC importance sampling in \cref{eq:mcmc-importance}; or they may support efficient evaluation of the normalized probability, which is crucial for variational inference in \cref{eq:fq}.
 
-\section{Naive mean-field ansatz}
+\section{Variational ansatzes for classical spin systems}
+
+\subsection{Naive mean-field ansatz}
 \label{sec:nmf}
 
-In the mean-field approach, we construct an approximated Hamiltonian in which all spins are independent. The original interactions between the spins are represented by the ``mean fields'' interacting with the spins, which are not summed over when evaluating the observables. An early practice of this approach was applied to the Curie--Weiss model~\cite{weiss1907hypothese, nishimori2001statistical}, which is able to describe the phase transition of the classical Ising model. Here we review its derivation and reformulate it in the framework of variational inference.
+In the mean-field approach, we construct an approximated Hamiltonian in which all spins are independent. The original interactions between the spins are represented by the ``mean fields'' interacting with the spins, which are not summed over when evaluating the observables. An early practice of this approach was applied to the Curie--Weiss model~\cite{weiss1907hypothese, nishimori2001statistical}, which is able to describe the phase transition of ferromagnets. Here we review its derivation and reformulate it in the framework of variational inference.
 
 The Hamiltonian in \cref{eq:cl-ising} can be written as the sum of each spin $s_i$ in its local magnetic field $h_{\text{loc}\,i}$ produced by adjacent spins:
 \begin{align}
@@ -124,7 +126,6 @@ H(\vs) &= J \sum_{\langle i, j \rangle} s_i s_j
 = \frac{1}{2} J \sum_i h_{\text{loc}\,i} s_i, \\
 h_{\text{loc}\,i} &= \sum_{j \in \partial i} s_j,
 \end{align}
-\rrc{Is the mean-field approximation, generally, equivalent to the Weiss model? I am not sure, especially when you have nontrivial $J_{i j}$}
 where $\partial i$ denotes the set of nearest neighbors of the site $i$. To find an ansatz whose free energy can be analytically studied, we start from replacing $h_{\text{loc}\,i}$ by an approximate mean field produced by all spins:
 \begin{equation}
 h_{\text{loc}\,i} \approx h_\text{MF} = \frac{2 d}{N} \sum_i s_i,
@@ -201,10 +202,10 @@ S_\text{MF} &= -\sum_\vs p_\text{MF}(\vs) \ln p_\text{MF}(\vs) \\
 \end{align}
 Under this ansatz, the free energy $F_\text{MF} = E_\text{MF} - \frac{1}{\beta} S_\text{MF}$ is the same as \cref{eq:fe-mf} derived from the approximated Hamiltonian. It is indeed an upper bound of the true free energy, as it is now derived from the variational ansatz on the original Hamiltonian. For more complicated models on non-regular graphs and with more than two-body interactions, where a self-consistent equation like \cref{eq:cw} cannot be easily constructed, we can still apply the NMF ansatz to obtain a preliminary variational approximation.
 
-\section{Bethe ansatz}
+\subsection{Bethe ansatz}
 \label{sec:bethe}
 
-Starting from an analytical solution to the 1D quantum Heisenberg model~\cite{bethe1931theorie}, the Bethe ansatz has become a gross term for methods to exactly solve~\cite{baxter1995solvable, caravelli2022some} or approximate partition functions on lattices and other graphs~\cite{gujrati1995bethe, mezard2001bethe}. It is also deeply related to the belief propagation, a message passing algorithm used in Bayesian inference and the recent trend of graph machine learning~\cite{yedidia2003understanding, ikeda2004stochastic}. Unlike the NMF ansatz which approximates the original model using only uniform global interactions, the Bethe ansatz utilizes the local geometry to more accurately represent interactions between nearest neighbors.
+Starting from an analytical solution to the 1D quantum Heisenberg model~\cite{bethe1931theorie}, the Bethe ansatz has become a gross term for methods to exactly solve or approximate partition functions on lattices and other graphs~\cite{baxter1995solvable, caravelli2022some, gujrati1995bethe, mezard2001bethe}. It is also deeply related to the belief propagation, a message passing algorithm used in Bayesian inference and the recent trend of graph machine learning~\cite{yedidia2003understanding, ikeda2004stochastic}. Unlike the NMF ansatz which approximates the original model using only uniform global interactions, the Bethe ansatz utilizes the local geometry to more accurately represent interactions between nearest neighbors.
 
 In general, the Bethe ansatz is applicable to any probability distribution defined on a graph $\calG = (\calV, \calE)$, where $\calV$ is the set of sites and $\calE$ is the set of edges, as long as the probability of each configuration can be factorized into two-body interactions:
 \begin{equation}
@@ -273,8 +274,6 @@ When the graph is a tree, including a 1D chain, there actually exists a probabil
 
 \section{Neural network ansatzes}
 \label{sec:nn}
-
-\todo{Move some general introduction to the first chapter}
 
 Neural networks, in the context of modern machine learning, are a diverse class of mathematical functions that are historically inspired by the functionality of biological neural networks~\cite{mackay2003information, goodfellow2016deep}. A sharp difference from the previous ansatzes is that neural networks typically have numerous parameters, where the modern large models have reached hundreds of billions of parameters~\cite{brown2020language}. In theory, they are universal approximators of any well-behaved functions if optimized w.r.t.\ the parameters~\cite{hornik1989multilayer}. Although the ideal optimization of so many parameters is intractable in practice, they can still be far more expressive than traditional function approximators~\cite{sontag1998vc}. On the other hand, the large number of parameters makes them more computationally expensive than traditional approaches, and they are usually executed on graphics processing units (GPUs) and other specialized hardware~\cite{chen2020survey}. The optimization of these parameters is known as ``training'' or ``learning'', highlighting the paradigmatic difference from the traditional optimization problems with few variables.
 
@@ -379,4 +378,4 @@ Another approach is to specifically construct a neural network with tractable no
 
 Besides neural networks, tensor networks~\cite{bridgeman2017hand} with chain or tree geometries also supports tractable normalized probability, which we will discuss in \cref{ch:tn}. However, they are more naturally defined and frequently used as variational ansatzes in quantum systems, while in classical systems they are rather usually used to approximate the partition function as a generalization of the transfer matrix to higher dimensions~\cite{verstraete2006criticality, vanderstraeten2018residual, vanhecke2021solving, lanthier2024tensor}.
 
-A lesser-known family of machine learning models sharing this property are the sum-product networks~\cite{poon2011sum}, which define complicated multivariate distributions using directed graphs. They have been applied to various fields of machine learning~\cite{sanchez2021sum}, and they receive renewed attention with the recently proposed Kolmogorov--Arnold networks (KAN)~\cite{liu2024kan}, but their usage is still not as prevalent as neural networks due to limited support in hardware and software~\cite{barham2019machine}.
+A lesser-known family of machine learning models sharing this property are the sum-product networks~\cite{poon2011sum}, which define complicated multivariate distributions using directed graphs. They have been applied to various fields of machine learning~\cite{sanchez2021sum}, and they receive renewed attention with the recently proposed Kolmogorov--Arnold networks (KANs)~\cite{liu2024kan}, but their usage is still not as prevalent as neural networks due to limited support in hardware and software~\cite{barham2019machine}.

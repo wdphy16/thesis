@@ -1,0 +1,21 @@
+\documentclass[tikz]{standalone}
+\usepackage{stix}
+
+\newcommand{\dn}{{\color{red} $\downarrow$}}
+\newcommand{\up}{$\uparrow$}
+
+\tikzstyle{annot}=[inner sep=1pt]
+
+\begin{document}
+\begin{tikzpicture}[x=0.8cm, y=0.8cm]
+
+\node[annot] (s1) at (0, 0) {\up};
+\node[annot] (s2) at (1, 0) {\dn};
+\node[annot] (s3) at (0.5, 0.732) {\up};
+
+\draw (s1) -- (s2);
+\draw (s1) -- (s3);
+\draw (s2) -- (s3);
+
+\end{tikzpicture}
+\end{document}

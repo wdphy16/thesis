@@ -7,7 +7,7 @@ In this part, we first review the traditional methods of exact diagonalization (
 \section{Imaginary time evolution (ITE)}
 \label{sec:ite}
 
-The ground state vector $\ket{\psi_0}$ provides the most complete information of a quantum many-body system at ground state, which allows obtaining all its properties. We start from a straightforward analytical method to evaluate $\ket{\psi_0}$, using the basic properties of eigenstates. We apply the exponential of the system's Hamiltonian $\hat{H}$, with a scaling parameter $\tau$, on an arbitrary initial state $\ket{\psiinit}$, and obtain
+The ground state vector $\ket{\psi_0}$ provides the most complete information of a quantum many-body system at its ground state, which allows obtaining all its observables. We start from a straightforward analytical method to evaluate $\ket{\psi_0}$, using the basic properties of eigenstates. We apply the exponential of the system's Hamiltonian $\hat{H}$, with a scaling parameter $\tau$, on an arbitrary initial state $\ket{\psiinit}$, and obtain
 \begin{equation}
 \ket{\psi_\tau} = \rme^{-\tau \hat{H}} \ket{\psiinit},
 \label{eq:ite-psi-tau}
@@ -47,6 +47,8 @@ The asymptotic convergence speed of the limit in \cref{eq:ite} depends on the en
 \frac{\ip{\psi_1}{\psi_\tau}}{\ip{\psi_0}{\psi_\tau}} \propto \rme^{-\tau \Delta E}. \label{eq:ite-converge}
 \end{equation}
 This is a root cause of various numerical difficulties in gapless systems, including systems in disordered or critical regimes, such as spin liquids~\cite{misguich2010quantum, balents2010spin, mila2015frustrated}.
+
+\vfill
 
 \section{Exact diagonalization (ED)}
 \label{sec:ed}
@@ -124,4 +126,4 @@ However, the intrinsic complexity of the wave function does not simply disappear
 
 As a well-studied case, if a Hamiltonian is stoquastic, i.e., all its off-diagonal entries are non-positive~\cite{bravyi2008complexity}, then it is guaranteed to be free of the sign problem, i.e., $\psi_0(\vs) \ge 0$ for all $\vs$. For example, the ferromagnetic (FM) Heisenberg model on a 1D chain is stoquastic, while the antiferromagnetic (AFM) one is not. Fortunately, the sign problem of a Hamiltonian can be removed with a change of basis in some cases. In the previous example, an AFM Heisenberg model on a non-frustrated graph can be converted to an FM one by applying the Marshall sign rule~\cite{marshall1955antiferromagnetism}. However, such a transformation is unavailable if the sign problem comes from the intrinsic complexity of the wave function, rather than the apparent choice of the basis.
 
-Various other schemes of QMC have been proposed to alleviate the sign problem, such as the diffusion Monte Carlo (DMC)~\cite{reynolds1982fixed} and the auxiliary-field quantum Monte Carlo (AFQMC)~\cite{zhang2003quantum}, which are beyond the scope of this thesis. In the next chapter, we present a detailed review of another QMC scheme, namely variational Monte Carlo (VMC), upon which this thesis mainly develops.
+Various other schemes of QMC have been proposed to alleviate the sign problem, such as the diffusion Monte Carlo (DMC)~\cite{kalos1974helium, reynolds1982fixed, becca2017quantum10} and the auxiliary-field quantum Monte Carlo (AFQMC, also known as the determinant QMC)~\cite{blankenbecler1981monte, zhang2003quantum}, which are beyond the scope of this thesis. In the next chapter, we present a detailed review of another QMC scheme, namely variational Monte Carlo (VMC), upon which this thesis mainly develops.

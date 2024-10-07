@@ -159,7 +159,7 @@ p_{\text{B} i}(s_i \mid \vs_{< i})
 = \frac{\sum_{\vs_{> i}} p_\text{B}(\vs)}{\sum_{\vs_{\ge i}} p_\text{B}(\vs)}
 = \frac{\sum_{\vs_{> i}} \rme^{-\beta H(\vs)}}{\sum_{\vs_{\ge i}} \rme^{-\beta H(\vs)}},
 \end{equation}
-and simplifying the result. When the Hamiltonian has only two-body interactions in \cref{eq:cl-ising-general}, it has been derived in Ref.~\cite{biazzo2024sparse} that the conditional probability takes the form:
+and simplifying the result. When the Hamiltonian has only two-body interactions, such as the Ising model in \cref{eq:cl-ising-general}, it has been derived in Ref.~\cite{biazzo2024sparse} that the conditional probability takes the form:
 \begin{align}
 p_{\text{B} i}(s_i = +1 \mid \vs_{<i}) &= S\left( 2 \beta \xi_{i i} + \rho_{\text{B} i}\left( \{\xi_{i l} \mid l > i\} \right) \right), \label{eq:twobo} \\
 \xi_{i l} &= \sum_{k < i} J_{k l} s_k, \label{eq:twobo-xi}
@@ -184,7 +184,7 @@ This figure is reproduced from Fig.~1 in Ref.~\cite{biazzo2024sparse}.
 \label{fig:twobo-arch-grid}
 \end{figure}
 
-For the purpose of this thesis, we approximate $\rho_{\text{B} i}$ using a neural network $\rho_i$ with trainable parameters, and we have surprisingly found that using a single dense layer is enough to obtain results with satisfactory accuracies in our numerical experiments. Also, we interpret the linear transformation from the input spins $s_i$ to the intermediate variables $\xi_{i l}$ in \cref{eq:twobo-xi} as another linear layer without bias, whose weights are directly taken from $\mJ$ and not trained. Therefore, \cref{eq:twobo} becomes an ARNN ansatz $q_i(s_i \mid \vs_{< i})$ as shown in \cref{fig:twobo-arch-grid}~(a). This architecture is nicknamed TwoBo, because the authors were tired of the ever-growing lengths of acronyms.
+For the purpose of this thesis, we approximate $\rho_{\text{B} i}$ using a neural network $\rho_i$ with trainable parameters, and we have surprisingly found that using a single dense layer is enough to obtain results with satisfactory accuracies in our numerical experiments. Also, we interpret the linear transformation from the input spins $s_i$ to the intermediate variables $\xi_{i l}$ in \cref{eq:twobo-xi} as another linear layer without bias, whose weights are directly taken from $\mJ$ and not trained. Therefore, \cref{eq:twobo} becomes an ARNN ansatz $q_i(s_i \mid \vs_{< i})$ as shown in \cref{fig:twobo-arch-grid}~(a). This architecture is colloquially named TwoBo, because the authors were tired of the ever-growing lengths of acronyms.
 
 \subsection{Sparsity of intermediate variables}
 \label{sec:twobo-sparse}

@@ -16,7 +16,8 @@ This method is named Monte Carlo, after the casino that would later become famou
 \Var\big[ \bbE_\text{MC}[O] \big] = \frac{1}{M} \Var[\bar{O}],
 \label{eq:monte-carlo-var}
 \end{equation}
-where the sample variance of the estimator $\Var\big[ \bbE_\text{MC}[O] \big] = \bbE_\text{MC}\left[ \left( O - \bbE_\text{MC}[O] \right)^2 \right]$ and the true variance of the observable $\Var[\bar{O}] = \overline{(O - \bar{O})^2}$. Therefore, the sample variance vanishes and the estimator converges to the true value as $M$ increases, given that the true variance is finite, and all samples are independently drawn from the true distribution. \rrc{This is not true in any MCMC algorithm: you always have a finite autocorrelation time. Maybe add a comment and a revised formula for that.} \dwcomment{Even if there is a finite autocorrelation time, the sample variance still goes to $0$ as the sample size goes to infinity. The finite autocorrelation time is equivalent to a multiplicative factor on the sample size, as in \cref{eq:eff-sample-size}.}
+where the sample variance of the estimator $\Var\big[ \bbE_\text{MC}[O] \big] = \bbE_\text{MC}\left[ \left( O - \bbE_\text{MC}[O] \right)^2 \right]$ and the true variance of the observable $\Var[\bar{O}] = \overline{(O - \bar{O})^2}$. Therefore, the sample variance vanishes and the estimator converges to the true value as $M$ increases, given that the true variance is finite, and all samples are independently drawn from the true distribution.
+% \rrc{This is not true in any MCMC algorithm: you always have a finite autocorrelation time. Maybe add a comment and a revised formula for that.} \dwcomment{Even if there is a finite autocorrelation time, the sample variance still goes to $0$ as the sample size goes to infinity. The finite autocorrelation time is equivalent to a multiplicative factor on the sample size, as in \cref{eq:eff-sample-size}.}
 
 \section{Exact sampling}
 
@@ -34,7 +35,9 @@ p(x, y) = q(u) q(v) \begin{Vmatrix}
 x = r \cos \theta, \quad y = r \sin \theta, \\
 r = \sqrt{-2 \ln u}, \quad \theta = 2 \pi v,
 \end{gather}
-where $u$ and $v$ are independently sampled from $\calU[0, 1)$, and $\lVert \cdot \rVert$ denotes the absolute value of the determinant of the matrix. Discrete distributions can be obtained by discretizing continuous distributions. For example, the Bernoulli distribution $p(x) = (1 - p_1) \delta_{x, 0} + p_1 \delta_{x, 1}$ with the parameter $p_1 \in [0, 1]$ can be sampled by \cref{alg:bernoulli}. In this thesis, we refer to this kind of sampling methods as exact sampling.
+where $u$ and $v$ are independently sampled from $\calU[0, 1)$, and $\lVert \cdot \rVert$ denotes the absolute value of the determinant of the matrix. Discrete distributions can be obtained by discretizing continuous distributions. For example, the Bernoulli distribution $p(x) = (1 - p_1) \delta_{x, 0} + p_1 \delta_{x, 1}$ with the parameter $p_1 \in [0, 1]$ can be sampled by \cref{alg:bernoulli}. In this thesis, we refer to this kind of sampling methods as exact sampling, also known as direct sampling or perfect sampling.
+
+\vfill
 
 \begin{algorithm}[H]
 \caption[Discrete Bernoulli distribution from continuous uniform distribution]{
@@ -50,6 +53,8 @@ Discrete Bernoulli distribution from continuous uniform distribution.
 \ENDIF
 \end{algorithmic}
 \end{algorithm}
+
+\vfill
 
 \section{Markov chain sampling}
 
@@ -73,13 +78,13 @@ When $p(\vs)$ is the Boltzmann distribution in \cref{eq:boltzmann}, the acceptan
 \begin{equation}
 A(\vs \to \vs') = \min\left( 1, \rme^{\,\beta \left( H(\vs) - H(\vs') \right)} \right).
 \end{equation}
-It avoids computing the partition function $Z$, which consists of a summation over exponentially many configurations. In the case of locally interacting systems, such as \cref{eq:cl-ising-nnn}, the energy difference of flipping a spin $s_i$ simplifies to
+It avoids computing the partition function $Z$, which consists of a summation over exponentially many configurations. In the case of locally interacting systems, such as the Ising model in \cref{eq:cl-ising-general} where each site only interacts with a fixed number of neighbors, the energy difference of flipping a spin $s_i$ simplifies to
 \begin{equation}
 H(\vs) - H(\vs') = 2 s_i \left( \sum_{\text{$j$ that interacts with $i$}} J_{i j} s_j \right),
 \end{equation}
-so the time to compute the acceptance probability, and therefore the total time of a sampling step to propose and accept a sample, only depends on the number of neighbors interacting with a site, rather than the whole system size. This advantage makes MCMC a feasible method to study large systems.
+so the time to compute the acceptance probability, and therefore the total time of a sampling step to propose and accept a sample, only depends on the number of neighbors rather than the whole system size. This advantage makes MCMC a feasible method to study large systems.
 
-After collecting many samples from the Markov chain, we estimate the observables using \cref{eq:monte-carlo}. Care should be taken when generating these samples, as we will discuss in the following.
+After collecting many samples from the Markov chain, we estimate the observables using \cref{eq:monte-carlo}. Care should be taken when generating these samples, as we will discuss the caveats in the following.
 
 \section{Autocorrelation time}
 \label{sec:iat}
@@ -312,6 +317,6 @@ The panel (a) is reproduced from Fig.~5 in Ref.~\cite{wu2021unbiased}.
 \label{fig:fpm-hist-p}
 \end{figure}
 
-A particular consequence of mode collapse is the difficulty of MCMC sampling around first-order phase transitions of many-body systems. The first-order phase transition is characterized by a discontinuity in the energy. As an example, we investigate the transition between the ferrimagnetic (fM) and the paramagnetic (PM) phases in the 2D frustrated plaquette model (FPM) in \cref{sec:fpm}, with $N = L \times L$ spins. When we plot its distribution of energies in \cref{fig:fpm-hist-p}, we can see two peaks appearing around the transition temperature. As shown in the panel (a), the depth of the valley between the two peaks grows as the system size $L$ increases, which indicates an increasing energy barrier that blocks local updates. Compared to the peak on the left, the one on the right contains more excited states, but each has lower probability, so the areas of the two peaks are comparable. When the temperature increases, the low-energy peak shrinks while the high-energy one grows, as shown in the panel (b).
+A particular consequence of mode collapse is the difficulty of MCMC sampling around first-order phase transitions of many-body systems~\cite{binder1987theory}. The first-order phase transition is characterized by a discontinuity in the energy. As an example, we investigate the transition between the ferrimagnetic (fM) and the paramagnetic (PM) phases in the 2D frustrated plaquette model (FPM) in \cref{sec:fpm}, with $N = L \times L$ spins. When we plot its distribution of energies in \cref{fig:fpm-hist-p}, we can see two peaks appearing around the transition temperature. As shown in the panel (a), the depth of the valley between the two peaks grows as the system size $L$ increases, which indicates an increasing energy barrier that blocks local updates. Compared to the peak on the left, the one on the right contains more excited states, but each has lower probability, so the areas of the two peaks are comparable. When the temperature increases, the low-energy peak shrinks while the high-energy one grows, as shown in the panel (b).
 
 The first-order phase transition appears when the two peaks happen to have the same area. In the thermodynamic limit, the probability distribution is exponentially concentrated at the largest peak, so a change of the largest peak causes a discontinuity in the mean energy. Around the phase transition temperature, it is difficult for the system to reach thermal equilibrium, and the system can stay in a metastable state, or can be described by a superposition of multiple classical states. This two-peak distribution proposes challenge to MCMC with local updates, and cluster updates are a viable approach to this problem, as we will discuss in \cref{sec:ncus}.

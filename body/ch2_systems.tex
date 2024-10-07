@@ -1,15 +1,18 @@
-\chapter{Many-body physical systems}
+\chapter{Spin models of many-body systems}
 
-\todo{For now only some notations are written down}
+After the general introduction in the previous chapter, we now provide the formal definitions of the physical systems studied in this thesis, along with the motivations to study them. We mainly focus on systems of spin-$\frac{1}{2}$ particles placed on lattices, and most results are generalizable to higher spins, fermions, and bosons. Specifically, we focus on classical systems in thermal equilibrium, and quantum systems at ground states.
 
-\section{Classical many-body systems at thermal equilibrium}
+\section{Classical systems}
 \label{sec:cl-sys}
 
-In this thesis, we mainly focus on systems consisting of spin-$\frac{1}{2}$ particles, and most results are generalizable to higher spins, fermions, and bosons. The systems are time-independent.
+\subsection{Classical Ising model}
 
-To study a classical system of $N$ Ising spins, we first characterize its microscopic properties using the Hamiltonian function $H(\vs)$, which defines the microscopic energy given the system configuration $\vs$. Here $\vs$ is a vector of $N$ entries $(s_1, s_2, \ldots, s_N)$, and each entry $s_i$ can be either $+1$ or $-1$, representing spin up and down respectively.
-
-Then, we consider an ensemble of many possible configurations of the system following the distribution $p(\vs)$. When the system is at the temperature $T$ in thermal equilibrium, $p(\vs)$ is given by the Boltzmann distribution
+The early studies of the Ising model~\cite{ising1925contribution, niss2008history} predates the modern formulation of quantum physics. It was proposed to describe the properties of ferromagnets using spins $\vs = (s_1, s_2, \ldots, s_N)$ on a lattice of $N$ sites, where each spin $s_i$ can take the values $\pm 1$, so the Hamiltonian function of the system is
+\begin{equation}
+H(\vs) = J \sum_{\langle i, j \rangle} s_i s_j,
+\label{eq:cl-ising}
+\end{equation}
+where $\langle i, j \rangle$ runs over nearest neighbors, and we assume $J = 1$ unless stated otherwise. When the system is in thermal equilibrium, it is described by an ensemble of spin configurations following the Boltzmann distribution
 \begin{equation}
 p_\text{B}(\vs) = \frac{\rme^{-\beta H(\vs)}}{Z},
 \label{eq:boltzmann}
@@ -20,31 +23,51 @@ Z = \sum_\vs \rme^{-\beta H(\vs)}
 \end{equation}
 is the partition function that normalizes the distribution.
 
-Knowing the distribution of the configurations, we can obtain the macroscopic expectation value of any physical observable $O$ by
+While the Curie--Weiss mean field theory~\cite{weiss1907hypothese} predicted a second-order phase transition at the critical point $\beta_\text{c} = \frac{1}{2 D}$, where $D$ is the spatial dimension, the analytical solutions established that there is no phase transition in 1D~\cite{ising1925contribution}, a second-order phase transition in the thermodynamic limit in 2D~\cite{onsager1944crystal}, as well as second-order phase transitions in 4D and higher where the mean field theory is asymptotically exact~\cite{als1977mean}. However, no analytical solution in 3D is known yet~\cite{viswanathan2022does}.
+
+Although the above formulation of spins is too simplified in the viewpoint of quantum physics, the Ising model manifested in the studies of various quantum systems, as we will see in \cref{sec:qu-ising}, notably being the simplest model for quantum phase transitions~\cite{sachdev2001quantum}. The classical formulation is still relevant because any quantum Ising model in $d$ dimensions can be mapped to a classical one in $d + 1$ dimensions in the same universality class~\cite{hertz1976quantum}, which opens a practical way to study these quantum systems.
+
+Knowing the distribution of the configurations $p(\vs)$, we can obtain the macroscopic expectation value of any physical observable $O(\vs)$ by
 \begin{equation}
 \bar{O} = \sum_\vs p(\vs) O(\vs).
 \label{eq:cl-obs}
 \end{equation}
+The observables of common interest include the energy $E$, the heat capacity $\calC_V$, the magnetization $M$, the magnetic susceptibility $\chi_M$, and the spin correlations $C(d)$, which can be alternatively formulated as derivatives of the partition function. It is also feasible to evaluate the entropy
+\begin{equation}
+S = -\sum_\vs p(\vs) \ln p(\vs)
+\end{equation}
+and the free energy
+\begin{equation}
+F = -T \ln Z = E - T S,
+\end{equation}
+which notably require to evaluate the partition function itself in $\ln p(\vs)$, and lead to extra difficulty compared to the above observables.
 
-The observables of common interest include the energy $E$, the heat capacity $\calC_V$, the magnetization $M$, the magnetic susceptibility $\chi_M$, and the spin correlations $C_{i j}$.
-
-Free energy $F = -T \ln Z = E - T S$
-
-Entropy $S = -\sum_\vs p(\vs) \ln p(\vs)$
-
-Ground state $\vs_0 = \arg\min_\vs H(\vs)$
-
-Ground state energy $E_0 = \min_\vs H(\vs) = \lim_{T \to 0} E$
-
-The analytical solution to calculate the observable is attainable only in some cases of simple systems. Many 1D classical systems are solvable using the transfer matrix method~\cite{chaikin1995principles5}, with a few 2D classical and 1D quantum results such as the celebrated Onsager's solution for the 2D Ising model~\cite{onsager1944crystal, baxter1995solvable,march2016exactly, caravelli2022some}. In the remaining cases, which include many rich and unknown physical phenomena, numerical methods are required to compute them.
+The analytical solutions to calculate these observables are attainable only in some cases of simple lattice geometries and interactions. Many 1D systems are solvable using the transfer matrix method~\cite{chaikin1995principles5}, with a few results in 2D~\cite{baxter1995solvable, march2016exactly, caravelli2022some}. In the remaining cases, which include rich and unknown physical phenomena, numerical methods are required to study them.
 
 The summation in \cref{eq:cl-obs} runs over $2^N$ possible configurations of the system in total, which is exponentially large and quickly becomes intractable as $N$ increases. As of this writing, the largest supercomputers in the world have peak computational power on the order of $10^{18}$ floating point operations per second ($1$ exaFLOPS)~\cite{kogge2022frontier}, which can sum over only $81$ spins in the ``reasonable'' time budget of a month, even if the summation is unrealistically optimized to take one floating point operation for each configuration, and other costs such as the storage are ignored. This means we can only resort to approximation methods to compute the expectation in practice, which we will discuss in the following chapters.
+
+\subsection{Geometric frustration}
+\label{sec:frustrate}
 
 Computational complexity of computing $Z$, so smart exact methods are not much better than brute force~\cite{barahona1982computational}
 
 Relation to combinatorial optimization
 
-\subsection{Classical Ising model}
+Open boundary conditions (OBC) and periodic boundary conditions (PBC)
+
+Square lattice and triangular lattice, geometrical frustration
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.5\linewidth]{ch2/frustrate.pdf}
+\caption[Frustrated interactions in Ising model]{
+TODO
+}
+\label{fig:frustrate}
+\end{figure}
+
+\subsection{Random interactions}
+\label{sec:random-interactions}
 
 The Ising model of spin-$\frac{1}{2}$ particles with general two-body interactions $J_{i j}$ is written as:
 \begin{equation}
@@ -53,26 +76,31 @@ H(\vs) = \sum_{i, j} J_{i j} s_i s_j.
 \end{equation}
 In this thesis, we omit the external fields for simplicity.
 
-In the simplest case, we only consider uniform nearest neighbor interactions:
+% We can also consider local interactions beyond nearest neighbors, which are homogeneous and isotropic, but depend on the distance:
+% \begin{equation}
+% H(\vs) = J_1 \sum_{\langle i, j \rangle} s_i s_j + J_2\!\sum_{\llangle i, j \rrangle}\!s_i s_j + J_3\!\!\sum_{\langle\!\langle\!\langle i, j \rangle\!\rangle\!\rangle}\!\!s_i s_j \ldots
+% \label{eq:cl-ising-nnn}
+% \end{equation}
+
+\subsubsection{Sherrington--Kirkpatrick (SK) model}
+\label{sec:sk}
+
+The Sherrington--Kirkpatrick (SK) model is defined by the fully connected Ising model in \cref{eq:cl-ising-general} with each interaction $J_{i j}$ sampled from a Gaussian distribution with zero mean and a variance of $\frac{1}{N}$.
+
+\subsubsection{Edwards--Anderson (EA) model}
+\label{sec:ea}
+
+The Edwards--Anderson (EA) model is defined by the Ising model in \cref{eq:cl-ising-general} with random interactions on a graph. For the purpose of this thesis, we consider the EA model with binary interactions, where each $J_{i j}$ randomly takes $+1$ or $-1$ if there is an edge between $i$ and $j$ in the graph, and $0$ otherwise. The graph can be a 2D or 3D grid, as well as a random regular graph (RRG).
+
+The ground state
 \begin{equation}
-H(\vs) = J \sum_{\langle i, j \rangle} s_i s_j,
-\label{eq:cl-ising}
+\vs_0 = \arg\min_\vs H(\vs)
 \end{equation}
-where $\langle i, j \rangle$ runs over nearest neighbors, and we assume $J = 1$ unless stated otherwise.
+is also of interest with non-trivial interactions, which appears as combinatorial optimization problems in mathematics and computer sciences, such as maximum cut~\cite{edwards1973some} and quadratic unconstrained binary optimization (QUBO)~\cite{kochenberger2014unconstrained}.
 
-We can also consider local interactions beyond nearest neighbors, which are homogeneous and isotropic, but depend on the distance:
-\begin{equation}
-H(\vs) = J_1 \sum_{\langle i, j \rangle} s_i s_j + J_2\!\sum_{\llangle i, j \rrangle}\!s_i s_j + J_3\!\!\sum_{\langle\!\langle\!\langle i, j \rangle\!\rangle\!\rangle}\!\!s_i s_j \ldots
-\label{eq:cl-ising-nnn}
-\end{equation}
+\subsection{Associative memory}
 
-Square lattice and triangular lattice, geometrical frustration
-
-Open boundary conditions (OBC) and periodic boundary conditions (PBC)
-
-Disorder in $J$
-
-\subsection{Hopfield model}
+\subsubsection{Hopfield model}
 \label{sec:hopfield}
 
 The Hopfield model~\cite{hopfield1982neural, amit1985spin} is a model of associative memory. It is defined by the fully connected Ising model in \cref{eq:cl-ising-general} with the interactions
@@ -96,15 +124,7 @@ For any configuration $\vs$ and two orthogonal configurations $\vt_1$ and $\vt_2
 \end{equation}
 The model has $2 n_\text{pat}$ degenerate ground states: $\vs_0 = \pm \vxi^{(p)}$, $H(\vs_0) = -N$. Therefore, we say the model ``memorizes'' the patterns.
 
-\subsection{Sherrington--Kirkpatrick (SK) model}
-\label{sec:sk}
-
-The Sherrington--Kirkpatrick (SK) model is defined by the fully connected Ising model in \cref{eq:cl-ising-general} with each interaction $J_{i j}$ sampled from a Gaussian distribution with zero mean and a variance of $\frac{1}{N}$.
-
-\subsection{Edwards--Anderson (EA) model}
-\label{sec:ea}
-
-The Edwards--Anderson (EA) model is defined by the Ising model in \cref{eq:cl-ising-general} with random interactions on a graph. For the purpose of this thesis, we consider the EA model with binary interactions, where each $J_{i j}$ randomly takes $+1$ or $-1$ if there is an edge between $i$ and $j$ in the graph, and $0$ otherwise. The graph can be a 2D or 3D grid, as well as a random regular graph (RRG).
+Warshall ensemble
 
 \subsection{Frustrated plaquette model}
 \label{sec:fpm}
@@ -132,6 +152,14 @@ This figure is reproduced from Fig.~3~(a) in Ref.~\cite{wu2021unbiased}.
 \section{Quantum systems}
 \label{sec:qu-sys}
 
+\subsection{Heisenberg model}
+
+\begin{equation}
+\hat{H} = J \sum_{\langle i, j \rangle} \hat{\vsi}_i \cdot \hat{\vsi}_j,
+\label{eq:heis}
+\end{equation}
+where $\hat{\vsi}_i \cdot \hat{\vsi}_j = \hat{\sigma}^x_i \hat{\sigma}^x_j + \hat{\sigma}^y_i \hat{\sigma}^y_j + \hat{\sigma}^z_i \hat{\sigma}^z_j$ is the dot product of two 3D vectors of Pauli operators.
+
 In the quantum case, we start from studying the ground state, or zero temperature properties of a system. The quantum state $\ket{\psi}$ of the system can be represented in the computational basis by
 \begin{equation}
 \ket{\psi} = \sum_\vs \psi(\vs) \ket{\vs},
@@ -152,20 +180,31 @@ Knowing the quantum state of the system, we can obtain the expectation value of 
 \end{equation}
 where $O(\vs, \vs') = \mel{\vs}{\hat{O}}{\vs'}$. Like the classical case, the summation in \cref{eq:qu-obs} also contains exponentially many terms and is intractable. Worse still, to exactly compute the ground state vector in \cref{eq:gs} in general, one needs the exact diagonalization (ED) of the $2^N \times 2^N$ Hamiltonian matrix, which takes even higher exponential time~\cite{weisse2008exact}. Therefore, we again need approximation methods to study the system in practice.
 
-Beyond the ground state, the quantum system can be a mixed state characterized by a density matrix, and represented in the eigenbasis by
-\begin{equation}
-\hat{\rho} = \sum_i p_i \ket{\psi_i}\bra{\psi_i},
-\end{equation}
-where $\ket{\psi_i}$ is the $i$-th lowest eigenstate of the Hamiltonian, and $p_i$ is the corresponding probability of measuring this state. When the system is at the temperature $T$ in thermal equilibrium, $p_i$ is given by the Boltzmann distribution. Knowing the density matrix, we can obtain the expectation value of any physical observable $\hat{O}$ by
-\begin{equation}
-\bar{O} = \tr[\hat{O} \hat{\rho}].
-\label{eq:dm-obs}
-\end{equation}
-The density matrix poses extra difficulties of computing both the states $\ket{\psi_i}$ and their probabilities $p_i$. In this thesis, we mainly focus on the ground state.
+Stoquasticity, Marshall sign rule
 
 QMA-complete~\cite{kempe2006complexity, oliveira2008complexity}
 
-\subsection{Quantum Ising model}
+\subsection{Transverse-field Ising model (TFIM)}
+\label{sec:qu-ising}
+
+Tight banding~\cite{slater1954simplified}
+
+Special case of anisotropic Heisenberg model~\cite{katsura1962statistical}
+
+Phenomenological model with fictitious spins, such as the order-disorder transition of the ferroelectric crystal KH$_2$P0$_4$~\cite{de1963collective}.
+
+
+
+
+
+simplest one to exhibit zero-temperature quantum phase transition driven by quantum fluctuations~\cite{sachdev2001quantum}
+
+
+Ising ferromagnet
+
+LiHOF$_4$~\cite{bitko1996quantum}
+
+CoNb$_2$O$_6$~\cite{coldea2010quantum}
 
 \begin{equation}
 \hat{H} = J \sum_{\langle i, j \rangle} \hat{\sigma}^z_i \hat{\sigma}^z_j
@@ -179,12 +218,19 @@ where the Pauli operators for spin-$\frac{1}{2}$ particles are represented by
 \hat{\sigma}^z = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix}.
 \end{equation}
 
-Stoquasticity, Marshall sign rule
+We refer to Ref.~\cite{suzuki2012quantum} for the theoretical study of the phase transition in TFIM and its variants.
 
-\subsection{Quantum Heisenberg model}
+In 2D, $\Gamma_\text{c} \approx 3.04438(2)$~\cite{blote2002cluster}
 
+\subsection{Quantum thermal state}
+
+Beyond the ground state, the quantum system can be a mixed state characterized by a density matrix, and represented in the eigenbasis by
 \begin{equation}
-\hat{H} = J \sum_{\langle i, j \rangle} \hat{\vsi}_i \cdot \hat{\vsi}_j,
-\label{eq:heis}
+\hat{\rho} = \sum_i p_i \ket{\psi_i}\bra{\psi_i},
 \end{equation}
-where $\hat{\vsi}_i \cdot \hat{\vsi}_j = \hat{\sigma}^x_i \hat{\sigma}^x_j + \hat{\sigma}^y_i \hat{\sigma}^y_j + \hat{\sigma}^z_i \hat{\sigma}^z_j$ is the dot product of two 3D vectors of Pauli operators.
+where $\ket{\psi_i}$ is the $i$-th lowest eigenstate of the Hamiltonian, and $p_i$ is the corresponding probability of measuring this state. When the system is at the temperature $T$ in thermal equilibrium, $p_i$ is given by the Boltzmann distribution. Knowing the density matrix, we can obtain the expectation value of any physical observable $\hat{O}$ by
+\begin{equation}
+\bar{O} = \tr[\hat{O} \hat{\rho}].
+\label{eq:dm-obs}
+\end{equation}
+The density matrix poses extra difficulties of computing both the states $\ket{\psi_i}$ and their probabilities $p_i$. In this thesis, we mainly focus on the ground state.
