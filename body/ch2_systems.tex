@@ -25,7 +25,7 @@ is the partition function that normalizes the distribution.
 
 While the Curie--Weiss mean field theory~\cite{weiss1907hypothese} predicted a second-order phase transition at the critical point $\beta_\text{c} = \frac{1}{2 D}$, where $D$ is the spatial dimension, the analytical solutions established that there is no phase transition in 1D~\cite{ising1925contribution}, a second-order phase transition in the thermodynamic limit in 2D at $\beta_\text{c} = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$~\cite{onsager1944crystal}, as well as second-order phase transitions in 4D and higher where the mean field theory is asymptotically exact~\cite{als1977mean}. However, no analytical solution in 3D is known yet~\cite{viswanathan2022does}.
 
-Although the above formulation of spins is too simplified in the viewpoint of quantum physics, the Ising model manifested in the studies of various quantum systems, as we will see in \cref{sec:qu-ising}, notably being the simplest model for quantum phase transitions~\cite{sachdev2001quantum}. The classical formulation is still relevant because any quantum Ising model in $d$ dimension can be mapped to a classical one in $d + 1$ dimension in the same universality class~\cite{hertz1976quantum}, which opens a practical way to study these quantum systems.
+Although the above formulation of spins is too simplified in the viewpoint of quantum physics, the Ising model revived in the studies of various quantum systems, as we will see in \cref{sec:qu-ising}, notably being the simplest model for quantum phase transitions~\cite{sachdev2001quantum}. The classical formulation is still relevant because any quantum Ising model in $d$ dimension can be mapped to a classical one in $d + 1$ dimension in the same universality class~\cite{hertz1976quantum}, which opens a practical way to study these quantum systems.
 
 \subsection{Observables}
 
@@ -42,21 +42,21 @@ and the free energy
 \begin{equation}
 F = -T \ln Z = E - T S,
 \end{equation}
-which require to evaluate the partition function itself in $\ln p(\vs)$, and lead to extra difficulty compared to the above observables. Moreover, the ground state energy
+which require to evaluate the partition function itself in $\ln p(\vs)$, and lead to extra difficulty compared to the above observables. Moreover, the ground state and its energy
 \begin{align}
-E_0 &= \lim_{T \to 0} E = H(\vs_0), \\
-\vs_0 &= \arg\min_\vs H(\vs)
+\vs_0 &= \arg\min_\vs H(\vs), \\
+E_0 &= \lim_{T \to 0} E = H(\vs_0)
 \end{align}
-is of interest with non-trivial lattice geometries and interactions, which has its root in combinatorial optimization problems in mathematics and computer sciences, as we will discuss in \cref{sec:random-interactions}.
+are of interest with non-trivial lattice geometries and interactions, which has its root in combinatorial optimization problems in mathematics and computer sciences, as we will discuss in \cref{sec:random-interactions}.
 
-The analytical solutions to calculate these observables are attainable only in some cases of simple lattice geometries and interactions. Many 1D systems are solvable using the transfer matrix method~\cite{chaikin1995principles5}, with a few results in 2D~\cite{baxter1995solvable, march2016exactly, caravelli2022some}. In the remaining cases, which include rich and unknown physical phenomena, numerical methods are required to study them.
+The analytical solutions to these observables are attainable only in some cases of simple lattice geometries and interactions. Many 1D systems are solvable using the transfer matrix method~\cite{chaikin1995principles5}, with a few results in 2D~\cite{baxter1995solvable, march2016exactly, caravelli2022some}. In the remaining cases, which include rich and unknown physical phenomena, numerical methods are required to study them.
 
 However, the efficiency of numerical methods is impeded by the sheer high dimension of the configuration space. The summation in \cref{eq:cl-obs} runs over $2^N$ possible configurations of the system in total, which is exponentially large and quickly becomes intractable as $N$ increases. As of this writing, the largest supercomputers in the world have peak computational power on the order of $10^{18}$ floating-point operations per second ($1$ exaFLOPS)~\cite{kogge2022frontier}, which can sum over only $81$ spins in the ``sane'' time budget of a month, even if the summation is unrealistically optimized to take one floating-point operation for each configuration, and other costs such as the storage are ignored. This means we can only resort to approximation methods to compute the expectation in practice, which we will discuss in the following chapters.
 
 \subsection{Geometrical frustration and residual entropy}
 \label{sec:frustrate}
 
-A difficulty in solving the Ising model comes from the lattice geometry, as shown in \cref{fig:frustrate}. If the system is ferromagnetic (FM) with $J < 0$ in \cref{eq:cl-ising}, where every two spins tend to align in the same direction to produce lower energy, then the ground state is intuitively obtained when all spins are aligned. On the contrary, if the system is antiferromagnetic (AFM) with $J > 0$, and the lattice contains odd-length cycles, then there is no longer an intuitive way to obtain the ground state, and even a simple system of three spins has six different ground states with the same energy. This phenomenon is known as the geometrical frustration.
+A difficulty in solving the Ising model comes from the lattice geometry, as shown in \cref{fig:frustrate}. If the system is ferromagnetic (FM) with $J < 0$ in \cref{eq:cl-ising}, where every pair of interacting spins tend to align in the same direction to produce lower energy, then the ground state is intuitively obtained when all spins are aligned. On the contrary, if the system is antiferromagnetic (AFM) with $J > 0$, and the lattice contains odd-length cycles, then there is no longer an intuitive way to obtain the ground state, and even a simple system of three spins has as many as six different ground states with the same energy. This phenomenon is known as the geometrical frustration.
 
 \begin{figure}[htb]
 \centering
@@ -69,7 +69,19 @@ Comparison between the non-frustrated FM and the frustrated AFM interactions for
 
 On a triangular lattice of $N$ spins, the number of ground states $N_\text{GS}$ grows exponentially with $N$, which poses challenge for analytical and numerical methods to accurately evaluate the observables, or merely count the order of magnitude of $N_\text{GS}$. Besides the triangular lattice~\cite{li2015rare}, other kinds of frustrated lattices also appear in the modeling of materials, such as the kagome lattice~\cite{norman2016colloquium} and the pyrochlore (tetrahedral) lattice~\cite{harris1997geometrical}. The disordered ground states can lead to the spin liquid phase in the quantum description of these systems, which is an active topic of research.
 
-At zero temperature, only the ground states contribute to the entropy $S = \ln N_\text{GS}$. In the thermodynamic limit $N \to \infty$, we assume $N_\text{GS} = A \rme^{c N}$, where $A$ and $c$ are coefficients to be determined. Then we have $\frac{S}{N} = \frac{\ln A}{N} + c$, which converges to $c$ as $N \to \infty$, and $c$ is known as the residual entropy~\cite{wannier1950antiferromagnetism, mambrini1999residual, vanderstraeten2018residual}. The existence of a non-zero residual entropy indicates the exponentially large number of degenerate ground states. For the relatively simple case of triangular Ising model, the analytical result has been derived~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}:
+At zero temperature, only the ground states contribute to the entropy:
+\begin{equation}
+S = \ln N_\text{GS}.
+\end{equation}
+In the thermodynamic limit $N \to \infty$, we assume
+\begin{equation}
+N_\text{GS} = A \rme^{c N},
+\end{equation}
+where $A$ and $c$ are coefficients to be determined. Then we have
+\begin{equation}
+\frac{S}{N} = \frac{\ln A}{N} + c,
+\end{equation}
+which converges to $c$ as $N \to \infty$, and $c$ is known as the residual entropy~\cite{wannier1950antiferromagnetism, mambrini1999residual, vanderstraeten2018residual}. The existence of a non-zero residual entropy indicates the exponentially large number of degenerate ground states. For the relatively simple case of triangular Ising model, the analytical result has been derived~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}:
 \begin{equation}
 \lim_{L \to \infty} \lim_{\beta \to \infty} \frac{S}{N} = \frac{2}{\pi} \int_0^{\frac{\pi}{3}} \ln(2 \cos \omega) \dd \omega \approx 0.323.
 \end{equation}
@@ -77,38 +89,48 @@ In addition, we mention that the boundary conditions of finite-sized systems can
 
 \subsection{Spin glass}
 \label{sec:random-interactions}
-\label{sec:sk}
 \label{sec:ea}
+\label{sec:sk}
 
 Besides the geometrical frustration, another cause of disorder in Ising models is that the interactions $J_{i j}$ between the spins can be random. In this case, the Hamiltonian function is written as
 \begin{equation}
 H(\vs) = \sum_{i j} J_{i j} s_i s_j.
 \label{eq:cl-ising-general}
 \end{equation}
-This kind of systems are known as spin glasses~\cite{fischer1993spin, nishimori2001statistical}, because of the analogy to the positional disorder in conventional amorphous glasses.
+This kind of systems are known as spin glasses~\cite{fischer1993spin, nishimori2001statistical}, because of the analogy to the positional disorder in conventional amorphous glasses. The random interactions can produce numerous metastable states, which makes it difficult to investigate the properties around the true ground state. Even with the optimization power of nature, the spin glass materials actually have long relaxation times to reach the equilibrium.
 
-The Sherrington--Kirkpatrick (SK) model is defined by the fully connected Ising model in \cref{eq:cl-ising-general} with each interaction $J_{i j}$ sampled from a Gaussian distribution with zero mean and a variance of $\frac{1}{N}$.
+In particular, the Sherrington--Kirkpatrick (SK) model~\cite{sherrington1975solvable} is an early example of spin classes. It is defined for $N$ spins interacting with each other, and each interaction strength $J_{i j}$ is sampled from a Gaussian distribution with zero mean and a variance of $\frac{1}{N}$. The Edwards--Anderson (EA) model~\cite{edwards1975theory} is another example, which is defined on a lattice with nearest-neighbor interactions:
+\begin{equation}
+H(\vs) = J \sum_{\langle i, j \rangle} J_{i j} s_i s_j.
+\end{equation}
+The interaction strength $J_{i j}$ is conventionally sampled from a Gaussian distribution, and in \cref{sec:twobo-results} we will study a variant with binary interactions, where each $J_{i j}$ randomly takes $\pm 1$. In the limit of large system size with the average over random interactions, they can be studied using the replica method~\cite{parisi1979infinite}, and the cases with finite system sizes and specific interactions are still of practical interest.
 
-The Edwards--Anderson (EA) model is defined by the Ising model in \cref{eq:cl-ising-general} with random interactions on a graph. The graph can be a 2D or 3D grid, as well as a random regular graph (RRG).
-
-For the purpose of this thesis, we consider the EA model with binary interactions, where each $J_{i j}$ randomly takes $+1$ or $-1$ if there is an edge between $i$ and $j$ in the graph, and $0$ otherwise.
-
-such as the quadratic unconstrained binary optimization (QUBO)~\cite{kochenberger2014unconstrained} and the maximum cut of weighted graphs~\cite{edwards1973some}.
-
-Computational complexity of computing $Z$, so smart exact methods are not much better than brute force~\cite{barahona1982computational}
-
-
-
-
-
-
-
-
-
-This means if we aim to exactly and provably find the ground state or its energy in the general case, then any smart algorithm is unlikely to be substantially faster than the brute-force enumeration. Therefore, we are further motivated to develop non-deterministic and heuristic approximation methods for this kind of problems.
+Besides modeling a variety of non-uniform alloys and compounds~\cite{mydosh2015spin}, spin glasses also appear in the boarder fields of mathematics and computer sciences. Finding the ground state of a spin glass model with specific interactions is equivalent to several combinatorial optimization problems that are known to be hard, such as the quadratic unconstrained binary optimization (QUBO), the maximum cut of graphs (max-cut), and the boolean satisfiability with three literals (3-SAT)~\cite{karp1972reducibility}. In particular, while it has been proven that finding the ground state only has polynomial computational complexity on 2D lattices without external fields, it is NP-hard on 2D lattices with external fields, and on 3D lattices~\cite{barahona1982computational}. Moreover, computing the partition function is \#P-hard~\cite{fefferman2017exact, peters2020location}, which is also highly unlikely to achieve in polynomial time. This means if we aim to exactly and provably find the ground state or its energy in the general case, then any smart algorithm is unlikely to be substantially faster than the brute-force enumeration. Therefore, we are further motivated to develop non-deterministic and heuristic approximation methods for this kind of problems.
 
 \subsection{Associative memory}
 \label{sec:hopfield}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 The Hopfield model~\cite{hopfield1982neural, amit1985spin} is a model of associative memory. It is defined by the fully connected Ising model in \cref{eq:cl-ising-general} with the interactions
 \begin{equation}
@@ -130,8 +152,6 @@ For any configuration $\vs$ and two orthogonal configurations $\vt_1$ and $\vt_2
 |\ip{\vs}{\vt_1} + \ip{\vs}{\vt_2}| \le 1.
 \end{equation}
 The model has $2 n_\text{pat}$ degenerate ground states: $\vs_0 = \pm \vxi^{(p)}$, $H(\vs_0) = -N$. Therefore, we say the model ``memorizes'' the patterns.
-
-Warshall ensemble
 
 \subsection{Frustrated plaquette model}
 \label{sec:fpm}
@@ -155,6 +175,8 @@ This figure is reproduced from Fig.~3~(a) in Ref.~\cite{wu2021unbiased}.
 }
 \label{fig:fpm-phase}
 \end{figure}
+
+It is worth mentioning that the Wishart planted ensemble~\cite{hamze2020wishart, hibat2021variational} can be a more controllable example of first-order phase transition, as well as a more modern example of associative memory.
 
 \section{Quantum systems}
 \label{sec:qu-sys}
@@ -200,12 +222,7 @@ Special case of anisotropic Heisenberg model~\cite{katsura1962statistical}
 
 Phenomenological model with fictitious spins, such as the order-disorder transition of the ferroelectric crystal KH$_2$P0$_4$~\cite{de1963collective}.
 
-
-
-
-
-simplest one to exhibit zero-temperature quantum phase transition driven by quantum fluctuations~\cite{sachdev2001quantum}
-
+Simplest one to exhibit zero-temperature quantum phase transition driven by quantum fluctuations~\cite{sachdev2001quantum, suzuki2012quantum}
 
 Ising ferromagnet
 
@@ -224,8 +241,6 @@ where the Pauli operators for spin-$\frac{1}{2}$ particles are represented by
 \hat{\sigma}^y = \begin{pmatrix} 0 & -i \\ i & 0 \end{pmatrix}, \quad
 \hat{\sigma}^z = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix}.
 \end{equation}
-
-We refer to Ref.~\cite{suzuki2012quantum} for the theoretical study of the phase transition in TFIM and its variants.
 
 In 2D, $\Gamma_\text{c} \approx 3.04438(2)$~\cite{blote2002cluster}
 

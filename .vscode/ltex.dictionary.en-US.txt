@@ -120,6 +120,7 @@ RFOT
 RG
 RRGs
 Runge
+satisfiability
 SciPost
 semidefinite
 Sessak
@@ -150,4 +151,5 @@ ViT
 VQE
 WaveNet
 Wirtinger
+Wishart
 Wormald
