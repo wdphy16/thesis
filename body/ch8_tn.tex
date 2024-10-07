@@ -40,7 +40,7 @@ The {\color[HTML]{ff7f0e} orange} legs have the MPO bond dimension $\chi_H$.
 \label{fig:mps-mpo}
 \end{figure}
 
-For a quantum many-body system of $N$ spin-$\frac{1}{2}$ particles, the wave function $\psi(\vs)$ lives in a Hilbert space of $2^N$ dimensions, as defined in \cref{sec:qu-sys}. We can view $\psi(\vs)$ as a tensor with $N$ indices $s_1, s_2, \ldots, s_N$, and each index can take the spin values, which we denote by $\{\spinup, \spindown\}$, and also represented as $\{0, 1\}$ when using $0$-based numeric array indexing. This tensor is visualized at the top of \cref{fig:mps-mpo}~(a).
+For a quantum many-body system of $N$ spin-$\frac{1}{2}$ particles, the wave function $\psi(\vs)$ lives in a Hilbert space of $2^N$ dimension, as defined in \cref{sec:qu-sys}. We can view $\psi(\vs)$ as a tensor with $N$ indices $s_1, s_2, \ldots, s_N$, and each index can take the spin values, which we denote by $\{\spinup, \spindown\}$, and also represented as $\{0, 1\}$ when using $0$-based numeric array indexing. This tensor is visualized at the top of \cref{fig:mps-mpo}~(a).
 
 The matrix product state (MPS) is a TN ansatz to approximately decompose $\psi(\vs)$ into a product of rank-$3$ tensors\footnote{Although they are rank-$3$ tensors, for historical reasons the ansatz is still named ``matrix'' product state.}, also known as the tensor train decomposition~\cite{oseledets2011tensor}. It is formally defined by
 \begin{equation}

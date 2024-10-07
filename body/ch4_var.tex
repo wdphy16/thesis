@@ -118,7 +118,7 @@ In classical statistical physics, certain variational ansatzes have been constru
 \subsection{Naive mean-field ansatz}
 \label{sec:nmf}
 
-In the mean-field approach, we construct an approximated Hamiltonian in which all spins are independent. The original interactions between the spins are represented by the ``mean fields'' interacting with the spins, which are not summed over when evaluating the observables. An early practice of this approach was applied to the Curie--Weiss model~\cite{weiss1907hypothese, nishimori2001statistical}, which is able to describe the phase transition of ferromagnets. Here we review its derivation and reformulate it in the framework of variational inference.
+In the mean-field approach, we construct an approximated Hamiltonian in which all spins are independent. The original interactions between the spins are represented by the ``mean fields'' interacting with the spins, which are not summed over when evaluating the observables. An early practice of this approach was applied to the Curie--Weiss model~\cite{weiss1907hypothese}, which is able to describe the phase transition of ferromagnets. Here we review its derivation and reformulate it in the framework of variational inference.
 
 The Hamiltonian in \cref{eq:cl-ising} can be written as the sum of each spin $s_i$ in its local magnetic field $h_{\text{loc}\,i}$ produced by adjacent spins:
 \begin{align}
@@ -132,13 +132,13 @@ h_{\text{loc}\,i} \approx h_\text{MF} = \frac{2 d}{N} \sum_i s_i,
 \end{equation}
 where $d$ is the average number of interactions per site, and each site has $2 d$ nearest neighbors. Then the locally interacting model becomes a globally interacting mean-field model
 \begin{equation}
-H(\vs) \approx H_\text{MF}(\vs) = \frac{d J}{N} \sum_{i, j} s_i s_j.
+H(\vs) \approx H_\text{MF}(\vs) = \frac{d J}{N} \sum_{i j} s_i s_j.
 \label{eq:ham-mf}
 \end{equation}
 
 Next, we split each spin variable into $s_i = m + \Delta s_i$, where $m$ is the mean magnetization, $\Delta s_i$ is the fluctuation around the mean, and we assume $|\Delta s_i| \ll |m|$. Then \cref{eq:ham-mf} becomes
 \begin{align}
-H_\text{MF}(\vs) &= \frac{d J}{N} \sum_{i, j} (m + \Delta s_i) (m + \Delta s_j) \\
+H_\text{MF}(\vs) &= \frac{d J}{N} \sum_{i j} (m + \Delta s_i) (m + \Delta s_j) \\
 &= d J m \sum_i (m + 2 \Delta s_i) + \calO(\Delta s^2) \\
 &= d J m \sum_i (2 s_i - m) + \calO(\Delta s^2).
 \end{align}

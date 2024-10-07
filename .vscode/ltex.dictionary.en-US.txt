@@ -37,6 +37,7 @@ ergodic
 ESCs
 exaFLOPS
 ferrimagnetic
+ferromagnet
 ferromagnets
 fM
 Fubini
