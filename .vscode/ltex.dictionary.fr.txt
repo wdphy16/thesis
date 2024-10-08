@@ -1,0 +1,12 @@
+autocorrélation
+autorégressifs
+ansatz
+ansatzes
+ARNN
+ARNNs
+NCUS
+RNN
+RNNs
+TNs
+TwoBo
+VarBench
