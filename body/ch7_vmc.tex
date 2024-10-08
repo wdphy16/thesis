@@ -16,11 +16,14 @@ E_\psi &= \frac{\ev{\hat{H}}{\psi}}{\ip{\psi}} \\
 {\ip{\psi}} \\
 &= \sum_\vs q(\vs) E_\text{loc}(\vs), \label{eq:vmc}
 \end{align}
-where
-\begin{align}
-q(\vs) &= \frac{|\psi(\vs)|^2}{\ip{\psi}}, \\
-E_\text{loc}(\vs) &= \sum_{\vs'} H(\vs, \vs') \frac{\psi(\vs')}{\psi(\vs)}.
-\end{align}
+where the probability
+\begin{equation}
+q(\vs) = \frac{|\psi(\vs)|^2}{\ip{\psi}},
+\end{equation}
+and the local energy
+\begin{equation}
+E_\text{loc}(\vs) = \sum_{\vs'} H(\vs, \vs') \frac{\psi(\vs')}{\psi(\vs)}.
+\end{equation}
 
 The variational energy in \cref{eq:vmc} has a similar form to the variational free energy in \cref{eq:fq}. In the same manner discussed there, we can generate samples of the configuration $\vs$ from $q(\vs)$, estimate $E_\psi$ using the Monte Carlo summation, then minimize it w.r.t.\ the parameters in $\psi(\vs)$ using gradient-based optimizers, and a lower $E_\psi$ indicates a better ansatz to approximate the ground state. It is worth mentioning that the state $\ket{\psi}$ obtained from variational optimization can be further improved by iterative eigenvector solvers in \cref{sec:ed}~\cite{hu2013direct, chen2022systematic}, or used as the initial state for other QMC schemes in \cref{sec:qmc}.
 

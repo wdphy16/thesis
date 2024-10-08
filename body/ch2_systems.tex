@@ -6,35 +6,32 @@ After the general introduction in the previous chapter, we now provide the forma
 \label{sec:cl-sys}
 
 \subsection{Ising model}
+\label{sec:cl-ising}
 
 The early studies of the Ising model~\cite{ising1925contribution, niss2008history} predates the modern formulation of quantum physics. It was proposed to describe the properties of ferromagnets using spins $\vs = (s_1, s_2, \ldots, s_N)$ on a lattice of $N$ sites, where each spin $s_i$ can take the values $\pm 1$, so the Hamiltonian function of the system is
 \begin{equation}
 H(\vs) = J \sum_{\langle i, j \rangle} s_i s_j,
 \label{eq:cl-ising}
 \end{equation}
-where $\langle i, j \rangle$ runs over nearest neighbors on the lattice. We omit the external fields for simplicity, and we assume $J = 1$ unless otherwise stated. When the system is in thermal equilibrium at the temperature $T$, it is described by an ensemble of spin configurations following the Boltzmann distribution
-\begin{equation}
-p_\text{B}(\vs) = \frac{\rme^{-\beta H(\vs)}}{Z},
-\label{eq:boltzmann}
-\end{equation}
-where $\beta = \frac{1}{T}$ is the inverse temperature, and
-\begin{equation}
-Z = \sum_\vs \rme^{-\beta H(\vs)}
-\end{equation}
-is the partition function that normalizes the distribution.
+where $\langle i, j \rangle$ runs over nearest neighbors on the lattice. We omit the external fields for simplicity, and we assume $J = 1$ unless otherwise stated. When the system is in thermal equilibrium at the temperature $T$, or more conventionally the inverse temperature $\beta = \frac{1}{T}$, it is described by an ensemble of spin configurations following the Boltzmann distribution
+\begin{align}
+p_\text{B}(\vs) &= \frac{\rme^{-\beta H(\vs)}}{Z}, \label{eq:boltzmann} \\
+Z &= \sum_\vs \rme^{-\beta H(\vs)},
+\end{align}
+where $Z$ is called the partition function.
 
-While the Curie--Weiss mean field theory~\cite{weiss1907hypothese} predicted a second-order phase transition at the critical point $\beta_\text{c} = \frac{1}{2 D}$, where $D$ is the spatial dimension, the analytical solutions established that there is no phase transition in 1D~\cite{ising1925contribution}, a second-order phase transition in the thermodynamic limit in 2D at $\beta_\text{c} = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$~\cite{onsager1944crystal}, as well as second-order phase transitions in 4D and higher where the mean field theory is asymptotically exact~\cite{als1977mean}. However, no analytical solution in 3D is known yet~\cite{viswanathan2022does}.
+While the Curie--Weiss mean field theory~\cite{weiss1907hypothese} predicted a second-order phase transition at the critical point $\beta_\text{c} = \frac{1}{2 D}$, where $D$ is the spatial dimension, the analytical solutions established that there is no phase transition in 1D~\cite{ising1925contribution}, a second-order phase transition in the thermodynamic limit on 2D grids at $\beta_\text{c} = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$~\cite{onsager1944crystal}, as well as second-order phase transitions on 4D and higher-dimensional grids where the mean field theory is asymptotically exact~\cite{als1977mean}. However, no analytical solution in 3D is known yet~\cite{viswanathan2022does}.
 
-Although the above formulation of spins is too simplified in the viewpoint of quantum physics, the Ising model revived in the studies of various quantum systems, as we will see in \cref{sec:qu-ising}, notably being the simplest model for quantum phase transitions~\cite{sachdev2001quantum}. The classical formulation is still relevant because any quantum Ising model in $d$ dimension can be mapped to a classical one in $d + 1$ dimension in the same universality class~\cite{hertz1976quantum}, which opens a practical way to study these quantum systems.
+Although the above formulation of spins is too simplified in the viewpoint of quantum physics, the Ising model revived in the studies of various quantum systems, as we will see in \cref{sec:qu-ising}, notably being the simplest model for quantum phase transitions~\cite{sachdev2001quantum}. The classical formulation is still relevant when the quantum hopping effect described by the transverse field is negligible. With the presence of the transverse field, it has also been shown that any quantum Ising model in $D$ dimension can be mapped to a classical one in $D + 1$ dimension in the same universality class~\cite{hertz1976quantum}, which opens a practical way to study these quantum systems. Moreover, the same mathematical form appears in the tight-binding theory of electronic bands~\cite{treglia1988segregation}.
 
 \subsection{Observables}
 
-Knowing the distribution of the configurations $p(\vs)$, we can obtain the macroscopic expectation value of any physical observable $O(\vs)$ by
+Given the distribution of the configurations $p(\vs)$, we can obtain the macroscopic expectation value of any physical observable $O(\vs)$ by
 \begin{equation}
 \bar{O} = \sum_\vs p(\vs) O(\vs).
 \label{eq:cl-obs}
 \end{equation}
-The observables of common interest include the energy $E$, the heat capacity $\calC_V$, the magnetic susceptibility $\chi_M$, and the spin correlation $C(d)$ as a function of the distance $d$. They can be alternatively formulated as derivatives of the partition function. It is also feasible to evaluate the entropy
+The observables of common interest include the energy $E$, the heat capacity $\calC_V$, the magnetization $M$, the magnetic susceptibility $\chi_M$, and the spin correlation $C(d)$ as a function of the distance $d$. We note that $\calC_V$ and $\chi_M$ can be expressed from the fluctuations of $E$ and $M$ respectively, and alternatively they can be expressed from the derivatives of the partition function. It is also feasible to evaluate the entropy
 \begin{equation}
 S = -\sum_\vs p(\vs) \ln p(\vs)
 \end{equation}
@@ -56,18 +53,18 @@ However, the efficiency of numerical methods is impeded by the sheer high dimens
 \subsection{Geometrical frustration and residual entropy}
 \label{sec:frustrate}
 
-A difficulty in solving the Ising model comes from the lattice geometry, as shown in \cref{fig:frustrate}. If the system is ferromagnetic (FM) with $J < 0$ in \cref{eq:cl-ising}, where every pair of interacting spins tend to align in the same direction to produce lower energy, then the ground state is intuitively obtained when all spins are aligned. On the contrary, if the system is antiferromagnetic (AFM) with $J > 0$, and the lattice contains odd-length cycles, then there is no longer an intuitive way to obtain the ground state, and even a simple system of three spins has as many as six degenerate ground states with the same energy. This phenomenon is known as the geometrical frustration.
+A difficulty in solving the Ising model comes from the lattice geometry, as shown in \cref{fig:frustrate}. If the system is ferromagnetic (FM) with $J < 0$ in \cref{eq:cl-ising}, where every pair of interacting spins tend to align in the same direction to produce lower energy, then the ground state is intuitively obtained when all spins are aligned. On the contrary, if the system is antiferromagnetic (AFM) with $J > 0$, and the lattice contains odd-length cycles, then there is no longer an intuitive way to obtain the ground state, and even a simple system of three spins has as many as six degenerate ground states. This phenomenon is known as the geometrical frustration.
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.5\linewidth]{ch2/frustrate.pdf}
 \caption[Frustrated interactions in Ising model]{
-Comparison between the non-frustrated FM and the frustrated AFM interactions for the Ising model on a triangle of three spins.
+The non-frustrated FM and the frustrated AFM interactions for the Ising model on a triangle of three spins.
 }
 \label{fig:frustrate}
 \end{figure}
 
-On a triangular lattice of $N$ spins, the number of degenerate ground states $N_\text{GS}$ grows exponentially with $N$, which poses challenge for analytical and numerical methods to accurately evaluate the observables, or merely count the order of magnitude of $N_\text{GS}$. Besides the triangular lattice~\cite{li2015rare}, other kinds of frustrated lattices also appear in the modeling of materials, such as the kagome lattice~\cite{norman2016colloquium} and the pyrochlore (tetrahedral) lattice~\cite{harris1997geometrical}. The disordered ground states can lead to the spin liquid phase in the quantum description of these systems, which is an active topic of research.
+On a triangular lattice of $N$ spins, the number of degenerate ground states $N_\text{GS}$ grows exponentially with $N$, which poses challenge for analytical and numerical methods to accurately evaluate the observables, or merely count the order of magnitude of $N_\text{GS}$. Besides the triangular lattice~\cite{liu2020intrinsic}, other kinds of frustrated lattices also appear in the modeling of materials, such as the kagome lattice~\cite{wolf1988ising} and the pyrochlore (tetrahedral) lattice~\cite{siddharthan1999ising}. The disordered ground states can lead to the spin liquid phase in the quantum description of these materials, which is an active topic of research.
 
 At zero temperature, only the ground states contribute to the entropy:
 \begin{equation}
@@ -103,9 +100,9 @@ In particular, the Sherrington--Kirkpatrick (SK) model~\cite{sherrington1975solv
 \begin{equation}
 H(\vs) = J \sum_{\langle i, j \rangle} J_{i j} s_i s_j.
 \end{equation}
-The interaction strength $J_{i j}$ is conventionally sampled from a Gaussian distribution, and in \cref{sec:twobo-results} we will study a variant with binary interactions, where each $J_{i j}$ randomly takes $\pm 1$. In the limit of large system size with the average over random interactions, they can be studied using the replica method~\cite{parisi1979infinite}, and the cases with finite system sizes and specific interactions are still of practical interest.
+The interaction strength $J_{i j}$ is conventionally sampled from a Gaussian distribution, and in \cref{sec:twobo-results} we will study a variant with binary interactions, where each $J_{i j}$ randomly takes $\pm 1$. In the limit of large system size with the average over random interactions, they can be studied using the replica method~\cite{parisi1979infinite}, while the cases with finite system sizes and specific interactions are still of practical interest.
 
-Besides modeling a variety of non-uniform alloys and compounds~\cite{mydosh2015spin}, spin glasses also appear in the boarder fields of mathematics and computer sciences. Finding the ground state of a spin glass model with specific interactions is equivalent to several combinatorial optimization problems that are known to be hard, such as the quadratic unconstrained binary optimization (QUBO), the maximum cut of graphs (max-cut), and the boolean satisfiability with three literals (3-SAT)~\cite{karp1972reducibility}. In particular, while it has been proven that finding the ground state only has polynomial computational complexity on 2D lattices without external fields, it is NP-hard on 2D lattices with external fields, and on 3D lattices~\cite{barahona1982computational}. Moreover, computing the partition function is \#P-hard on general graphs~\cite{fefferman2017exact, peters2020location}, which is also highly unlikely to achieve in polynomial time. This means if we aim to exactly and provably find the ground state or its energy in the general case, then any smart algorithm is unlikely to be substantially faster than the brute-force enumeration. Therefore, we are further motivated to develop non-deterministic and heuristic approximation methods for this kind of problems.
+Besides modeling a variety of non-uniform alloys and compounds~\cite{mydosh2015spin}, spin glasses also appear in the boarder fields of mathematics and computer sciences. Finding the ground state of a spin glass model with specific interactions is equivalent to several combinatorial optimization problems that are known to be hard, such as the quadratic unconstrained binary optimization (QUBO), the maximum cut of graphs (max-cut), and the boolean satisfiability with three literals (3-SAT)~\cite{karp1972reducibility}. In particular, while it has been proven that finding the ground state only has polynomial time complexity on 2D lattices without external fields, it is NP-hard on 2D lattices with external fields, and on 3D lattices~\cite{barahona1982computational}. Moreover, computing the partition function is \#P-hard on general graphs~\cite{galanis2016inapproximability, fefferman2017exact, peters2020location}. Both NP-hard and \#P-hard problems are at least as hard as NP-complete problems, which cannot be solved in polynomial time unless P = NP. This means if we aim to exactly and provably find the ground state or its energy in the general case, then any smart algorithm is unlikely to be substantially faster than the brute-force enumeration. Therefore, we are further motivated to develop non-deterministic and heuristic approximation methods for this kind of problems.
 
 \subsection{Associative memory}
 \label{sec:hopfield}
@@ -162,70 +159,51 @@ Although not covered by our research, it is worth mentioning that the Wishart pl
 
 \subsection{Heisenberg model}
 
+The Heisenberg model~\cite{heisenberg1928theorie} is a common description for the magnetic properties of materials in quantum physics. It assumes that the electrons are localized on the lattice, so the energy levels are only determined by their spin interactions, rather than positional interactions. The Hamiltonian is written as
 \begin{equation}
 \hat{H} = J \sum_{\langle i, j \rangle} \hat{\vsi}_i \cdot \hat{\vsi}_j,
 \label{eq:heis}
-\end{equation}
-where $\hat{\vsi}_i \cdot \hat{\vsi}_j = \hat{\sigma}^x_i \hat{\sigma}^x_j + \hat{\sigma}^y_i \hat{\sigma}^y_j + \hat{\sigma}^z_i \hat{\sigma}^z_j$ is the dot product of two 3D vectors of Pauli operators.
-
-In the quantum case, we start from studying the ground state, or zero temperature properties of a system. The quantum state $\ket{\psi}$ of the system can be represented in the computational basis by
-\begin{equation}
-\ket{\psi} = \sum_\vs \psi(\vs) \ket{\vs},
-\end{equation}
-where $\vs$ is a vector of $N$ classical spin values, which is a possible outcome if we measure the quantum system along a chosen $z$ direction. The basis states $\{\ket{\vs}\}$ satisfy the orthonormal relation $\ip{\vs}{\vs'} = \delta_{\vs, \vs'}$, so we can project the state $\ket{\psi}$ onto a basis state $\ket{\vs}$ and obtain the corresponding wave function value $\psi(\vs) = \ip{\vs}{\psi}$, which is a complex number in general. Therefore, the state $\ket{\psi}$ is a complex vector in the Hilbert space of $2^N$ dimension. Moreover, it needs to satisfy the normalization condition $\ip{\psi}{\psi} = \sum_\vs |\psi(\vs)|^2 = 1$.
-
-When the system is at the ground state, it is determined by the Hamiltonian operator $\hat{H}$ describing the system:
-\begin{equation}
-\ket{\psi_0} = \arg\min_{\ket{\psi}} \ev{\hat{H}}{\psi}.
-\label{eq:gs}
-\end{equation}
-In contrast to the classical case, even if the quantum system is at the ground state and is non-degenerate, it can still be a superposition of exponentially many basis states.
-
-Knowing the quantum state of the system, we can obtain the expectation value of any physical observable $\hat{O}$ by
-\begin{equation}
-\bar{O} = \ev{\hat{O}}{\psi} = \sum_{\vs, \vs'} \psi^*(\vs) O(\vs, \vs') \psi(\vs),
-\label{eq:qu-obs}
-\end{equation}
-where $O(\vs, \vs') = \mel{\vs}{\hat{O}}{\vs'}$. Like the classical case, the summation in \cref{eq:qu-obs} also contains exponentially many terms and is intractable. Worse still, to exactly compute the ground state vector in \cref{eq:gs} in general, one needs the exact diagonalization (ED) of the $2^N \times 2^N$ Hamiltonian matrix, which takes even higher exponential time~\cite{weisse2008exact}. Therefore, we again need approximation methods to study the system in practice.
-
-Stoquasticity, Marshall sign rule
-
-QMA-complete~\cite{kempe2006complexity, troyer2005computational, oliveira2008complexity}
-
-\subsection{Transverse-field Ising model (TFIM)}
-\label{sec:qu-ising}
-
-Tight banding~\cite{slater1954simplified}
-
-Special case of anisotropic Heisenberg model~\cite{katsura1962statistical}
-
-Phenomenological model with fictitious spins, such as the order-disorder transition of the ferroelectric crystal KH$_2$P0$_4$~\cite{de1963collective}.
-
-Simplest one to exhibit zero-temperature quantum phase transition driven by quantum fluctuations~\cite{sachdev2001quantum, suzuki2012quantum}
-
-Ising ferromagnet
-
-LiHOF$_4$~\cite{bitko1996quantum}
-
-CoNb$_2$O$_6$~\cite{coldea2010quantum}
-
-\begin{equation}
-\hat{H} = J \sum_{\langle i, j \rangle} \hat{\sigma}^z_i \hat{\sigma}^z_j
-+ \Gamma \sum_i \hat{\sigma}^x_i,
-\label{eq:qu-ising}
 \end{equation}
 where the Pauli operators for spin-$\frac{1}{2}$ particles are represented by
 \begin{equation}
 \hat{\sigma}^x = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}, \quad
 \hat{\sigma}^y = \begin{pmatrix} 0 & -i \\ i & 0 \end{pmatrix}, \quad
-\hat{\sigma}^z = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix}.
+\hat{\sigma}^z = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix},
 \end{equation}
+and $\hat{\vsi}_i \cdot \hat{\vsi}_j = \hat{\sigma}^x_i \hat{\sigma}^x_j + \hat{\sigma}^y_i \hat{\sigma}^y_j + \hat{\sigma}^z_i \hat{\sigma}^z_j$ is the dot product of two 3D vectors of Pauli operators. It can also be derived from the Hubbard model with half filling of electrons and small hopping strength, where in the ground state each site is occupied by an electron, and the electron exchanges are given by the second order perturbation of hopping~\cite{cleveland1976obtaining}.
 
-In 2D, $\Gamma_\text{c} \approx 3.04438(2)$~\cite{blote2002cluster}
+The ground state of the system is determined by
+\begin{equation}
+\ket{\psi_0} = \arg\min_{\ket{\psi}} \ev{\hat{H}}{\psi},
+\label{eq:gs}
+\end{equation}
+which contains all information about the system at zero temperature, and is usually the foundation for further studying the excitations or the thermal properties of the system. In contrast to the classical case, even if the quantum system is at the ground state and is non-degenerate, it can still be a superposition of exponentially many basis states $\ket{\vs}$. Given a state $\ket{\psi}$, we can obtain the expectation value of any physical observable $\hat{O}$ by
+\begin{equation}
+\bar{O} = \ev{\hat{O}}{\psi} = \sum_{\vs, \vs'} \psi^*(\vs) O(\vs, \vs') \psi(\vs),
+\label{eq:qu-obs}
+\end{equation}
+where $\psi(\vs) = \ip{\vs}{\psi}$ and $O(\vs, \vs') = \mel{\vs}{\hat{O}}{\vs'}$. Same as the classical case, the summation in \cref{eq:qu-obs} also contains exponentially many terms and is intractable. Worse still, to exactly compute the ground state vector in \cref{eq:gs} in general, one needs the exact diagonalization (ED) of the $2^N \times 2^N$ Hamiltonian matrix, which takes even higher exponential time~\cite{weisse2008exact}. Therefore, we again need approximation methods to study the system in practice.
+
+The issue of frustration discussed in \cref{sec:frustrate} also occurs in the quantum case. On frustrated lattices such as the triangular lattice~\cite{li2015rare}, the kagome lattice~\cite{norman2016colloquium} and the pyrochlore lattice~\cite{moessner1998properties}, the Heisenberg model can exhibit spin liquid phases. Another common model of spin liquid is the $J_1$-$J_2$ model, which is defined as the Heisenberg model with next-nearest-neighbor interactions~\cite{dagotto1989phase, schulz1996magnetic, hu2013direct, liu2018gapless}.
+
+% QMA-complete~\cite{troyer2005computational, kempe2006complexity, oliveira2008complexity}
+
+\subsection{Transverse-field Ising model (TFIM)}
+\label{sec:qu-ising}
+
+The transverse-field Ising model (TFIM) is formulated as the classical Ising model in \cref{sec:cl-ising} with a transverse field $\Gamma$ describing the quantum hopping effect, which is written as
+\begin{equation}
+\hat{H} = J \sum_{\langle i, j \rangle} \hat{\sigma}^z_i \hat{\sigma}^z_j
++ \Gamma \sum_i \hat{\sigma}^x_i.
+\label{eq:qu-ising}
+\end{equation}
+Its usages in the early days of solid-state physics include a special case of anisotropic Heisenberg model~\cite{katsura1962statistical}, and a phenomenological model with fictitious spins, such as the order-disorder transition of the ferroelectric crystal KH$_2$PO$_4$~\cite{de1963collective}. With deeper research into the classification of phase transitions, it has been known as the simplest model to demonstrate the quantum phase transition at zero temperature, which is driven by quantum fluctuations rather than thermal fluctuations~\cite{sachdev2001quantum, suzuki2012quantum}. This actually describes the phase transitions of several magnetic materials, such as LiHOF$_4$~\cite{bitko1996quantum} and CoNb$_2$O$_6$~\cite{coldea2010quantum}.
+
+The TFIM in 1D has been analytically solved with the critical point $\Gamma_\text{c} = 1$. The analytical solution in 2D is unknown yet, which has the same difficulty as the 3D classical Ising model because of the mapping between them, while numerical methods has estimated $\Gamma_\text{c} \approx 3.04438(2)$~\cite{blote2002cluster}.
 
 \subsection{Quantum thermal state}
 
-Beyond the ground state, the quantum system can be a mixed state characterized by a density matrix, and represented in the eigenbasis by
+We also mention that beyond the ground state, a quantum system can be a mixed state described by a density matrix, and represented in the eigenbasis by
 \begin{equation}
 \hat{\rho} = \sum_i p_i \ket{\psi_i}\bra{\psi_i},
 \end{equation}
@@ -234,4 +212,4 @@ where $\ket{\psi_i}$ is the $i$-th lowest eigenstate of the Hamiltonian, and $p_
 \bar{O} = \tr[\hat{O} \hat{\rho}].
 \label{eq:dm-obs}
 \end{equation}
-The density matrix poses extra difficulties of computing both the states $\ket{\psi_i}$ and their probabilities $p_i$. In this thesis, we mainly focus on the ground state.
+The density matrix poses extra difficulties of computing both the states $\left\{ \ket{\psi_i} \right\}$ and their probabilities $\{p_i\}$. In this thesis, we mainly focus on the ground state.
