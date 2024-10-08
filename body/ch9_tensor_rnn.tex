@@ -149,7 +149,7 @@ We also generalize the phase in \cref{eq:mps-rnn-phase} to a sum of ``local phas
 \phi(\vs) &= \sum_i \phi^{(i)}(\vs_{\le i}), \label{eq:mps-rnn-phase-sum} \\
 \phi^{(i)}(\vs_{\le i}) &= \arg\left( \vw^{(i) \transpose}_{s_i} \vh^{(i)}(\vs_{\le i}) + c^{(i)}_{s_i} \right), \label{eq:mps-rnn-phase-local}
 \end{align}
-where each local phase $\phi^{(i)}(\vs_{\le i})$ is obtained from a linear transformation of the memory $\vh^{(i)}(\vs_{\le i})$, whose parameters $\vw^{(i)}$ and $c^{(i)}$ depend on the spin $s_i$. Therefore, the gradient information from every site, rather than only the last site, can more directly affect the phase during training. It is worth noting that the phasor sum in \cref{eq:phasor-sum} can be an alternative choice to the simple sum in \cref{eq:mps-rnn-phase-sum}.
+where each local phase $\phi^{(i)}(\vs_{\le i})$ is obtained from a linear transformation of the memory $\vh^{(i)}(\vs_{\le i})$, whose parameters $\vw^{(i)}$ and $c^{(i)}$ depend on the spin $s_i$. Therefore, the gradient information from every site, rather than only the last site, can more directly affect the phase during training. It is worth noting that the phasor sum in \cref{eq:phasor-sum} can be an alternative to the simple sum in \cref{eq:mps-rnn-phase-sum}.
 
 The RNN architecture defined by the update rule in \cref{eq:mps-rnn-h-v}, the output layer in \cref{eq:mps-rnn-p-eta}, and the phase in \cref{eq:mps-rnn-phase-local} is named 1D MPS-RNN, which is more suitable for practical computations than the vanilla one, in terms of the computation time and the numerical stability in training.
 

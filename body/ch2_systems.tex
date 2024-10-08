@@ -21,9 +21,9 @@ Z &= \sum_\vs \rme^{-\beta H(\vs)},
 \end{align}
 where $Z$ is called the partition function.
 
-While the Curie--Weiss mean-field theory~\cite{weiss1907hypothese} predicted a second-order phase transition at the critical point $\beta_\text{c} = \frac{1}{2 D}$, where $D$ is the spatial dimension, the analytical solutions established that there is no phase transition in 1D~\cite{ising1925contribution}, a second-order phase transition in the thermodynamic limit on 2D grids at $\beta_\text{c} = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$~\cite{onsager1944crystal}, as well as second-order phase transitions on 4D and higher-dimensional grids where the mean-field theory is asymptotically exact~\cite{als1977mean}. However, no analytical solution in 3D is known yet~\cite{viswanathan2022does}.
+While the Curie--Weiss mean-field theory~\cite{weiss1907hypothese} predicted a second-order phase transition at the critical point $\beta_\text{c} = \frac{1}{2 D}$, where $D$ is the spatial dimension, the analytical solutions established that there is no phase transition in one dimension (1D)~\cite{ising1925contribution}, a second-order phase transition in the thermodynamic limit on two-dimensional (2D) grids at $\beta_\text{c} = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$~\cite{onsager1944crystal}, as well as second-order phase transitions on four- and higher-dimensional grids where the mean-field theory is asymptotically exact~\cite{als1977mean}. However, no analytical solution in three dimensions (3D) is known yet~\cite{viswanathan2022does}.
 
-Although the above formulation of spins is too simplified in the viewpoint of quantum physics, the Ising model revived in the studies of various quantum systems, as we will see in \cref{sec:qu-ising}, notably being the simplest model for quantum phase transitions~\cite{sachdev2001quantum}. The classical formulation is still relevant when the quantum hopping effect described by the transverse field is negligible. With the presence of the transverse field, it has also been shown that any quantum Ising model in $D$ dimension can be mapped to a classical one in $D + 1$ dimension in the same universality class~\cite{hertz1976quantum}, which opens a practical way to study these quantum systems. Moreover, the same mathematical form appears in the tight-binding theory of electronic bands~\cite{treglia1988segregation}.
+Although the above formulation of spins is too simplified in the viewpoint of quantum physics, the Ising model revived in the studies of various quantum systems, as we will see in \cref{sec:qu-ising}, notably being the simplest model for quantum phase transitions~\cite{sachdev2001quantum}. The classical formulation is still relevant when the quantum hopping effect described by the transverse field is negligible. With the presence of the transverse field, it has also been shown that any quantum Ising model in $D$ dimensions can be mapped to a classical one in $D + 1$ dimensions in the same universality class~\cite{hertz1976quantum}, which opens a practical way to study these quantum systems. Moreover, the same mathematical form appears in the tight-binding theory of electronic bands~\cite{treglia1988segregation}.
 
 \subsection{Observables}
 
@@ -69,7 +69,7 @@ On a triangular lattice of $N$ spins, the number of degenerate ground states $N_
 
 At zero temperature, only the ground states contribute to the entropy:
 \begin{equation}
-S = \ln N_\text{GS}.
+\lim_{\beta \to \infty} S = \ln N_\text{GS}.
 \end{equation}
 In the thermodynamic limit $N \to \infty$, we assume
 \begin{equation}
@@ -77,13 +77,13 @@ N_\text{GS} = A \rme^{c N},
 \end{equation}
 where $A$ and $c$ are coefficients to be determined. Then we have
 \begin{equation}
-\frac{S}{N} = \frac{\ln A}{N} + c,
+\lim_{\beta \to \infty} \frac{S}{N} = \frac{\ln A}{N} + c,
 \end{equation}
-which converges to $c$ as $N \to \infty$, and $c$ is known as the residual entropy~\cite{wannier1950antiferromagnetism, mambrini1999residual, vanderstraeten2018residual}. The existence of a non-zero residual entropy indicates the exponentially large number of degenerate ground states. For the relatively simple case of triangular Ising model, the analytical result has been derived~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}:
+which converges to $c$ as $N \to \infty$, and $c$ is known as the residual entropy~\cite{wannier1950antiferromagnetism, mambrini1999residual, vanderstraeten2018residual}. The existence of a non-zero residual entropy indicates the exponentially large number of degenerate ground states. For the relatively simple case of Ising model on the 2D triangular lattice, the analytical result has been derived~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}:
 \begin{equation}
-\lim_{L \to \infty} \lim_{\beta \to \infty} \frac{S}{N} = \frac{2}{\pi} \int_0^{\frac{\pi}{3}} \ln(2 \cos \omega) \dd \omega \approx 0.323.
+\lim_{N \to \infty} \lim_{\beta \to \infty} \frac{S}{N} = \frac{2}{\pi} \int_0^{\frac{\pi}{3}} \ln(2 \cos \omega) \dd \omega \approx 0.323.
 \end{equation}
-In addition, we mention that the boundary conditions of finite-sized systems can substantially affect the observables in the presence of frustration.
+This residual entropy will be studied in \cref{sec:arnn-tri-ising}. In addition, we mention that the boundary conditions of finite-sized systems can substantially affect the observables in the presence of frustration.
 
 \subsection{Spin glass}
 \label{sec:random-interactions}
@@ -180,7 +180,7 @@ The ground state of the system is determined by
 \ket{\psi_0} = \arg\min_{\ket{\psi}} \ev{\hat{H}}{\psi},
 \label{eq:gs}
 \end{equation}
-which contains all information about the system at zero temperature, and is usually the foundation for further studying the excitations or the thermal properties of the system. In contrast to the classical case, even if the quantum system is at the ground state and is non-degenerate, it can still be a superposition of exponentially many basis states $\ket{\vs}$. Given a state $\ket{\psi}$, we can obtain the expectation value of any physical observable $\hat{O}$ by
+which contains the complete information about the system at zero temperature, and is usually the foundation for further studying the excitations or the thermal properties of the system. In contrast to the classical case, even if the quantum system is at the ground state and is non-degenerate, it can still be a superposition of exponentially many basis states $\ket{\vs}$. Given a state $\ket{\psi}$, we can obtain the expectation value of any physical observable $\hat{O}$ by
 \begin{equation}
 \bar{O} = \ev{\hat{O}}{\psi} = \sum_{\vs, \vs'} \psi^*(\vs) O(\vs, \vs') \psi(\vs),
 \label{eq:qu-obs}
@@ -194,7 +194,7 @@ The issue of frustration discussed in \cref{sec:frustrate} also occurs in the qu
 \subsection{Transverse-field Ising model (TFIM)}
 \label{sec:qu-ising}
 
-The transverse-field Ising model (TFIM) is formulated as the classical Ising model in \cref{sec:cl-ising} with a transverse field $\Gamma$ describing the quantum hopping effect, which is written as
+The transverse-field Ising model (TFIM) is formulated as the classical Ising model in \cref{sec:cl-ising} with a transverse field $\Gamma$ describing the quantum hopping effect. Its Hamiltonian is written as
 \begin{equation}
 \hat{H} = J \sum_{\langle i, j \rangle} \hat{\sigma}^z_i \hat{\sigma}^z_j
 + \Gamma \sum_i \hat{\sigma}^x_i.

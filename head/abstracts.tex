@@ -4,14 +4,19 @@
 \markboth{Abstract}{Abstract}
 \addcontentsline{toc}{chapter}{Abstract (English/Français)} % adds an entry to the table of contents
 
+Many-body systems at low temperature have revealed non-trivial phases of materials, such as spin liquids, which have found applications in the evolving fields of superconductivity, nanoelectronics, and quantum computing. Their exponentially large state spaces generally forbid us to obtain their exact solutions, and motivate us to develop sampling methods instead.
+The Markov chain Monte Carlo (MCMC) method is the traditional way to sample from complicated many-body distributions, but it suffers from issues such as autocorrelation time and critical slowing down. Exact sampling methods with variational ansatzes are preferred to overcome these issues, but it had been difficult to construct ansatzes that are both expressive enough to capture the rich physical phenomena and efficient enough to sample from.
 
+The recent development of neural networks sheds new light on this area. In this thesis, we present autoregressive neural networks (ARNNs) as a powerful family of variational ansatzes, which share the same framework as the modern large language models. They can be modularly constructed with higher expressiveness than previous ansatzes, while support exact sampling and efficient evaluation.
 
+For classical systems, we present the sparse two-body (TwoBo) ansatz to incorporate the sparsity of the physical system in ARNN. It substantially improves the computational efficiency and the convergence of variational optimization compared to the conventional dense ARNN, without loss of expressiveness.
+Then we present the sampling method of neural cluster updates with symmetries (NCUS), which finds a balance between the local updates of MCMC and the global updates of conventional exact sampling methods. It removes the bias in variational approximation and substantially reduces the autocorrelation time.
 
-
-
-
-
-
+For quantum systems, we present the tensor-RNN ansatz, which combines the strengths of tensor networks (TNs) and recurrent neural networks (RNNs). It captures the desired analytical properties of entanglement
+entropy and spatial correlations in two-dimensional systems, and produces systematically improved accuracy as the computational budget increases. These advantages are supported by both theoretical
+and numerical evidences.
+Lastly, we present the results of VarBench, an extensive project to benchmark the performances of variational methods on quantum many-body systems, which witnesses the development of this field and identifies certain targets for further demonstration of quantum advantage. The metric used in these benchmarks is the V-score, a universal quantity to measure the accuracy of any variational approximation, as well as the hardness of simulating any Hamiltonian.
+These techniques together enable more accurate approximation of systems with larger size and higher complexity.
 
 % French abstract
 \begin{otherlanguage}{french}

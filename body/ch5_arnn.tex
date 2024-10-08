@@ -74,7 +74,7 @@ where $f$ and $g$ can be arbitrarily sophisticated neural networks, and their pa
 The inset shows the relative error of the numerical results compared to the exact result. \\
 (b) Entropy per site $S / N$ of the frustrated antiferromagnetic (AFM) Ising model on triangular lattices of different sizes $N = L \times L$ with PBC, given by a convolutional ARNN.
 The curves are least-square fittings of $S / N = a \rme^{-b \beta} + c$, where $a, b, c$ are parameters for fitting, and $c$ is the residual  entropy when $\beta \to \infty$.
-The horizontal dashed line indicates the exact result $\lim_{L \to \infty} \lim_{\beta \to \infty} S / N \approx 0.323$~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}.
+The horizontal dashed line indicates the exact result $\lim_{N \to \infty} \lim_{\beta \to \infty} S / N \approx 0.323$~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}.
 Note that the curves for $L = 8, 14, 16$ are almost overlapped.
 This figure is reproduced from Fig.~2 in Ref.~\cite{wu2019solving}.
 }
@@ -88,6 +88,7 @@ We first demonstrate the performance of ARNN on the well-studied ferromagnetic (
 In particular, the results from the convolutional ARNN are generally more accurate than those from the dense one with a similar number of parameters, thanks to the utilization of the translational symmetry and the locality of the physical system. This comparison justifies the use of convolutional layers in ARNN, even though the overall joint probability is not translational invariant. However, this advantage diminishes around the critical point $\beta_c = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$, where the correlation length of the physical system diverges until bounded by the system size, as discussed in \cref{sec:iat}. The convolutional neural network can capture these long-range correlations only if the size of its receptive field is at least comparable to the correlation length.
 
 \subsubsection{Triangular Ising model}
+\label{sec:arnn-tri-ising}
 
 Then we apply the convolutional ARNN to the more complicated problem of antiferromagnetic (AFM) Ising model on the triangular lattice with PBC, which is geometrically frustrated. As discussed in \cref{sec:frustrate}, the frustration leads to exponentially many degenerate ground states and a non-zero residual entropy, which poses challenge for MCMC and previous variational ansatzes. In \cref{fig:arnn-ising}~(b), the ARNN produces entropies that exponentially decay to a constant as $\beta \to \infty$ for each system size $L$, and converge around the analytical result as $L \to \infty$. These results demonstrate the rich expressiveness of ARNN, which has the potential to accurately approximate exponentially complex target distributions using polynomial computation time and number of parameters.
 

@@ -75,11 +75,13 @@ MaskedLin
 McGroundstate
 MERA
 MinSR
+modularly
 Monasson
 MPO
 MPSs
 MQLib
 nanoelectronic
+nanoelectronics
 NCU
 NCUS
 NetKet
