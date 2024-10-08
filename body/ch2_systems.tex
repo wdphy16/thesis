@@ -123,11 +123,13 @@ where the overlap between two configurations is defined by
 \ip{\vs}{\vs'} = \frac{1}{N} \sum_i s_i s'_i.
 \label{eq:cl-overlap}
 \end{equation}
-For any configuration $\vs$ and two orthogonal patterns $\vxi^{(1)}$ and $\vxi^{(2)}$, we have
+Then the model has $2 n_\text{pat}$ degenerate ground states: $\vs_0 = \pm \vxi^{(p)}$, $H(\vs_0) = -N$. Therefore, we say the model ``memorizes'' the patterns.
+
+We note that for any configuration $\vs$ and two orthogonal patterns $\vxi^{(1)}$ and $\vxi^{(2)}$, we have
 \begin{equation}
 \Big| \ip{\vs}{\vxi^{(1)}} \Big| + \Big| \ip{\vs}{\vxi^{(2)}} \Big| \le 1,
 \end{equation}
-which will be seen in \cref{fig:arnn-hop}. The model has $2 n_\text{pat}$ degenerate ground states: $\vs_0 = \pm \vxi^{(p)}$, $H(\vs_0) = -N$. Therefore, we say the model ``memorizes'' the patterns.
+which will be seen in \cref{fig:arnn-hop}.
 
 \subsection{Frustrated plaquette model (FPM)}
 \label{sec:fpm}
@@ -136,8 +138,8 @@ While the previous models only have second-order phase transitions, one way to p
 
 The FPM is defined on an $L \times L$ lattice of the spins $s_{x, y}$, with nearest-neighbor $J_1$, third-nearest-neighbor $J_3$, and plaquette $K$ interactions:
 \begin{align}
-H(\vs) = &\phantom{{}+{}} J_1 \sum_{i, j = 1}^L s_{i, j} (s_{i + 1, j} + s_{i, j + 1})
-+ J_3 \sum_{i, j = 1}^L s_{i, j} (s_{i + 2, j} + s_{i, j + 2}) \nonumber \\
+H(\vs) = &\phantom{{}+{}} J_1 \sum_{i, j = 1}^L s_{i, j} (s_{i + 1, j} + s_{i, j + 1}) \nonumber \\
+&+ J_3 \sum_{i, j = 1}^L s_{i, j} (s_{i + 2, j} + s_{i, j + 2}) \nonumber \\
 &+ K \sum_{i, j = 1}^L s_{i, j} \, s_{i + 1, j} \, s_{i, j + 1} \, s_{i + 1, j + 1}.
 \label{eq:fpm}
 \end{align}

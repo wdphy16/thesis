@@ -140,7 +140,6 @@ tensorial
 TFIM
 Tikhonov
 TNs
-TODO
 Toric
 toric
 truncations

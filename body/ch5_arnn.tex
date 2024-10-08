@@ -146,6 +146,7 @@ It is worth discussing the sizes of the ARNNs used in the above experiments. For
 Apart from training a new network with each system size and temperature, it has also been proposed to directly reuse or fine-tune a trained network with different system sizes and temperatures~\cite{efthymiou2019super, mills2019extensive, rende2024fine}. This line of research opens a promising way to numerically compute the renormalization group (RG) flow, and extrapolate the critical temperature to the thermodynamic limit~\cite{ron2002inverse}.
 
 \section{Sparse two-body ARNN (TwoBo)}
+\label{sec:twobo}
 
 In the previous section, we have seen that the simple ARNN with dense architecture approximates many-body systems to much higher accuracy than traditional ansatzes, but also introduces much more trainable parameters and requires longer computation time. The convolutional ARNN reaches even higher accuracy with the same amount of parameters, as it utilizes the translational symmetry and the locality of the physical system. In this section, we continue to seek for a more sophisticated ARNN architecture that further embodies knowledge of the physical system, particularly the sparsity, to reduce the number of trainable parameters and the computation time without losing the expressiveness.
 
@@ -392,6 +393,6 @@ The efficiency of NCUS can depend on the distribution $P_\text{cluster}(k)$ of t
 
 \subsection{Conclusion}
 
-In conclusion, the NCUS algorithm utilizes the cluster updates constructed by the AR property of the ansatz, as well as the symmetries of the physical system, to produce substantially lower autocorrelation time than the conventional global update method around the critical point, and more reliable estimation of the observable with lower error bar in consequence.
+In conclusion, the NCUS algorithm utilizes the cluster updates constructed by the AR property of the ansatz, as well as the symmetries of the physical system, to produce substantially lower autocorrelation times than the conventional global update method around the critical point, and more reliable estimations of observables with lower error bars in consequence.
 
 We look forward to more research combining the strengths of the techniques presented in this section, including the neural networks as highly expressive heuristics for complicated multivariate distributions, autoregressive models with exact sampling and normalized probability evaluation, physical properties such as symmetries and sparsity incorporated into network architectures, and cluster updates that alleviate the problems of critical slowing down and mode collapse, which will eventually lead to solutions for physical systems with unprecedented size and complexity.
