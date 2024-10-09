@@ -1,7 +1,7 @@
 \chapter{Spin models of many-body systems}
 \label{ch:systems}
 
-After the general introduction in the previous chapter, we now provide the formal definitions of the physical systems studied in this thesis, along with the motivations to study them. We mainly focus on systems of spin-$\frac{1}{2}$ particles placed on lattices, and most results are generalizable to higher spins, fermions, and bosons. Specifically, we focus on classical systems in thermal equilibrium, and quantum systems at ground states.
+After the general introduction in the previous chapter, we now provide the formal definitions of the physical systems studied in this thesis, along with the motivations to study them. We mainly focus on systems of spin-$\frac{1}{2}$ particles placed on lattices, and most results are generalizable to higher spins, fermions, and bosons. Specifically, we focus on classical systems in thermal equilibrium and quantum systems at ground states.
 
 \section{Classical systems}
 \label{sec:cl-sys}
@@ -9,12 +9,12 @@ After the general introduction in the previous chapter, we now provide the forma
 \subsection{Ising model}
 \label{sec:cl-ising}
 
-The early studies of the Ising model~\cite{ising1925contribution, niss2008history} predates the modern formulation of quantum physics. It was proposed to describe the properties of ferromagnets using spins $\vs = (s_1, s_2, \ldots, s_N)$ on a lattice of $N$ sites, where each spin $s_i$ can take the values $\pm 1$, so the Hamiltonian function of the system is
+The early studies of the Ising model~\cite{ising1925contribution, niss2008history} predate the modern formulation of quantum physics. It was proposed to describe the properties of ferromagnets using spins $\vs = (s_1, s_2, \ldots, s_N)$ on a lattice of $N$ sites, where each spin $s_i$ can take the values $\pm 1$, so the Hamiltonian function of the system is
 \begin{equation}
 H(\vs) = J \sum_{\langle i, j \rangle} s_i s_j,
 \label{eq:cl-ising}
 \end{equation}
-where $\langle i, j \rangle$ runs over nearest neighbors on the lattice. We omit the external fields for simplicity, and we assume $J = 1$ unless otherwise stated. When the system is in thermal equilibrium at the temperature $T$, or more conventionally the inverse temperature $\beta = \frac{1}{T}$, it is described by an ensemble of spin configurations following the Boltzmann distribution
+where $\langle i, j \rangle$ runs over nearest neighbors on the lattice. We omit the external fields for simplicity and assume that $J = 1$ unless otherwise stated. When the system is in thermal equilibrium at the temperature $T$, or more conventionally the inverse temperature $\beta = \frac{1}{T}$, it is described by an ensemble of spin configurations following the Boltzmann distribution
 \begin{align}
 p_\text{B}(\vs) &= \frac{\rme^{-\beta H(\vs)}}{Z}, \label{eq:boltzmann} \\
 Z &= \sum_\vs \rme^{-\beta H(\vs)},
@@ -23,7 +23,7 @@ where $Z$ is called the partition function.
 
 While the Curie--Weiss mean-field theory~\cite{weiss1907hypothese} predicted a second-order phase transition at the critical point $\beta_\text{c} = \frac{1}{2 D}$, where $D$ is the spatial dimension, the analytical solutions established that there is no phase transition in one dimension (1D)~\cite{ising1925contribution}, a second-order phase transition in the thermodynamic limit on two-dimensional (2D) grids at $\beta_\text{c} = \frac{1}{2} \ln(1 + \sqrt{2}) \approx 0.44$~\cite{onsager1944crystal}, as well as second-order phase transitions on four- and higher-dimensional grids where the mean-field theory is asymptotically exact~\cite{als1977mean}. However, no analytical solution in three dimensions (3D) is known yet~\cite{viswanathan2022does}.
 
-Although the above formulation of spins is too simplified in the viewpoint of quantum physics, the Ising model revived in the studies of various quantum systems, as we will see in \cref{sec:qu-ising}, notably being the simplest model for quantum phase transitions~\cite{sachdev2001quantum}. The classical formulation is still relevant when the quantum hopping effect described by the transverse field is negligible. With the presence of the transverse field, it has also been shown that any quantum Ising model in $D$ dimensions can be mapped to a classical one in $D + 1$ dimensions in the same universality class~\cite{hertz1976quantum}, which opens a practical way to study these quantum systems. Moreover, the same mathematical form appears in the tight-binding theory of electronic bands~\cite{treglia1988segregation}.
+Although the above formulation of spins is too simplified in the viewpoint of quantum physics, the Ising model was revived in the studies of various quantum systems, as we will see in \cref{sec:qu-ising}, notably being the simplest model for quantum phase transitions~\cite{sachdev2001quantum}. The classical formulation is still relevant when the quantum hopping effect described by the transverse field is negligible. With the presence of the transverse field, it has also been shown that any quantum Ising model in $D$ dimensions can be mapped to a classical one in $D + 1$ dimensions in the same universality class~\cite{hertz1976quantum}, which opens a practical way to study these quantum systems. Moreover, the same mathematical form appears in the tight-binding theory of electronic bands~\cite{treglia1988segregation}.
 
 \subsection{Observables}
 
