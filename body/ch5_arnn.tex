@@ -74,7 +74,7 @@ where $f$ and $g$ can be arbitrarily sophisticated neural networks, and their pa
 The inset shows the relative error of the numerical results compared to the exact result. \\
 (b) Entropy per site $S / N$ of the frustrated antiferromagnetic (AFM) Ising model on triangular lattices of different sizes $N = L \times L$ with PBC, given by a convolutional ARNN.
 The curves are least-square fittings of $S / N = a \rme^{-b \beta} + c$, where $a, b, c$ are parameters for fitting, and $c$ is the residual  entropy when $\beta \to \infty$.
-The horizontal dashed line indicates the exact result $\lim_{N \to \infty} \lim_{\beta \to \infty} S / N \approx 0.323$~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism}.
+The horizontal dashed line indicates the exact result $\lim_{N \to \infty} \lim_{\beta \to \infty} S / N \approx 0.323$~\cite{wannier1950antiferromagnetism, wannier1973antiferromagnetism, houtappel1950order}.
 Note that the curves for $L = 8, 14, 16$ are almost overlapped.
 This figure is reproduced from Fig.~2 in Ref.~\cite{wu2019solving}.
 }
@@ -139,7 +139,7 @@ In this problem, we use an ARNN with two dense layers to estimate $C_{i j}$. The
 \end{equation}
 where $J_{i j}$ are the estimated values and $J^*_{i j}$ are the true values. The results are shown in \cref{fig:arnn-ising}~(b), where the ARNN again outperforms traditional methods by a large margin.
 
-\subsection{Remarks on network sizes and computation times}
+\subsection{Remarks on network sizes}
 
 It is worth discussing the sizes of the ARNNs used in the above experiments. For the fully connected cases of the Hopfield model, the SK model, and the inverse SK problem, we use small ARNNs containing only $O(N^2)$ parameters which take minutes to train on a high-end GPU as of this writing, and they produce substantially better results than the Bethe ansatzes with the same order of parameters. For the Ising models on the $16 \times 16$ square and triangular lattices, however, the ARNNs with the optimal variational free energies we have found contain as many as $O(10^6)$ parameters, while the Bethe ansatzes only contain $O(10^3)$. The large number of parameters also leads to substantially more computation time to evaluate the observables, as the training and the sampling of such a large neural network typically take hours on a high-end GPU, while the NMF ansatz and the Bethe ansatz can be solved almost instantly. Therefore, many use cases of neural networks to replace traditional ansatzes appear only in the regime where we seek for much higher accuracy at the cost of correspondingly more computation. The comparison of neural networks and traditional methods under the same computation budget will be discussed in \cref{sec:arnn-mcmc}.
 

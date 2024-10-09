@@ -48,6 +48,7 @@ geminal
 Goldfarb
 Gutzwiller
 Hamiltonians
+herbertsmithite
 Heun
 holomorphic
 Hopfield
@@ -57,6 +58,7 @@ Jastrow
 kagome
 KANs
 Khinchin
+Kitaev
 Kolmogorov
 Kullback
 Kutta

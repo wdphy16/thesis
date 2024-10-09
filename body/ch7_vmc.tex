@@ -27,9 +27,9 @@ E_\text{loc}(\vs) = \sum_{\vs'} H(\vs, \vs') \frac{\psi(\vs')}{\psi(\vs)}.
 
 The variational energy in \cref{eq:vmc} has a similar form to the variational free energy in \cref{eq:fq}. In the same manner discussed there, we can generate samples of the configuration $\vs$ from $q(\vs)$, estimate $E_\psi$ using the Monte Carlo summation, then minimize it w.r.t.\ the parameters in $\psi(\vs)$ using gradient-based optimizers, and a lower $E_\psi$ indicates a better ansatz to approximate the ground state. It is worth mentioning that the state $\ket{\psi}$ obtained from variational optimization can be further improved by iterative eigenvector solvers in \cref{sec:ed}~\cite{hu2013direct, chen2022systematic}, or used as the initial state for other QMC schemes in \cref{sec:qmc}.
 
-When the Hamiltonian is non-stoquastic, unlike the weight $\varPi(\svs)$ for PIMC in \cref{eq:pimc}, in VMC we always have $q(\vs) \ge 0$. However, the sign problem can still occur because $E_\text{loc}(\vs)$ can be either positive or negative, which further causes large noise in the estimated gradient and impedes the optimization.
+When the Hamiltonian is non-stoquastic, unlike the weight $\varPi(\svs)$ for PIMC in \cref{eq:pimc}, in VMC we always have $q(\vs) \ge 0$. However, the sign problem can still occur in the sense that $E_\text{loc}(\vs)$ can be either positive or negative, which further causes large noise in the estimated gradient and impedes the optimization.
 
-\section{Variance of energy}
+\section{Energy variance}
 \label{sec:vmc-var}
 
 Besides the energy itself, its variance $\Var E_\psi = \ev{\hat{H}^2} - \ev{\hat{H}}^2$ under the state $\ket{\psi}$ can also be estimated by Monte Carlo sampling, where the first term can be written as
@@ -210,7 +210,7 @@ where $\mW^\text{J}$ is an $N \times N$ matrix of tunable parameters. Despite it
 \subsection{Gutzwiller projected states}
 \label{sec:gutz}
 
-Quantum many-body systems can exhibit a plethora of collective and emergent behaviors beyond two-spin correlations, such as spinons and fractional excitations in spin liquids~\cite{balents2010spin, misguich2011quantum, mila2015frustrated}. Although we mainly focus on spin systems in this thesis, an approach to study these systems is to transform the Hamiltonian of spins to an equivalent Hamiltonian of fermions, then it is possible to construct highly entangled states using the anti-commutation relations of fermions, which produce the necessary many-body correlations to model the aforementioned intricate behaviors, while can be evaluated in polynomial time. These introduced fermions are known as partons, namely Abrikosov fermions~\cite{abrikosov1965electron} in the following case. The transformation is given by
+Quantum many-body systems can exhibit a plethora of collective and emergent behaviors beyond two-spin correlations, such as spinons and fractional excitations in spin liquids. Although we mainly focus on spin systems in this thesis, an approach to study these systems is to transform the Hamiltonian of spins to an equivalent Hamiltonian of fermions, then it is possible to construct highly entangled states using the anti-commutation relations of fermions, which produce the necessary many-body correlations to model the aforementioned intricate behaviors, while can be evaluated in polynomial time. These introduced fermions are known as partons, namely Abrikosov fermions~\cite{abrikosov1965electron} in the following case. The transformation is given by
 \begin{equation}
 \hat{\vS}_i = \frac{1}{2} \sum_{\alpha \beta} \hat{c}^\dagger_{i \alpha} \hat{\vsi}_{\alpha \beta} \hat{c}_{i \beta},
 \end{equation}
