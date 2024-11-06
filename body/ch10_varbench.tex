@@ -3,7 +3,7 @@
 
 The previous chapters have introduced multiple variational methods for quantum many-body systems, including variational Monte Carlo (VMC) in \cref{ch:vmc} and tensor networks (TNs) in \cref{ch:tn}, each with its own appropriate use cases, as well as trade off between accuracy and computational cost. When different methods are applied to the same physical system, there is a simple criterion to assess their performances: A lower variational energy indicates that the method approximates the true ground state more accurately. Besides that, it is also attempting to compare the accuracies of one method on different physical systems, or compare the universal applicability of two methods on multiple systems. Therefore, we require a metric that can be compared both between methods and between systems.
 
-In the following, we present the metric proposed in Ref.~\cite{wu2023variational}, namely V-score. It is used in the VarBench project, an extensive collection of benchmarks for the accuracies of variational methods on a diverse variety of quantum many-body systems. Moreover, the V-score can measure the hardness of simulating a physical system, which identifies certain hard systems that are not yet solved by available computational techniques.
+In the following, we present the metric proposed in Ref.~\cite{wu2024variational}, namely V-score. It is used in the VarBench project, an extensive collection of benchmarks for the accuracies of variational methods on a diverse variety of quantum many-body systems. Moreover, the V-score can measure the hardness of simulating a physical system, which identifies certain hard systems that are not yet solved by available computational techniques.
 
 \section{V-score: universal metric for variational accuracy}
 
@@ -123,7 +123,7 @@ The results with V-scores less than $10^{-16}$ are indistinguishable from the ex
 The label outside each slice is the name of the Hamiltonian in the dataset, which describes the lattice geometry, the lattice size $N_\text{s}$, the boundary conditions (BC), and the Hamiltonian parameters such as the interaction strength ($\Gamma$, $J_2$, $V$, $U$) and the number of particles ($N_\mathrm{f}$, $N_{\uparrow}$, $N_\mathrm{b}$).
 The BC can be O (open), P (periodic), A (anti-periodic) on each dimension.
 The `\texttt{+}' marker near the label indicates that an ED solution is available for that Hamiltonian, and the `\texttt{\textasteriskcentered}' marker indicates a numerically exact QMC solution.
-This figure is reproduced from Fig.~3 in Ref.~\cite{wu2023variational}.
+This figure is reproduced from Fig.~3 in Ref.~\cite{wu2024variational}.
 }
 \label{fig:v-score}
 \end{figure}
@@ -139,7 +139,7 @@ This figure is reproduced from Fig.~3 in Ref.~\cite{wu2023variational}.
 Comparison of V-score and energy relative error for systems whose exact solutions from ED or QMC are available.
 The black dashed line is fitted by least-squares regression with the slope fixed to $1$.
 The inset focuses on PQC results simulated on classical hardware without noise.
-This figure is reproduced from Fig.~2 in Ref.~\cite{wu2023variational}.
+This figure is reproduced from Fig.~2 in Ref.~\cite{wu2024variational}.
 }
 \label{fig:v-score-rel-err}
 \end{figure}
@@ -168,7 +168,7 @@ V-scores of different Hamiltonians, classified by Hamiltonian types and lattice 
 Only the Hamiltonians without ED results are shown.
 The $x$-axis uses the doubly log scale to show the results across a wide range of V-score magnitude.
 The ratios to the left of the lattice icons are aspect ratios of rectangular lattices. The letters to the right are boundary conditions, which can be O (open), P (periodic), A (anti-periodic) on each dimension.
-This figure is reproduced from Fig.~4 in Ref.~\cite{wu2023variational}.
+This figure is reproduced from Fig.~4 in Ref.~\cite{wu2024variational}.
 }
 \label{fig:v-score-ham}
 \end{figure}
