@@ -35,8 +35,7 @@ Before introducing the Markov chain sampling, it also defines the concept of exa
 \item \Cref{ch:cl-var} reviews the variational method to approximate the Boltzmann distributions of classical many-body systems.
 It gives detailed explanations on the optimization methods and the gradient estimator for the variational free energy, as well as a comparison to MCMC.
 Then it lists some commonly used variational ansatzes, including the naive mean-field ansatz, the Bethe ansatz, and neural network ansatzes, with a self-contained formulation of neural networks.
-This variational method has close resemblance to the variational Monte Carlo method for quantum
-systems in \cref{ch:vmc}.
+This variational method has close resemblance to the variational Monte Carlo method for quantum systems in \cref{ch:vmc}.
 \item \Cref{ch:arnn} introduces the autoregressive neural networks (ARNNs). Using the power of neural networks, they enable practical applications of exact sampling for complicated many-body distributions.
 It presents the basic architectures of ARNN from Ref.~\cite{wu2019solving}, the sparse two-body ARNN (TwoBo) from Ref.~\cite{biazzo2024sparse} to substantially improve the efficiency using the sparsity structure of the physical system, and the neural cluster updates with symmetries (NCUS) from Ref.~\cite{wu2021unbiased} to remove the bias from the variational approximation, with numerical results demonstrating their accuracy and efficiency.
 \item \Cref{ch:qmc} moves the discussion to computational studies on quantum many-body systems. It reviews the unbiased methods to evaluate the ground state, including the theoretical formulation of imaginary time evolution (ITE), the exact diagonalization (ED) method derived from the former, and the quantum Monte Carlo (QMC) methods, in particular the path integral Monte Carlo (PIMC).
