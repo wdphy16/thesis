@@ -16,7 +16,7 @@ This method is named Monte Carlo, after the casino that would later become famou
 \Var\big[ \bbE_\text{MC}[O] \big] = \frac{1}{M} \Var[\bar{O}],
 \label{eq:monte-carlo-var}
 \end{equation}
-where the sample variance of the estimator $\Var\big[ \bbE_\text{MC}[O] \big] = \bbE_\text{MC}\left[ \left( O - \bbE_\text{MC}[O] \right)^2 \right]$ and the true variance of the observable $\Var[\bar{O}] = \overline{(O - \bar{O})^2}$. Therefore, the sample variance vanishes and the estimator converges to the true value as $M$ increases, given that the true variance is finite and all samples are independently drawn from the true distribution.
+where the sample variance of the estimator $\Var\big[ \bbE_\text{MC}[O] \big] = \bbE_\text{MC}\left[ \left( O - \bbE_\text{MC}[O] \right)^2 \right]$ and the true variance of the observable $\Var[\bar{O}] = \overline{(O - \bar{O})^2}$. Therefore, the sample variance vanishes and the estimator converges to the true value as $M$ increases, given that the true variance is finite, and all samples are independently drawn from the true distribution.
 % \rrc{This is not true in any MCMC algorithm: you always have a finite autocorrelation time. Maybe add a comment and a revised formula for that.}
 % \dwcomment{Even if there is a finite autocorrelation time, the sample variance still goes to $0$ as the sample size goes to infinity. The finite autocorrelation time is equivalent to a multiplicative factor on the sample size, as in \cref{eq:eff-sample-size}.}
 
@@ -249,12 +249,12 @@ In addition to reweighing the samples from $q(\vs)$ using the target distributio
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs') q(\vs)}{p(\vs) q(\vs')} \right),
 \label{eq:mcmc-importance}
 \end{equation}
-which is close to $1$ if $q(\vs)$ is close to $p(\vs)$. In addition, this method also reduces the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to a overall reduction in the autocorrelation time. An empirical comparison of importance sampling and MCMC importance sampling will be presented in \cref{sec:ncus}. More advanced methods have been proposed to construct the proposal distribution $g(\vs' \mid \vs)$ depending on the current configuration $\vs$, such as Langevin Monte Carlo~\cite{rossky1978brownian} and Hamiltonian Monte Carlo~\cite{duane1987hybrid}.
+which is close to $1$ if $q(\vs)$ is close to $p(\vs)$. In addition, this method also reduces the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to an overall reduction in the autocorrelation time. An empirical comparison of importance sampling and MCMC importance sampling will be presented in \cref{sec:ncus}. More advanced methods have been proposed to construct the proposal distribution $g(\vs' \mid \vs)$ depending on the current configuration $\vs$, such as Langevin Monte Carlo~\cite{rossky1978brownian} and Hamiltonian Monte Carlo~\cite{duane1987hybrid}.
 
 \subsection{Cluster update}
 \label{sec:cluster-update}
 
-A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling. They originally arisen from studies of the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for Ising models with two-body interactions. In each sampling step, it constructs and flips a cluster of spins according to \cref{alg:wolff}. The resulting proposal probability satisfies $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, so the acceptance probability is always $1$, which makes the Wolff cluster update far more efficient than the single-spin update when applicable.
+A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling. They originally arose from studies of the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for Ising models with two-body interactions. In each sampling step, it constructs and flips a cluster of spins according to \cref{alg:wolff}. The resulting proposal probability satisfies $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, so the acceptance probability is always $1$, which makes the Wolff cluster update far more efficient than the single-spin update when applicable.
 
 \begin{algorithm}[H]
 \caption[Wolff cluster update]{
