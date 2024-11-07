@@ -1,9 +1,9 @@
 \chapter{Unbiased evaluation of ground state}
 \label{ch:qmc}
 
-The previous part has let us see that exact sampling methods, particularly autoregressive neural networks (ARNNs), achieve higher accuracy and efficiency in approximating classical many-body systems. Now we move on to investigate quantum systems, which are known to be more intricate than their classical counterparts. Even though we only focus on their ground states, rather than finite-temperature ensembles or dynamics, they involve peculiar issues that do not exist in the classical world, such as vanishing energy gaps, sign structures, and entanglements.
+The previous part has let us see that exact sampling methods, particularly autoregressive neural networks (ARNNs), achieve higher accuracy and efficiency in approximating classical many-body systems. Now we move on to investigate quantum systems, which are generally known to be more intricate than their classical counterparts. Even though we only focus on their ground states, rather than finite-temperature ensembles or dynamics, they involve peculiar issues that do not exist in the classical world, such as vanishing energy gaps, sign structures, and entanglements.
 
-In this part, we first review the traditional methods of exact diagonalization (ED), path integral Monte Carlo (PIMC), variational Monte Carlo (VMC), and tensor networks (TNs). They not only share some common issues with Markov chain Monte Carlo (MCMC) and variational methods discussed in the previous part but are also affected by peculiar issues in quantum systems. Then we introduce a variational ansatz named tensor-RNN, which combines the strengths of TN and recurrent neural networks (RNNs) to shed new light on both the analytical and the numerical aspects of quantum systems. Lastly, we present the results of VarBench, an extensive project to benchmark the performance of variational methods on quantum many-body systems that witnesses the recent development of this field, including exact sampling methods.
+In this part, we first review the traditional methods of exact diagonalization (ED), path integral Monte Carlo (PIMC), variational Monte Carlo (VMC), and tensor networks (TNs). They not only share some common issues with Markov chain Monte Carlo (MCMC) and variational methods discussed in the previous part but are also affected by peculiar issues in quantum systems. Then we introduce a variational ansatz named tensor-RNN, which combines the strengths of TN and recurrent neural networks (RNNs) to shed new light on both the analytical and the numerical aspects of quantum systems. Lastly, we present the results of VarBench, an extensive project to benchmark the performance of different variational methods on quantum many-body systems These results witness the recent development of this field, including exact sampling methods.
 
 \section{Imaginary time evolution (ITE)}
 \label{sec:ite}
@@ -48,8 +48,6 @@ The asymptotic convergence speed of the limit in \cref{eq:ite} depends on the en
 \frac{\ip{\psi_1}{\psi_\tau}}{\ip{\psi_0}{\psi_\tau}} \propto \rme^{-\tau \Delta E}. \label{eq:ite-converge}
 \end{equation}
 This is a root cause of various numerical difficulties in gapless systems, including systems in disordered or critical regimes, such as spin liquids.
-
-\vfill
 
 \section{Exact diagonalization (ED)}
 \label{sec:ed}
