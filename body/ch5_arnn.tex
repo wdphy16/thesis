@@ -10,7 +10,7 @@ We start from noticing that any joint probability $q(\vs)$ can be factorized int
 q(\vs) &= \prod_i q_i(s_i \mid \vs_{< i}) \label{eq:autoreg} \\
 &= q_1(s_1) q_2(s_2 \mid s_1) q_3(s_3 \mid s_1, s_2) \cdots q_N(s_N \mid s_1, s_2, \ldots, s_{N - 1}),
 \end{align}
-where we still assume that $\vs$ is a vector of $N$ spins, each can take the values $\pm 1$, and $\vs_{< i} = (s_1, s_2, \ldots, s_{i - 1})$ denotes all variables before the $i$-th. This relation between random variables is called an AR model, which is a generalization from the traditional concept of AR in time series, where each random variable only has a linear dependency on the previous ones. In our case, the dependency can be arbitrarily nonlinear.
+where we still assume that $\vs$ is a vector of $N$ spins, each can take the values $\pm 1$, and $\vs_{< i} = (s_1, s_2, \ldots, s_{i - 1})$ denotes all variables before the $i$-th. This relation between random variables is called an AR model, which is a generalization from the traditional concept of AR in time series, where each random variable only has a linear dependency on the previous ones. In our case, the dependency can be arbitrarily non-linear.
 
 In principle, if the joint probability is known, one can compute the conditional probabilities by definition:
 \begin{equation}
@@ -251,6 +251,8 @@ In addition to accuracy after training, TwoBo also has the advantage of fast con
 
 This fast convergence also allows us to reduce the total computation time of the annealing procedure using a higher annealing speed. The annealing speed is controlled by the number of optimization steps $N_\text{opt}$ in each annealing step. As shown in \cref{fig:twobo-n-opt}, the variational free energy systematically decreases as $N_\text{opt}$ increases, presumably in a power law. In particular, TwoBo reaches the same variational free energy with almost an order of magnitude smaller $N_\text{opt}$ than MADE and RNN, which demonstrates its high efficiency in training. Therefore, we use only $N_\text{opt} = 200$ to achieve satisfactory results in \cref{fig:twobo-ea}, and each training can finish in an hour on a high-end GPU.
 
+\vfill
+
 \subsubsection{Parameter efficiency}
 
 \begin{figure}[htb]
@@ -274,6 +276,10 @@ This figure is reproduced from Fig.~S3 in the supplementary material for Ref.~\c
 \end{figure}
 
 Lastly, we investigate the empirical scaling of the number of trainable parameters in TwoBo with the system size. As shown in \cref{fig:twobo-param}, TwoBo has polynomially fewer parameters than MADE on 2D and 3D grids. However, for the RRGs without a local geometry, TwoBo no longer has polynomially fewer parameters, but only fewer by a constant coefficient of approximately $2$. These results are consistent with the theoretical analysis in \cref{sec:twobo-sparse}.
+
+\vfill
+
+\newpage
 
 This advantage is more clearly demonstrated when we compare with RNN in the regime of numerous parameters. As shown in \cref{fig:twobo-rnn-param}, the TwoBo with few parameters gives a lower variational free energy than the RNN with a comparable number of parameters, and even if we enlarge the RNN by orders of magnitude, the variational free energy does not systematically decrease. These results emphasize the importance of the lightweight architecture with the physical knowledge in TwoBo, which can be more efficient than scaling up a general neural network architecture with increasing computation.
 
@@ -393,6 +399,6 @@ The efficiency of NCUS can depend on the distribution $P_\text{cluster}(k)$ of t
 
 \subsection{Conclusion}
 
-In conclusion, the NCUS algorithm utilizes the cluster updates constructed by the AR property of the ansatz, as well as the symmetries of the physical system, to produce substantially lower autocorrelation times than the conventional global update method around the critical point, and more reliable estimations of observables with lower error bars in consequence.
+In conclusion, the NCUS algorithm utilizes the cluster updates constructed by the AR property of the ansatz, as well as the symmetries of the physical system, to produce substantially lower autocorrelation times than the conventional global update method around the critical point, and more reliable estimations of observables with lower error bars in consequence. It is worth mentioning that the recently developed AR models with random orders~\cite{hoogeboom2022autoregressive, pannatier2024sigma, yu2024randomized} may be used to construct clusters with more general shapes.
 
 We look forward to more research combining the strengths of the techniques presented in this section, including neural networks as highly expressive heuristics for complicated multivariate distributions, autoregressive models with exact sampling and normalized probability evaluation, physical properties such as symmetries and sparsity incorporated into network architectures, and cluster updates that alleviate the problems of critical slowing down and mode collapse, which will eventually lead to solutions for physical systems with unprecedented size and complexity.

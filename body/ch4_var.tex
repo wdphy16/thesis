@@ -42,7 +42,7 @@ The ansatz $q(\vs)$ is usually controlled by some parameters $\theta$, which all
 \subsection{Gradient descent optimizers}
 \label{sec:gd}
 
-As $F_q$ is generally a multivariate nonlinear function of $\theta$, its optimization is usually performed by gradient descent (GD)-based algorithms~\cite{curry1944method}. In the naive setting of GD, in each optimization step $t$ we update $\theta$ by
+As $F_q$ is generally a multivariate non-linear function of $\theta$, its optimization is usually performed by gradient descent (GD)-based algorithms~\cite{curry1944method}. In the naive setting of GD, in each optimization step $t$ we update $\theta$ by
 \begin{equation}
 \theta_{t + 1} \gets \theta_t - \gamma \left. \nabla F_q \right|_{\theta = \theta_t},
 \label{eq:gd}
@@ -51,7 +51,7 @@ where $\nabla F_q = \frac{\partial F_q}{\partial \theta}$ is the gradient vector
 
 When estimating the gradient in \cref{eq:gd}, we usually generate a set of random samples $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ in each sampling step, rather than sum over the exponentially large space of configurations. This practice is known as the stochastic gradient descent (SGD)~\cite{robbins1951stochastic, bottou1998online}, and the sample size $M$ is also known as the ``batch'' size in machine learning. In the continuous-time limit, SGD is equivalent to exact gradient flow with an additional Brownian noise~\cite{hu2017diffusion}, and the variance of the noise scales by $O\left( \frac{1}{M} \right)$. This Brownian motion is also equivalent to a simulated annealing, whose equilibrium distribution is a Boltzmann distribution\footnote{Not to be confused with the physical Boltzmann distribution in the space of the configurations $\vs$.} in the space of the parameter $\theta$. In other words, this noise helps the optimizer escape from local minima and saddle points, given an appropriate ratio of the learning rate to the batch size, which explains the successful application of SGD in various non-convex problems.
 
-Many advanced variants of SGD have been proposed in the recent trend of machine learning~\cite{kashyap2022survey}. In particular, the Adam optimizer~\cite{kingma2015adam} has become the most popular among them. It estimates the appropriate learning rate for each parameter by the second moment\footnote{It is the second moment of the norms of each gradient components in the case of complex-valued gradients.} of the gradient, and uses the first moment to improve convergence, which largely reduces manual labor to tune the learning rate. Numerous experiments have demonstrated its broad applicability to machine learning problems, although its convergence properties are still debatable in physical problems that require high accuracy.
+Many advanced variants of SGD have been proposed in the recent trend of machine learning~\cite{kashyap2022survey}. In particular, the Adam optimizer~\cite{kingma2015adam} has become the most popular among them. It estimates the appropriate learning rate for each parameter by the second moment\footnote{It is the second moment of the norm of each gradient component in the case of complex-valued gradients.} of the gradient, and uses the first moment to improve convergence, which largely reduces manual labor to tune the learning rate. Numerous experiments have demonstrated its broad applicability to machine learning problems, although its convergence properties are still debatable in physical problems that require high accuracy.
 
 \subsection{Second-order optimizers}
 \label{sec:ngd}
@@ -61,7 +61,7 @@ We refer to GD as a first-order optimizer\footnote{Not to be confused with the o
 \theta_{t + 1} \gets \theta_t - \gamma \left. \mH^{-1} \nabla F_q \right|_{\theta = \theta_t},
 \label{eq:newton}
 \end{equation}
-where $\mH$ is the Hessian matrix of the target function defined by $H_{i j} = \frac{\partial^2 F_q}{\partial \theta_i \partial \theta_j}$. In this case, the learning rate $\gamma$ can be close to $1$ if the target function is close to the quadratic approximation. However, this method can easily become unstable with highly nonlinear target functions, and an interpolation between the first- and the second-order updates is required to enhance stability, such as the Levenberg--Marquardt algorithm~\cite{levenberg1944method}. Moreover, directly storing $\mH$ requires $O(n_\text{p}^2)$ space, where $n_\text{p}$ is the number of parameters, and directly inverting it requires $O(n_\text{p}^3)$ computation, both of which are impractical with large numbers of parameters in neural networks. Therefore, modern methods approximate $\mH^{-1}$ with low-rank updates and line searches, such as the conjugate gradient method~\cite{fletcher1964function} and the limited-memory Broyden--Fletcher--Goldfarb--Shanno (L-BFGS) algorithm~\cite{liu1989limited}. Even with these improvements, the use of second-order optimizers is still hardly practical in large-scale machine learning problems, let alone higher-order ones.
+where $\mH$ is the Hessian matrix of the target function defined by $H_{i j} = \frac{\partial^2 F_q}{\partial \theta_i \partial \theta_j}$. In this case, the learning rate $\gamma$ can be close to $1$ if the target function is close to the quadratic approximation. However, this method can easily become unstable with highly non-linear target functions, and an interpolation between the first- and the second-order updates is required to enhance stability, such as the Levenberg--Marquardt algorithm~\cite{levenberg1944method}. Moreover, directly storing $\mH$ requires $O(n_\text{p}^2)$ space, where $n_\text{p}$ is the number of parameters, and directly inverting it requires $O(n_\text{p}^3)$ computation, both of which are impractical with large numbers of parameters in neural networks. Therefore, modern methods approximate $\mH^{-1}$ with low-rank updates and line searches, such as the conjugate gradient method~\cite{fletcher1964function} and the limited-memory Broyden--Fletcher--Goldfarb--Shanno (L-BFGS) algorithm~\cite{liu1989limited}, or precondition it in subspaces~\cite{gupta2018shampoo}. Even with these improvements, the use of second-order optimizers is still hardly practical in large-scale machine learning problems, let alone higher-order ones.
 
 When the target function is a KL divergence, a special technique is to replace $\mH$ in \cref{eq:newton} by the Fisher information matrix
 \begin{equation}
@@ -277,7 +277,7 @@ When the graph is a tree, including a 1D chain, there actually exists a probabil
 
 \subsection{Layers in neural networks}
 
-As introduced in \cref{sec:intro-ml}, neural networks in modern machine learning are composed of a common set of simple functions, known as ``layers'', and the composition can be arbitrarily sophisticated. The basic architecture among them is the feedforward neural network (FFNN), which is defined by a sequential composition of alternating linear layers and nonlinear activation layers:
+As introduced in \cref{sec:intro-ml}, neural networks in modern machine learning are composed of a common set of simple functions, known as ``layers'', and the composition can be arbitrarily sophisticated. The basic architecture among them is the feedforward neural network (FFNN), which is defined by a sequential composition of alternating linear layers and non-linear activation layers:
 \begin{equation}
 \vy = (\text{Lin}_1 \circ \text{Act}_1 \circ \text{Lin}_2 \circ \text{Act}_2 \circ \cdots \circ \text{Lin}_{n_\text{l}} \circ \text{Act}_{n_\text{l}})(\vx),
 \label{eq:ffnn}
@@ -288,7 +288,7 @@ where $\vx$ is the inputs to the network, $\vy$ is the outputs, $n_\text{l}$ is 
 \centering
 \includegraphics[width=0.9\linewidth]{ch4/nn_arch.pdf}
 \caption[Architecture of feedforward neural network (FFNN)]{
-Architecture of FFNN, which is a sequential composition of alternating linear layers Lin$_i$ and nonlinear activation layers Act$_i$. Each layer contains its own parameters. The values $\vx_i$ and $\vx'_i$ are outputs from the previous layer, which become inputs to the next layer.
+Architecture of FFNN, which is a sequential composition of alternating linear layers Lin$_i$ and non-linear activation layers Act$_i$. Each layer contains its own parameters. The values $\vx_i$ and $\vx'_i$ are outputs from the previous layer, which become inputs to the next layer.
 }
 \label{fig:nn-arch}
 \end{figure}
@@ -328,7 +328,7 @@ which maps from $\bbR$ to $(0, 1)$, or to another interval with an additional li
 \includegraphics[width=0.7\linewidth]{ch4/nn_activations.pdf}
 \caption[Commonly used activation functions in neural networks]{
 Commonly used activation functions ReLU, GELU, and sigmoid in neural networks.
-Both ReLU and GELU have asymptotic behaviors $y \to 0$ when $x \to -\infty$ and $y \to x$ when $x \to +\infty$, while GELU has more subtle nonlinearity around $x = 0$.
+Both ReLU and GELU have asymptotic behaviors $y \to 0$ when $x \to -\infty$ and $y \to x$ when $x \to +\infty$, while GELU has more subtle non-linearity around $x = 0$.
 In contrast, the output of sigmoid is bounded in $(0, 1)$.
 }
 \label{fig:activations}
@@ -349,7 +349,7 @@ f(T_d \vx) = T_d f(\vx),
 \end{equation}
 where $T_d$ denotes the translation by $d$ steps: $T_d (x_1, \ldots, x_{n_\text{s}})$ = $(x_{1 + d}, x_{2 + d}, \ldots, x_{n_\text{s}}, x_1, x_2, \ldots, x_d)$, and $f$ is a neural network composed of convolutional and activation layers. Beyond translational symmetry, this equivariance can be generalized to more symmetry groups, such as rotations and reflections~\cite{luo2021gauge, roth2021group}.
 
-There is also a kind of special linear layers known as pooling layers, which are invariant under the symmetry operations:
+There is also a kind of special linear layers known as pooling layers\footnote{Pooling layers can also be non-linear, such as the max pooling, which is not used in this thesis.}, which are invariant under the symmetry operations:
 \begin{equation}
 f(T_d \vx) = f(\vx),
 \label{eq:trans-invar}
