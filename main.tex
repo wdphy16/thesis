@@ -132,7 +132,6 @@
 \ifxetex
 \else
     \ifpdf
-        \usepackage[final]{pdfpages}
     \else
         \usepackage{breakurl}
         \usepackage{calc}
@@ -142,6 +141,7 @@
     \fi
 \fi
 \usepackage{bookmark}
+\usepackage{pdfpages}
 
 \makeatletter
 \renewcommand\@pnumwidth{20pt}
@@ -402,5 +402,5 @@
 \include{tail/appendix}
 \backmatter
 \include{tail/biblio}
-% \include{tail/cv} % TODO
+\include{tail/cv}
 \end{document}
