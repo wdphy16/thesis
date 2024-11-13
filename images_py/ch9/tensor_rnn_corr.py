@@ -111,7 +111,7 @@ def main():
     plot_1d(
         "../../data/tensor_rnn/corr_tfim_2d_h.txt",
         ax5,
-        "1D MPS-RNN, horizontal",
+        "2D MPS-RNN, horizontal",
         lighten("C2"),
         "D",
         2.5,
