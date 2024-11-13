@@ -30,7 +30,7 @@ where $A_\text{corr}$ is a constant for all $i, j$, $d(i, j)$ is the distance be
 
 The remaining issue is that we can arbitrarily shift the Hamiltonian by a constant: $\hat{H} \gets \hat{H} + C$, which does not change any physical property of the system, and our metric should be invariant under this shift. To achieve this, we define a zero point of energy $E_\infty$, and replace $E$ by $E - E_\infty$. For spin and fermionic systems with a finite number of energy levels per site, $E_\infty$ is defined to be the expected energy of a random state in the Hilbert space, and we are sure that a variational state after optimization typically has a lower energy than a random state. It is equivalent to the expected energy of a thermal state at infinite temperature, which can be derived from the trace of the Hamiltonian:
 \begin{equation}
-E_\infty = \frac{\Tr \hat{H}}{\dim \calH},
+E_\infty = \frac{\tr \hat{H}}{\dim \calH},
 \label{eq:E-infty-trace}
 \end{equation}
 where $\dim \calH$ is the dimension of the Hilbert, or the Hilbert subspace for fermionic systems when the number of fermions is fixed. It can be analytically derived for simple Hamiltonians or numerically evaluated using Monte Carlo sampling. However, it remains an open question to define $E_\infty$ for bosonic systems because there are infinitely many energy levels per site. We may define it with a cutoff of physically relevant energy levels or a mean-field energy, but there is not yet an intuitive definition that is consistent with spin and fermionic systems.

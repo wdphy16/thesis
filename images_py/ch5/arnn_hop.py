@@ -3,6 +3,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+plt.rcParams['figure.dpi'] = 300
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["font.serif"] = "STIXGeneral"
 plt.rcParams["mathtext.fontset"] = "stix"
@@ -25,7 +26,7 @@ def main():
     )
 
     for i, beta in enumerate([0.3, 1, 1.5]):
-        data = np.loadtxt(f"../data/arnn/hop/beta{beta:g}.txt")
+        data = np.loadtxt(f"../../data/arnn/hop/beta{beta:g}.txt")
         zs = data[:, 0]
         xs = data[:, 2]
         ys = data[:, 1]

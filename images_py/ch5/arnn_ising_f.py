@@ -8,11 +8,12 @@ plt.rcParams["font.family"] = "serif"
 plt.rcParams["font.serif"] = "STIXGeneral"
 plt.rcParams["mathtext.fontset"] = "stix"
 
-out_filename = "./arnn_ising.pdf"
+# out_filename = "./arnn_ising_sqr_f.pdf"
+out_filename = "./arnn_ising_tri_s.pdf"
 
 
 def plot_f(fig, ax):
-    in_template = "../data/arnn/fm_sqr_f/{}.txt"
+    in_template = "../../data/arnn/fm_sqr_f/{}.txt"
     betas = np.linspace(0.1, 1, 10)
     configs = [
         ("Conv", "C3", "o", 4.5),
@@ -102,7 +103,7 @@ def exp_const(x, a, b, c):
 
 
 def plot_s(fig, ax):
-    in_template = "../data/arnn/afm_tri_s/L{L}.txt"
+    in_template = "../../data/arnn/afm_tri_s/L{L}.txt"
     Ls = [4, 6, 8, 10, 12, 14, 16]
     cmap = plt.get_cmap("turbo")
     colors = cmap(np.linspace(0.9, 0.1, len(Ls)))
@@ -149,15 +150,10 @@ def plot_s(fig, ax):
 
 
 def main():
-    fig, axes = plt.subplots(ncols=2, figsize=(6, 2.5))
+    fig, ax = plt.subplots(figsize=(3.5, 2.5))
 
-    plot_f(fig, axes[0])
-    plot_s(fig, axes[1])
-
-    # Panel labels
-    for i, ax in enumerate(axes.flatten()):
-        c = chr(ord("a") + i)
-        ax.text(0.05, 0.1, f"({c})", transform=ax.transAxes)
+    # plot_f(fig, ax)
+    plot_s(fig, ax)
 
     fig.tight_layout()
     print(out_filename)
