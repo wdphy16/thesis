@@ -314,7 +314,7 @@ A modern choice is the Gaussian error linear unit (GELU)~\cite{hendrycks2016gaus
 \begin{equation}
 \text{GELU}(x) = x\,\Phi(x),
 \end{equation}
-where $\Phi(x)$ is the cumulative distribution function (CDF) of the unit Gaussian distribution. While having the same asymptotic behaviors at $x \to \pm \infty$ as ReLU, it is derived from the stochastic regularization of the network and helps to stabilize the evaluation and the training of the network. It is the default choice in the NetKet software package~\cite{carleo2019netket}, and is used in most of the results reported in this thesis.
+where $\Phi(x)$ is the cumulative distribution function (CDF) of the unit Gaussian distribution. While having the same asymptotic behaviors at $x \to \pm \infty$ as ReLU, it is derived from the stochastic regularization of the network and helps to stabilize the evaluation and the training of the network. It is the default choice in the NetKet software package~\cite{carleo2019netket, vicentini2022netket}, and is used in most of the results reported in this thesis.
 
 In particular, the activation function in the last layer can be the identity function if the outputs are unconstrained in $\bbR$, or specifically constructed to constrain the outputs in an interval. In the latter case, a common choice is the sigmoid function:
 \begin{equation}
