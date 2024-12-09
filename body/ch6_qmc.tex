@@ -1,7 +1,7 @@
 \chapter{Unbiased evaluation of ground state}
 \label{ch:qmc}
 
-The previous part has let us see that exact sampling methods, particularly autoregressive neural networks (ARNNs), achieve higher accuracy and efficiency in approximating classical many-body systems. Now we move on to investigate quantum systems, which are generally known to be more intricate than their classical counterparts. Even though we only focus on their ground states, rather than finite-temperature ensembles or dynamics, they involve peculiar issues that do not exist in the classical world, such as vanishing energy gaps, sign structures, and entanglements.
+The previous part has let us see that exact sampling methods, particularly autoregressive neural networks (ARNNs), achieve higher accuracy and efficiency in approximating classical many-body systems. Now we move on to investigate quantum systems, which are generally known to be more intricate than their classical counterparts. Even though we only focus on their ground states, rather than finite-temperature ensembles or dynamics, they involve peculiar issues that do not exist in the classical world, such as vanishing energy gaps, sign structures, and quantum entanglements.
 
 In this part, we first review the traditional methods of exact diagonalization (ED), path integral Monte Carlo (PIMC), variational Monte Carlo (VMC), and tensor networks (TNs). They not only share some common issues with Markov chain Monte Carlo (MCMC) and variational methods discussed in the previous part but are also affected by peculiar issues in quantum systems. Then we introduce a variational ansatz named tensor-RNN, which combines the strengths of TN and recurrent neural networks (RNNs) to shed new light on both the analytical and the numerical aspects of quantum systems. Lastly, we present the results of VarBench, an extensive project to benchmark the performance of different variational methods on quantum many-body systems These results witness the recent development of this field, including exact sampling methods.
 
@@ -30,7 +30,7 @@ assuming it converges. Therefore, \cref{eq:ite-psi-tau} becomes
 \begin{equation}
 \ket{\psi_\tau} = \sum_i c_i \rme^{-\tau E_i} \ket{\psi_i}.
 \end{equation}
-In the limit $\tau \to \infty$, as the exponential $\rme^{-\tau E_0}$ grows faster than all other terms, the resulting state $\ket{\psi_\tau}$ is dominated by the ground state $\ket{\psi_0}$. This is true regardless of the coefficients $c_i$, as long as $c_0 \neq 0$, i.e., the initial state is not orthogonal to the ground state, which is usually fulfilled if the initial state is chosen randomly. In the case of degenerate ground states, this method produces an arbitrary one among them, depending on the choice of the initial state.
+In the limit $\tau \to \infty$, assuming $E_0 < 0$ with a reasonable energy zero point, the exponential $\rme^{-\tau E_0}$ grows faster than all other terms, so the resulting state $\ket{\psi_\tau}$ is dominated by the ground state $\ket{\psi_0}$. This is true regardless of the coefficients $c_i$, as long as $c_0 \neq 0$, i.e., the initial state is not orthogonal to the ground state, which is usually fulfilled if the initial state is chosen randomly. In the case of degenerate ground states, this method produces an arbitrary one in the subspace spanned by them, depending on the choice of the initial state.
 
 Recovering the normalization, we have
 \begin{equation}
@@ -47,7 +47,11 @@ The asymptotic convergence speed of the limit in \cref{eq:ite} depends on the en
 \begin{equation}
 \frac{\ip{\psi_1}{\psi_\tau}}{\ip{\psi_0}{\psi_\tau}} \propto \rme^{-\tau \Delta E}. \label{eq:ite-converge}
 \end{equation}
-This is a root cause of various numerical difficulties in gapless systems, including systems in disordered or critical regimes, such as spin liquids.
+It is also related to the condition number of the matrix $\mH - E_0 \mI$:
+\begin{equation}
+\kappa = \frac{E_\text{M} - E_0}{E_1 - E_0},
+\end{equation}
+where $E_\text{M}$ is the highest energy level of the system, and a higher $\kappa$ indicates that it is more difficult to accurately find the null space of $\mH - E_0 \mI$, which is equivalent to finding the ground state of the physical system. This is a root cause of various numerical difficulties in gapless systems, including systems in disordered or critical regimes, such as spin liquids.
 
 \section{Exact diagonalization (ED)}
 \label{sec:ed}

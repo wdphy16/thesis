@@ -45,7 +45,7 @@ It is dimensionless, asymptotically independent of the system size, and invarian
 \frac{E - E_0}{|E_0 - E_\infty|} &= B\,\text{V-score} + O(\text{V-score}^2), \label{eq:v-score-rel-err} \\
 B &= \frac{A (E - E_\infty)^2}{N |E_0 - E_\infty|},
 \end{align}
-where $A$ has the dimension of $E^{-1}$ and is asymptotically independent of $N$. For any Hamiltonian with the clustering property and any variational state converging to the ground state, the magnitude of $B$ will not be too far from $1$. Therefore, the V-score can be a universal metric to predict the energy relative error in variational approximation, which will be visualized in \cref{fig:v-score-rel-err}.
+where $A$ has the dimension of $E^{-1}$ and is asymptotically independent of $N$. For any Hamiltonian with the clustering property and any variational state converging to the ground state, the magnitude of $B$ will not be far from $1$. Therefore, the V-score can be a universal metric to predict the energy relative error in variational approximation, which will be visualized in \cref{fig:v-score-rel-err}.
 
 It is worth discussing the possibilities for the V-score to underestimate or overestimate the energy relative error. An intuitive case of the underestimation is when the variational state converges to an excited state, as $\Var E$ under any excited state is zero. This situation can be detected by applying the symmetries of the ground state or repeating the optimization with different initial parameters. Another case is the mode collapse discussed in \cref{sec:vmc-var}, where we estimate $\Var E$ using $|E_\text{loc}(\vs)|^2$, and it can be detected by actually evaluating the matrix elements of $\hat{H}^2$.
 

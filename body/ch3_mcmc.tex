@@ -13,12 +13,10 @@ When studying an observable of a classical many-body system in \cref{eq:cl-obs},
 \end{equation}
 This method is named Monte Carlo, after the casino that would later become famous to every computational physicist~\cite{metropolis1949monte, landau2021guide1}. It is proven that~\cite{feller1968extention}
 \begin{equation}
-\Var\big[ \bbE_\text{MC}[O] \big] = \frac{1}{M} \Var[\bar{O}],
+\Var_\text{MC}[O] = \frac{1}{M} \Var[O],
 \label{eq:monte-carlo-var}
 \end{equation}
-where the sample variance of the estimator $\Var\big[ \bbE_\text{MC}[O] \big] = \bbE_\text{MC}\left[ \left( O - \bbE_\text{MC}[O] \right)^2 \right]$ and the true variance of the observable $\Var[\bar{O}] = \overline{(O - \bar{O})^2}$. Therefore, the sample variance vanishes and the estimator converges to the true value as $M$ increases, given that the true variance is finite, and all samples are independently drawn from the true distribution.
-% \rrc{This is not true in any MCMC algorithm: you always have a finite autocorrelation time. Maybe add a comment and a revised formula for that.}
-% \dwcomment{Even if there is a finite autocorrelation time, the sample variance still goes to $0$ as the sample size goes to infinity. The finite autocorrelation time is equivalent to a multiplicative factor on the sample size, as in \cref{eq:eff-sample-size}.}
+where the sample variance of the estimator $\Var_\text{MC}[O] = \bbE_\text{MC}\left[ \left( O - \bbE_\text{MC}[O] \right)^2 \right]$ and the true variance of the observable $\Var[O] = \overline{(O - \bar{O})^2}$. Therefore, the sample variance vanishes and the estimator converges to the true value as $M$ increases, given that the true variance is finite, and all samples are independently drawn from the true distribution.
 
 \section{Exact sampling}
 
@@ -148,7 +146,7 @@ Intuitively, the autocorrelation time takes two factors into account that affect
 
 The loss in sample diversity is quantitatively reflected in the variance of the Monte Carlo estimator in \cref{eq:monte-carlo-var}. When the Markov chain is in equilibrium, in the presence of autocorrelation, the variance increases to
 \begin{equation}
-\Var\big[ \bbE_\text{MCMC}[O] \big] = \frac{1}{M_{\text{eff}\,\tau}} \Var[\bar{O}],
+\Var_\text{MCMC}[O] = \frac{1}{M_{\text{eff}\,\tau}} \Var[O],
 \end{equation}
 where the effective sample size
 \begin{equation}
@@ -198,9 +196,13 @@ The Gelman--Rubin (GR) statistic~\cite{gelman1992inference, vats2021revisiting} 
 and the variances
 \begin{align}
 s^2_j &= \frac{1}{M - 1} \sum_{m = 1}^M (O_{j, m} - \bar{O}_j)^2, \\
-s^2_* &= \frac{1}{J} \sum_{j = 1}^J W_j,
+s^2_* &= \frac{1}{J} \sum_{j = 1}^J s^2_j,
 \end{align}
-where $\bar{O}_j$ is the sample mean of the observable over a chain, $\bar{O}_*$ is the sample mean of all chains, $s^2_j$ is the sample variance of a chain, and $s^2_*$ is the mean of these sample variances. Due to the presence of autocorrelation, each $s^2_j$ underestimates the true variance of the target distribution $\sigma^2$. A correction to this bias is estimated by comparing the means of different chains:
+where $\bar{O}_j$ is the sample mean of the observable over a chain, $\bar{O}_*$ is the sample mean of all chains, $s^2_j$ is the sample variance of a chain, and $s^2_*$ is the mean of these sample variances.
+
+\vfill
+
+Due to the presence of autocorrelation, each $s^2_j$ underestimates the true variance of the target distribution $\sigma^2$. A correction to this bias is estimated by comparing the means of different chains:
 \begin{equation}
 \frac{B}{M} = \frac{1}{J - 1} \sum_{j = 1}^J (\bar{O}_j - \bar{O}_*)^2.
 \end{equation}
@@ -208,8 +210,7 @@ Now the estimated variance is
 \begin{equation}
 \sigma^2_* = \frac{M - 1}{M} s^2_* + \frac{B}{M}.
 \end{equation}
-
-The GR statistic is defined to normalize the correction to the estimated variance:
+The GR statistic is defined to normalize the above correction to the estimated variance:
 \begin{equation}
 R = \sqrt{\frac{\sigma^2_*}{s^2_*}}.
 \end{equation}
@@ -217,7 +218,12 @@ It is also related to the effective sample size by
 \begin{equation}
 R \approx \sqrt{1 + \frac{M}{M_\text{eff}}}.
 \end{equation}
-If we have enough random Markov chains from different initial configurations, which cover all regions of interest in the configuration space, and converge to similar distributions with mean observable values close to each other, then we can assume that the Markov chains have reached equilibrium. It was originally proposed in Ref.~\cite{gelman1992inference} to use a threshold $R < \delta$, and a common choice is $\delta = 1.1$. According to Ref.~\cite{vats2021revisiting}, practical choices of $\delta$ range from $1.003$ to $1.3$, and a more stable estimation of the true variance can be obtained from batch-wise variances in the chains.
+
+\vfill
+
+If we have enough random Markov chains from different initial configurations, which cover all regions of interest in the configuration space, and converge to similar distributions with mean observable values close to each other, then we can assume that these Markov chains have reached equilibrium. It was originally proposed in Ref.~\cite{gelman1992inference} to use a threshold $R < \delta$, and a common choice is $\delta = 1.1$. According to Ref.~\cite{vats2021revisiting}, practical choices of $\delta$ range from $1.003$ to $1.3$, and a more stable estimation of the true variance can be obtained by dividing each chain into batches and analyzing batch-wise variances.
+
+\vfill
 
 \section{Other sampling methods}
 \label{sec:more-sampling}
@@ -225,14 +231,14 @@ If we have enough random Markov chains from different initial configurations, wh
 \subsection{Importance sampling}
 \label{sec:importance-sampling}
 
-In addition to exact sampling and MCMC sampling, there are other sampling methods to estimate the observable in \cref{eq:cl-obs}. In principle, we can generate samples $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ from any distribution $q(\vs)$, then estimate the observable by
+Apart from exact sampling and MCMC sampling, there are other sampling methods to estimate the observable in \cref{eq:cl-obs}. In principle, we can generate samples $\{\vs^{(1)}, \vs^{(2)}, \ldots, \vs^{(M)}\}$ from any distribution $q(\vs)$, then estimate the observable by
 \begin{align}
 \bbE_\text{imp}[O] &= \frac{\sum_{i = 1}^M w\left( \vs^{(i)} \right) O\left( \vs^{(i)} \right)}{\sum_{i = 1}^M w\left( \vs^{(i)} \right)}, \label{eq:importance-sampling} \\
 w\left( \vs^{(i)} \right) &= \frac{p\left( \vs^{(i)} \right)}{q\left(\vs^{(i)} \right)},
 \end{align}
 given that $q(\vs)$ has a wider support than $p(\vs)$, i.e., $q(\vs) > 0$ for all $\vs$ such that $p(\vs) > 0$. The probabilities $p(\vs)$ and $q(\vs)$ can be unnormalized, as an overall coefficient in $w(\vs)$ will cancel out in the numerator and the denominator of $\bbE_\text{imp}[O]$. This method is called importance sampling in statistics~\cite{kloek1978bayesian, bugallo2017adaptive}, and the distribution $q(\vs)$ is called an ansatz\footnote{The word ``ansatz'' is borrowed from German. Its plural form is ``Ansätze'' in German, but the adapted form ``ansatzes'' is also used in the English literature.} in the context of statistical physics. The ansatz should be close to $p(\vs)$, and easier to sample than $p(\vs)$. Some choices of the ansatz for importance sampling will be discussed in \cref{sec:nmf}. The variance of this estimator is
 \begin{equation}
-\Var\big[ \bbE_\text{imp}[O] \big] = \frac{1}{M_{\text{eff}\,w}} \Var[\bar{O}],
+\Var_\text{imp}[O] = \frac{1}{M_{\text{eff}\,w}} \Var[O],
 \label{eq:importance-sampling-var}
 \end{equation}
 where the effective sample size
@@ -249,12 +255,16 @@ In addition to reweighing the samples from $q(\vs)$ using the target distributio
 A(\vs \to \vs') = \min\left( 1, \frac{p(\vs') q(\vs)}{p(\vs) q(\vs')} \right),
 \label{eq:mcmc-importance}
 \end{equation}
-which is close to $1$ if $q(\vs)$ is close to $p(\vs)$. In addition, this method also reduces the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to an overall reduction in the autocorrelation time. An empirical comparison of importance sampling and MCMC importance sampling will be presented in \cref{sec:ncus}. More advanced methods have been proposed to construct the proposal distribution $g(\vs' \mid \vs)$ depending on the current configuration $\vs$, such as Langevin Monte Carlo~\cite{rossky1978brownian} and Hamiltonian Monte Carlo~\cite{duane1987hybrid}.
+which is close to $1$ if $q(\vs)$ is close to $p(\vs)$. While increasing the acceptance probability, this method also reduces the correlation between $\vs$ and $\vs'$ compared to the single-spin update, which leads to an overall reduction in the autocorrelation time. An empirical comparison of importance sampling and MCMC importance sampling will be presented in \cref{sec:ncus}. More advanced methods have been proposed to construct the proposal distribution $g(\vs' \mid \vs)$ depending on the current configuration $\vs$, such as Langevin Monte Carlo~\cite{rossky1978brownian} and Hamiltonian Monte Carlo~\cite{duane1987hybrid}.
+
+\vfill
 
 \subsection{Cluster update}
 \label{sec:cluster-update}
 
 A variety of cluster update algorithms can also be discussed in the framework of MCMC importance sampling. They originally arose from studies of the percolation transition in statistical physics and graph theory, or the series expansion of the partition function~\cite{fortuin1972random, leung1991percolation, evertz1993cluster}. A prominent example is the Wolff algorithm~\cite{wolff1989collective} for Ising models with two-body interactions. In each sampling step, it constructs and flips a cluster of spins according to \cref{alg:wolff}. The resulting proposal probability satisfies $g(\vs' \mid \vs) \propto p_\text{B}(\vs')$, so the acceptance probability is always $1$, which makes the Wolff cluster update far more efficient than the single-spin update when applicable.
+
+\vfill
 
 \begin{algorithm}[H]
 \caption[Wolff cluster update]{
@@ -280,6 +290,8 @@ $\calC$ is the cluster, $\calB$ is a set of spins on the boundary of the cluster
 \STATE Output the new configuration $\vs' \gets \vs$
 \end{algorithmic}
 \end{algorithm}
+
+\vfill
 
 \section{Mode collapse}
 \label{sec:mode-collapse}

@@ -73,6 +73,12 @@ W^{(i)}_{a_i, a'_i} = \sum_{s, a'_{i - 1}} M^{(i) \dagger}_{s; a'_i, a'_{i - 1}}
 \end{equation}
 which also takes $O(\chi^3)$ time. Therefore, the contraction of $N$ sites takes $O(N \chi^3)$ time, which is also an exponential reduction from naively summing over the $2^N$ configurations. In addition, we can see that if we impose periodic boundary conditions (PBC) rather than OBC, i.e., connect the solid dots at the two ends of the MPS, then the intermediate result $\mW^{(i - 1)}$ has to maintain four indices of size $\chi$, therefore the time complexity to contract the above TN increases to $O(N \chi^4)$, while the dynamic space required by the intermediate result increases even more rapidly from $O(\chi^2)$ to $O(\chi^4)$.
 
+It is worth noting that one may normalize and canonize the MPS, such that
+\begin{equation}
+\sum_{s, a_{i - 1}} M^{(i) \dagger}_{s; a'_i, a_{i - 1}} M^{(i)}_{s; a_i, a_{i - 1}} = \delta_{a_i, a'_i},
+\end{equation}
+which simplifies the above contraction and avoids the numerical problems of exponentially exploding or vanishing intermediate results. However, when used in VMC as we will discuss in \cref{ch:tensor-rnn}, this is usually only needed when initializing the parameters, rather than in each VMC step.
+
 \section{Matrix product operator (MPO)}
 \label{sec:mpo}
 

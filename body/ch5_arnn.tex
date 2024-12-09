@@ -51,7 +51,7 @@ M_{i j} = \begin{cases}
 0, & i \le j
 \end{cases},
 \end{gather}
-where $\odot$ denotes the element-wise multiplication. This masked linear layer is illustrated in \cref{fig:arnn-arch}~(a). Multiple linear layers can be applied to improve the expressiveness of the network, and only one layer needs to mask out the connections $M_{i i}$, as shown in \cref{fig:arnn-arch}~(b). This architecture is known as the masked autoencoder for distribution estimation (MADE)~\cite{germain2015made}.
+where $\odot$ denotes the element-wise multiplication. This masked linear layer is illustrated in \cref{fig:arnn-arch}~(a). Multiple linear layers can be stacked to improve the expressiveness of the network, as shown in \cref{fig:arnn-arch}~(b), where the whole network fulfills the AR property as long as only one layer masks out the ``straight right'' connections $M_{i i}$. This architecture is known as the masked autoencoder for distribution estimation (MADE)~\cite{germain2015made}.
 
 Convolutional layers can also be applied to utilize translational symmetry and locality of the physical system, with the same mask $\mM$ to ensure AR property. However, unlike a single convolutional FFNN, the joint probability $q(\vs)$ of a convolutional ARNN is not translational invariant as in \cref{eq:trans-invar}. The ARNN always assigns an artificial order of the spins to factorize the joint probability, thus breaking the translational symmetry. Instead, the purpose of convolutions in ARNN should be understood as enforcing the translational invariance of certain rules to determine the effect of the local environment on a spin.
 
@@ -62,7 +62,7 @@ In addition to dense and convolutional ones, another widely used family of ARNNs
 \vh^{(i)} &= f\left( s_{i - 1}, \vh^{(i - 1)} \right), \label{eq:rnn-update} \\
 \hat{s}_i &= g\left( \vh^{(i)} \right), \label{eq:rnn-output}
 \end{align}
-where $f$ and $g$ can be arbitrarily sophisticated neural networks, and their parameters are usually shared between sites. Due to the sharing of parameters, RNNs can achieve satisfactory results with fewer parameters than dense networks. More variants of RNNs, including hybrids with CNNs and tensor networks, are also used in practice~\cite{oord2016pixel, khandoker2023supplementing}. In particular, the popular large language models in modern machine learning have essentially inherited the principles of RNN~\cite{brown2020language}. It is also worth mentioning that ARNNs with hierarchical architectures~\cite{bialas2022hierarchical} and representations in frequency or wavelet spaces~\cite{nash2021generating, mattar2024wavelets} have been proposed to enhance translational symmetry and scalability.
+where $f$ and $g$ can be arbitrarily sophisticated neural networks, and their parameters are usually shared between sites. Due to the sharing of parameters, RNNs can achieve satisfactory results with fewer parameters than dense networks. More variants of RNNs, including hybrids with CNNs and tensor networks, are also used in practice~\cite{oord2016pixel, khandoker2023supplementing}. In particular, the popular large language models in modern machine learning have essentially inherited the principles of RNN~\cite{brown2020language}. It is also worth mentioning that ARNNs with hierarchical architectures~\cite{bialas2022hierarchical, tian2024visual} and representations in frequency or wavelet spaces~\cite{nash2021generating, mattar2024wavelets} have been proposed to enhance translational symmetry and scalability.
 
 \subsection{Numerical results}
 
@@ -90,7 +90,9 @@ In particular, the results from the convolutional ARNN are generally more accura
 \subsubsection{Triangular Ising model}
 \label{sec:arnn-tri-ising}
 
-Then we apply the convolutional ARNN to the more complicated problem of antiferromagnetic (AFM) Ising model on the triangular lattice with PBC, which is geometrically frustrated. As discussed in \cref{sec:frustrate}, frustration leads to exponentially many degenerate ground states and a non-zero residual entropy, which poses challenge for MCMC and previous variational ansatzes. In \cref{fig:arnn-ising}~(b), the ARNN produces entropies that exponentially decay to a constant as $\beta \to \infty$ for each system size $L$, and converge around the analytical result as $L \to \infty$. These results demonstrate the rich expressiveness of ARNN, which has the potential to accurately approximate exponentially complex target distributions using polynomial computation time and number of parameters.
+Then we apply the convolutional ARNN to the more complicated problem of antiferromagnetic (AFM) Ising model on the triangular lattice with PBC, which is geometrically frustrated. As discussed in \cref{sec:frustrate}, its frustration leads to exponentially many degenerate ground states and a non-zero residual entropy, which poses challenge for both MCMC and traditional variational ansatzes.
+
+In \cref{fig:arnn-ising}~(b), the ARNN produces entropies that exponentially decay to a constant as $\beta \to \infty$ for each system size $L$, and the results with large $L$ are close to the analytical result with $L \to \infty$. These results demonstrate the rich expressiveness of ARNN, which has the potential to accurately approximate exponentially complex target distributions using polynomial computation time and number of parameters.
 
 \subsubsection{Hopfield model}
 \label{sec:arnn-hop}
@@ -109,7 +111,9 @@ This figure is reproduced from Fig.~3 in Ref.~\cite{wu2019solving}.
 \label{fig:arnn-hop}
 \end{figure}
 
-An experiment to qualitatively study the ability of ARNN to capture multiple ground states is on the Hopfield model in \cref{sec:hopfield}. We construct a Hopfield model with $N = 100$ spins and $n_\text{pat} = 2$ random orthogonal patterns, and train a dense ARNN that consists of only a single layer. Then we generate $10^4$ samples from the ARNN, and compute their probabilities and their overlaps with the two patterns, respectively. \Cref{fig:arnn-hop} shows that the ARNN successfully samples the memorized patterns with exponentially higher probabilities than other states, in the retrieval phase with high $\beta$. This indicates the capability of ARNN to avoid mode collapse and capture all the modes separated by exponentially high energy barriers in this Hamiltonian.
+An experiment to qualitatively study the ability of ARNN to capture multiple ground states is conducted on the Hopfield model. As discussed in \cref{sec:hopfield}, it is a model of associative memory where one can store and retrieve multiple patterns. We construct a Hopfield model with $N = 100$ spins and $n_\text{pat} = 2$ random orthogonal patterns, and train a dense ARNN that consists of only a single layer. Then we generate $10^4$ samples from the ARNN, and compute their probabilities $q(\vs)$ given by the ARNN, as well as their overlaps $O_1(\vs) = \ip{\vxi^{(1)}}{\vs}$, $O_2(\vs) = \ip{\vxi^{(2)}}{\vs}$ with the two patterns, respectively.
+
+\Cref{fig:arnn-hop} shows that the ARNN successfully samples the memorized patterns with exponentially higher probabilities than other states, in the retrieval phase with high $\beta$. This indicates the capability of ARNN to avoid mode collapse and capture all the modes separated by exponentially high energy barriers in this Hamiltonian.
 
 \subsubsection{Sherrington--Kirkpatrick (SK) model}
 
@@ -137,7 +141,7 @@ In this problem, we use an ARNN with two dense layers to estimate $C_{i j}$. The
 \begin{equation}
 \text{Recons. Err.} = \frac{1}{N^2} \sum_{i j} \left( J_{i j} - J^*_{i j} \right)^2,
 \end{equation}
-where $J_{i j}$ are the estimated values and $J^*_{i j}$ are the true values. The results are shown in \cref{fig:arnn-ising}~(b), where the ARNN again outperforms traditional methods by a large margin.
+where $J_{i j}$ are the estimated values and $J^*_{i j}$ are the true values. The results are shown in \cref{fig:arnn-sk}~(b), where the ARNN again outperforms traditional methods by a large margin.
 
 \subsection{Remarks on network sizes}
 
@@ -160,7 +164,7 @@ p_{\text{B} i}(s_i \mid \vs_{< i})
 = \frac{\sum_{\vs_{> i}} p_\text{B}(\vs)}{\sum_{\vs_{\ge i}} p_\text{B}(\vs)}
 = \frac{\sum_{\vs_{> i}} \rme^{-\beta H(\vs)}}{\sum_{\vs_{\ge i}} \rme^{-\beta H(\vs)}},
 \end{equation}
-and simplifying the result. When the Hamiltonian has only two-body interactions, such as the Ising model in \cref{eq:cl-ising-general}, it has been derived in Ref.~\cite{biazzo2024sparse} that the conditional probability takes the form:
+and simplifying the result. When the Hamiltonian has only two-body interactions, such as the Ising model in \cref{eq:cl-ising-general}, it has been derived in Ref.~\cite{biazzo2023autoregressive} that the conditional probability takes the form:
 \begin{align}
 p_{\text{B} i}(s_i = +1 \mid \vs_{<i}) &= S\left( 2 \beta \xi_{i i} + \rho_{\text{B} i}\left( \{\xi_{i l} \mid l > i\} \right) \right), \label{eq:twobo} \\
 \xi_{i l} &= \sum_{k < i} J_{k l} s_k, \label{eq:twobo-xi}
@@ -218,7 +222,7 @@ This figure is reproduced from Fig.~2 in Ref.~\cite{biazzo2024sparse}.
 \label{fig:twobo-ea}
 \end{figure}
 
-As shown in the left column of \cref{fig:twobo-ea}, TwoBo gives a lower variational free energy than MADE and RNN with a comparable number of trainable parameters, on almost all tested geometries, system sizes, and temperatures, except in the simple cases of low $\beta$. This demonstrates the accuracy of TwoBo in approximating the Boltzmann distribution, even with disordered and frustrated Hamiltonians, and this advantage becomes more substantial at larger system sizes.
+As shown in the left column of \cref{fig:twobo-ea}, TwoBo gives a lower variational free energy than MADE and RNN with a comparable number of trainable parameters, on almost all tested geometries, system sizes, and temperatures. TwoBo is only outperformed by MADE in the simple cases of small system size and low $\beta$. This demonstrates the accuracy of TwoBo in approximating the Boltzmann distribution, even with disordered and frustrated Hamiltonians, and this advantage becomes more substantial at larger system sizes.
 
 The right column of \cref{fig:twobo-ea} shows the minimum energy found by the ansatzes in the annealing procedure, which is of more interest in combinatorial optimization problems. TwoBo is also able to find energies lower than those of MADE and RNN, especially at large system sizes. In addition to variational methods, we also use the exact solvers in McGroundstate~\cite{charfreitag2022mcsparse} and the heuristic solvers in MQLib~\cite{dunning2018what} to solve the same systems. Compared to these solvers, TwoBo gives equal or lower energies with comparable computation time in all tested cases, which provides evidence that the sophisticated heuristics of neural networks outperform traditional methods in optimization problems with many variables and complicated interactions.
 
@@ -251,8 +255,6 @@ In addition to accuracy after training, TwoBo also has the advantage of fast con
 
 This fast convergence also allows us to reduce the total computation time of the annealing procedure using a higher annealing speed. The annealing speed is controlled by the number of optimization steps $N_\text{opt}$ in each annealing step. As shown in \cref{fig:twobo-n-opt}, the variational free energy systematically decreases as $N_\text{opt}$ increases, presumably in a power law. In particular, TwoBo reaches the same variational free energy with almost an order of magnitude smaller $N_\text{opt}$ than MADE and RNN, which demonstrates its high efficiency in training. Therefore, we use only $N_\text{opt} = 200$ to achieve satisfactory results in \cref{fig:twobo-ea}, and each training can finish in an hour on a high-end GPU.
 
-\vfill
-
 \subsubsection{Parameter efficiency}
 
 \begin{figure}[htb]
@@ -276,10 +278,6 @@ This figure is reproduced from Fig.~S3 in the supplementary material for Ref.~\c
 \end{figure}
 
 Lastly, we investigate the empirical scaling of the number of trainable parameters in TwoBo with the system size. As shown in \cref{fig:twobo-param}, TwoBo has polynomially fewer parameters than MADE on 2D and 3D grids. However, for the RRGs without a local geometry, TwoBo no longer has polynomially fewer parameters, but only fewer by a constant coefficient of approximately $2$. These results are consistent with the theoretical analysis in \cref{sec:twobo-sparse}.
-
-\vfill
-
-\newpage
 
 This advantage is more clearly demonstrated when we compare with RNN in the regime of numerous parameters. As shown in \cref{fig:twobo-rnn-param}, the TwoBo with few parameters gives a lower variational free energy than the RNN with a comparable number of parameters, and even if we enlarge the RNN by orders of magnitude, the variational free energy does not systematically decrease. These results emphasize the importance of the lightweight architecture with the physical knowledge in TwoBo, which can be more efficient than scaling up a general neural network architecture with increasing computation.
 
